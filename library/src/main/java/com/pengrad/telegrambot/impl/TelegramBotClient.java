@@ -1,6 +1,7 @@
 package com.pengrad.telegrambot.impl;
 
 import com.google.gson.Gson;
+import com.pengrad.telegrambot.BotAPI;
 import com.pengrad.telegrambot.Callback;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.response.BaseResponse;
@@ -15,7 +16,7 @@ import java.util.concurrent.TimeUnit;
  * stas
  * 5/1/16.
  */
-public class TelegramBotClient {
+public class TelegramBotClient implements BotAPI {
 
     private final OkHttpClient client;
     private OkHttpClient clientWithTimeout;
@@ -29,6 +30,7 @@ public class TelegramBotClient {
         this.clientWithTimeout = client;
     }
 
+    @Override
     public <T extends BaseRequest, R extends BaseResponse> void send(final T request, final Callback<T, R> callback) {
         OkHttpClient client = getOkHttpClient(request);
         client.newCall(createRequest(request)).enqueue(new okhttp3.Callback() {
@@ -50,6 +52,7 @@ public class TelegramBotClient {
         });
     }
 
+    @Override
     public <T extends BaseRequest, R extends BaseResponse> R send(final BaseRequest<T, R> request) {
         try {
             OkHttpClient client = getOkHttpClient(request);

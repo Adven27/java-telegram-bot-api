@@ -1,9 +1,6 @@
 package com.pengrad.telegrambot;
 
-import com.pengrad.telegrambot.impl.FileApi;
 import com.pengrad.telegrambot.impl.UpdatesHandler;
-import com.pengrad.telegrambot.impl.TelegramBotClient;
-import com.pengrad.telegrambot.model.File;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.GetUpdates;
 import com.pengrad.telegrambot.response.BaseResponse;
@@ -14,13 +11,11 @@ import com.pengrad.telegrambot.response.BaseResponse;
  */
 public class TelegramBot {
 
-    private final TelegramBotClient api;
-    private final FileApi fileApi;
+    private final BotAPI api;
     private final UpdatesHandler updatesHandler;
 
-    TelegramBot(TelegramBotClient api, FileApi fileApi) {
+    public TelegramBot(BotAPI api) {
         this.api = api;
-        this.fileApi = fileApi;
         this.updatesHandler = new UpdatesHandler();
     }
 
@@ -32,26 +27,12 @@ public class TelegramBot {
         api.send(request, callback);
     }
 
-    public String getFullFilePath(File file) {
-        return fileApi.getFullFilePath(file.filePath());
-    }
-
     public void setUpdatesListener(UpdatesListener listener) {
         setUpdatesListener(listener, new GetUpdates());
     }
 
     public void setUpdatesListener(UpdatesListener listener, GetUpdates request) {
         updatesHandler.start(this, listener, request);
-    }
-
-    @Deprecated
-    public void setGetUpdatetsListener(GetUpdatesListener listener) {
-        setUpdatesListener(listener, new GetUpdates());
-    }
-
-    @Deprecated
-    public void setGetUpdatetsListener(GetUpdatesListener listener, GetUpdates request) {
-        setUpdatesListener(listener, request);
     }
 
     public void removeGetUpdatesListener() {
