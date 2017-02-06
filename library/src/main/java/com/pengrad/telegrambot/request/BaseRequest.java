@@ -5,6 +5,7 @@ import com.pengrad.telegrambot.response.BaseResponse;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * stas
@@ -55,6 +56,26 @@ abstract public class BaseRequest<T extends BaseRequest, R extends BaseResponse>
 
     public int getTimeoutSeconds() {
         return 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BaseRequest<?, ?> that = (BaseRequest<?, ?>) o;
+        for (Map.Entry<String, Object> param : that.getParameters().entrySet()) {
+            String exp = getParameters().get(param.getKey()).toString();
+            String act = param.getValue() == null ? "null" : param.getValue().toString();
+            if (!act.equals(exp)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(parameters);
     }
 
     @Override

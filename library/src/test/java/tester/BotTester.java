@@ -4,7 +4,6 @@ import com.pengrad.telegrambot.MyTelegramBot;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.request.BaseRequest;
-import com.pengrad.telegrambot.request.SendMessage;
 import ru.lanwen.verbalregex.VerbalExpression;
 
 import java.util.*;
@@ -76,35 +75,34 @@ public class BotTester {
     }
 
     public static class ThenSpec {
-        private final List<BaseRequest> requests;
-        private final Map<BaseRequest, List<Mismatch>> mismatches;
+        private final List<BaseRequest> actualRequests;
 
-        public ThenSpec(List<BaseRequest> requests) {
-            this.requests = requests;
-            mismatches = new HashMap<>();
+        public ThenSpec(List<BaseRequest> actualRequests) {
+            this.actualRequests = actualRequests;
         }
 
-        public void answer(SendMessage sendMessage) {
-            mismatches.clear();
-            for (BaseRequest br : requests) {
-                if (br instanceof SendMessage) {
-                    List<Mismatch> msms = new ArrayList<>();
-                    SendMessage actual = (SendMessage) br;
-                    for (Map.Entry<String, Object> param : actual.getParameters().entrySet()) {
-                        String exp = sendMessage.getParameters().get(param.getKey()).toString();
-                        String act = param.getValue().toString();
-                        if (!act.equals(exp)) {
-                            msms.add(new Mismatch(param.getKey(), exp, act));
-                        }
-                    }
-                    if (!msms.isEmpty()) {
-                        mismatches.put(br, msms);
-                    }
+        public void answer(BaseRequest... expectedRequests) {
+            List<Mismatch> msms = match(expectedRequests, actualRequests);
+            if (!msms.isEmpty()) {
+                throw new AssertionError(msms);
+            }
+        }
+
+        private List<Mismatch> match(BaseRequest[] expectedRequests, List<BaseRequest> actualRequests) {
+            List<Mismatch> result = new ArrayList<>();
+            int max = Math.max(actualRequests.size(), expectedRequests.length);
+            for (int i = 0; i < max; i++) {
+                BaseRequest actual = i < actualRequests.size() ? actualRequests.get(i) : null;
+                BaseRequest expected = i < expectedRequests.length ? expectedRequests[i] : null;
+                if (actual == null) {
+                    result.add(new Mismatch("Missing request", expected.toString(), null));
+                } else if (expected == null) {
+                    result.add(new Mismatch("Unwanted request", null, actual.toString()));
+                } else if (!actual.equals(expected)) {
+                    result.add(new Mismatch("Unmatched requests ", expected.toString(), actual.toString()));
                 }
             }
-            if (requests.size() == mismatches.size()) {
-                throw new AssertionError("not found");
-            }
+            return result;
         }
 
         private class Mismatch {
@@ -117,6 +115,18 @@ public class BotTester {
                 this.exp = exp;
                 this.act = act;
             }
+
+            @Override
+            public String toString() {
+                String res = "\n\n" + key + ": \n\t Expected: " + exp + "\n\t   Actual: " + act;
+                if (exp == null) {
+                    res = "\n\n" + key + ": \n\t " + act;
+                } else if (act == null) {
+                    res = "\n\n" + key + ": \n\t " + exp;
+                }
+                return res;
+            }
         }
+
     }
 }

@@ -16,7 +16,7 @@ public class BotE2ETest {
     @Test
     public void command() throws Exception {
         got("/hello").then().
-            answer(new SendMessage(1, "answer for command"));
+            answer(new SendMessage(1, "answerw for command"));
     }
     
     @Test
