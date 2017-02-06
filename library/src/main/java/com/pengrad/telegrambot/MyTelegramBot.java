@@ -1,10 +1,14 @@
 package com.pengrad.telegrambot;
 
+import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.MessageEntity;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 
 import java.util.List;
+
+import static com.pengrad.telegrambot.UpdatesListener.CONFIRMED_UPDATES_ALL;
+import static com.pengrad.telegrambot.model.MessageEntity.Type.bot_command;
 
 
 public class MyTelegramBot {
@@ -18,25 +22,34 @@ public class MyTelegramBot {
 
     public MyTelegramBot(final TelegramBot bot) {
         this.bot = bot;
-        this.updatesListener = new UpdatesListener() {
-            @Override
-            public int process(List<Update> updates) {
-                for (Update upd : updates) {
-                    if (upd.message() != null) {
-                        if (upd.message().entities() != null && upd.message().entities().length > 0) {
-                            for (MessageEntity messageEntity : upd.message().entities()) {
-                                if (messageEntity.type().equals(MessageEntity.Type.bot_command)) {
-                                    //TODO commands handling
-                                    bot.execute(new SendMessage(upd.message().chat().id(), "answer for command"));
-                                }
-                            }
-                        }
-                    }
-                    bot.execute(new SendMessage(upd.message().chat().id(), "???"));
+        this.updatesListener = updates -> {
+            for (Update upd : updates) {
+                if (upd.message() != null) {
+                    processMessage(bot, upd.message());
                 }
-                return CONFIRMED_UPDATES_ALL;
+                bot.execute(new SendMessage(upd.message().chat().id(), "???"));
             }
+            return CONFIRMED_UPDATES_ALL;
         };
+    }
+
+    private void processMessage(TelegramBot bot, Message msg) {
+        if (hasEntities(msg)) {
+            for (MessageEntity ent : msg.entities()) {
+                if (isCommand(ent)) {
+                    //TODO commands handling
+                    bot.execute(new SendMessage(msg.chat().id(), "answer for command"));
+                }
+            }
+        }
+    }
+
+    private boolean isCommand(MessageEntity messageEntity) {
+        return messageEntity.type().equals(bot_command);
+    }
+
+    private boolean hasEntities(Message msg) {
+        return msg.entities() != null && msg.entities().length > 0;
     }
 
     public void start() {
@@ -44,7 +57,6 @@ public class MyTelegramBot {
     }
 
     public void doOnce() {
-
         bot.setUpdatesListener(new OneTimeListener(bot, updatesListener));
     }
 

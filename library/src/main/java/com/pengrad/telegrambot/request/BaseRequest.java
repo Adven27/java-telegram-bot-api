@@ -20,7 +20,7 @@ abstract public class BaseRequest<T extends BaseRequest, R extends BaseResponse>
 
     public BaseRequest(Class<? extends R> responseClass) {
         this.responseClass = responseClass;
-        this.parameters = new HashMap<String, Object>();
+        this.parameters = new HashMap<>();
     }
 
     protected T add(String name, Object val) {
@@ -55,5 +55,10 @@ abstract public class BaseRequest<T extends BaseRequest, R extends BaseResponse>
 
     public int getTimeoutSeconds() {
         return 0;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + getParameters().toString();
     }
 }

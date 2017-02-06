@@ -1,7 +1,7 @@
 apply plugin: 'java'
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 dependencies {
     compile 'com.google.code.gson:gson:2.8.0'
@@ -9,6 +9,7 @@ dependencies {
     compile 'com.squareup.okhttp3:logging-interceptor:3.5.0'
 
     testCompile 'junit:junit:4.12'
+    testCompile 'ru.lanwen.verbalregex:java-verbal-expressions:1.4'
 }
 
 apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
