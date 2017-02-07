@@ -10,18 +10,19 @@ public class BotE2ETest {
     @Test
     public void notCommand() throws Exception {
         got("hello").then().
-            answer(new SendMessage(1, "???"));
+            answer(new SendMessage(1, "answer to not command"));
     }
 
     @Test
     public void command() throws Exception {
         got("/hello").then().
-            answer(new SendMessage(1, "answerw for command"));
+            answer(new SendMessage(1, "answer for command"));
     }
     
     @Test
     public void twoCommands() throws Exception {
         got("/first and /second").then().
-            answer(new SendMessage(1, "answer for command"));
+            answer(new SendMessage(1, "answer for command"),
+                   new SendMessage(1, "answer for command"));
     }
 }

@@ -25,23 +25,35 @@ public class MyTelegramBot {
         this.updatesListener = updates -> {
             for (Update upd : updates) {
                 if (upd.message() != null) {
-                    processMessage(bot, upd.message());
+                    if (!processMessage(bot, upd.message())) {
+                        notCommandAnswer(bot, upd.message());
+                    }
                 }
-                bot.execute(new SendMessage(upd.message().chat().id(), "???"));
             }
             return CONFIRMED_UPDATES_ALL;
         };
     }
 
-    private void processMessage(TelegramBot bot, Message msg) {
+    private boolean processMessage(TelegramBot bot, Message msg) {
+        boolean res = false;
         if (hasEntities(msg)) {
             for (MessageEntity ent : msg.entities()) {
                 if (isCommand(ent)) {
                     //TODO commands handling
-                    bot.execute(new SendMessage(msg.chat().id(), "answer for command"));
+                    commandAnswer(bot, msg);
+                    res = true;
                 }
             }
         }
+        return res;
+    }
+
+    private void commandAnswer(TelegramBot bot, Message msg) {
+        bot.execute(new SendMessage(msg.chat().id(), "answer for command"));
+    }
+
+    private void notCommandAnswer(TelegramBot bot, Message msg) {
+        bot.execute(new SendMessage(msg.chat().id(), "answer to not command"));
     }
 
     private boolean isCommand(MessageEntity messageEntity) {
