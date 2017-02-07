@@ -1,12 +1,21 @@
-package tester;
+package com.pengrad.telegrambot.tester;
 
-import com.pengrad.telegrambot.MyTelegramBot;
 import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.commands.BotCommand;
+import com.pengrad.telegrambot.listeners.CommandAwareListener;
+import com.pengrad.telegrambot.listeners.OneTimeListenerDecorator;
 import com.pengrad.telegrambot.model.Chat;
+import com.pengrad.telegrambot.model.Message;
+import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.request.BaseRequest;
+import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.request.SendSticker;
 import ru.lanwen.verbalregex.VerbalExpression;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
@@ -14,8 +23,26 @@ import static ru.lanwen.verbalregex.VerbalExpression.regex;
 
 public class BotTester {
 
-    public static GivenSpec got(String txt) {
-        return new GivenSpec(txt);
+    public static GivenSpec given(BotCommand... botCommands) {
+        return new GivenSpec(botCommands);
+    }
+
+    //TODO rid of hardcoded chat ID
+    public static SendMessage message(String text) {
+        return new SendMessage(1 , text);
+    }
+
+    public static SendSticker sticker(String sticker) {
+        return new SendSticker(1 , sticker);
+    }
+
+    public static BotCommand command(final String identifier, final Consumer<TelegramBot> consumer) {
+        return new BotCommand(identifier, "Hello World") {
+            @Override
+            public void execute(TelegramBot bot, User user, Chat chat, String params) {
+                consumer.accept(bot);
+            }
+        };
     }
 
     public static class GivenSpec {
@@ -37,8 +64,21 @@ public class BotTester {
         private String user = "{\"id\": 1,\"first_name\": \"White\",\"last_name\": \"Walter\",\"username\": \"heisenberg\"}";
         private String chat = "{\"id\": 1,\"type\": \"private\"}";
 
-        public GivenSpec(String text) {
-            this.text = text;
+        private final BotCommand[] botCommands;
+        private BiConsumer<TelegramBot, Message> defaultConsumer;
+
+        public GivenSpec(BotCommand[] botCommands) {
+            this.botCommands = botCommands;
+        }
+
+        public GivenSpec got(String txt) {
+            this.text = txt;
+            return this;
+        }
+
+        public GivenSpec defaultAction(BiConsumer<TelegramBot, Message> defaultConsumer) {
+            this.defaultConsumer = defaultConsumer;
+            return this;
         }
 
         private String entities(String text) {
@@ -69,64 +109,31 @@ public class BotTester {
 
         public ThenSpec then() {
             FakeBotApi botApi = new FakeBotApi(format(updateTemplate, user, chat, date, text, entities(text)));
-            new MyTelegramBot(new TelegramBot(botApi)).doOnce();
+            TelegramBot bot = new TelegramBot(botApi);
+            startOnce(bot);
             return new ThenSpec(botApi.requests());
+        }
+
+        private void startOnce(TelegramBot bot) {
+            CommandAwareListener listener = new CommandAwareListener(bot, botCommands);
+            listener.registerDefaultAction(defaultConsumer);
+            bot.setUpdatesListener(new OneTimeListenerDecorator(bot, listener));
         }
     }
 
     public static class ThenSpec {
         private final List<BaseRequest> actualRequests;
+        private final RequestMatcher matcher = new RequestMatcher();
 
         public ThenSpec(List<BaseRequest> actualRequests) {
             this.actualRequests = actualRequests;
         }
 
-        public void answer(BaseRequest... expectedRequests) {
-            List<Mismatch> msms = match(expectedRequests, actualRequests);
-            if (!msms.isEmpty()) {
-                throw new AssertionError(msms);
+        public void shouldAnswer(BaseRequest... expectedRequests) {
+            List<RequestMatcher.Mismatch> mismatches = matcher.match(expectedRequests, actualRequests);
+            if (!mismatches.isEmpty()) {
+                throw new AssertionError(mismatches);
             }
         }
-
-        private List<Mismatch> match(BaseRequest[] expectedRequests, List<BaseRequest> actualRequests) {
-            List<Mismatch> result = new ArrayList<>();
-            int max = Math.max(actualRequests.size(), expectedRequests.length);
-            for (int i = 0; i < max; i++) {
-                BaseRequest actual = i < actualRequests.size() ? actualRequests.get(i) : null;
-                BaseRequest expected = i < expectedRequests.length ? expectedRequests[i] : null;
-                if (actual == null) {
-                    result.add(new Mismatch("Missing request", expected.toString(), null));
-                } else if (expected == null) {
-                    result.add(new Mismatch("Unwanted request", null, actual.toString()));
-                } else if (!actual.equals(expected)) {
-                    result.add(new Mismatch("Unmatched requests ", expected.toString(), actual.toString()));
-                }
-            }
-            return result;
-        }
-
-        private class Mismatch {
-            private final String key;
-            private final String exp;
-            private final String act;
-
-            public Mismatch(String key, String exp, String act) {
-                this.key = key;
-                this.exp = exp;
-                this.act = act;
-            }
-
-            @Override
-            public String toString() {
-                String res = "\n\n" + key + ": \n\t Expected: " + exp + "\n\t   Actual: " + act;
-                if (exp == null) {
-                    res = "\n\n" + key + ": \n\t " + act;
-                } else if (act == null) {
-                    res = "\n\n" + key + ": \n\t " + exp;
-                }
-                return res;
-            }
-        }
-
     }
 }

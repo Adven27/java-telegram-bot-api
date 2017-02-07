@@ -1,8 +1,9 @@
-package tester;
+package com.pengrad.telegrambot.tester;
 
 import com.google.gson.Gson;
 import com.pengrad.telegrambot.BotAPI;
 import com.pengrad.telegrambot.Callback;
+import com.pengrad.telegrambot.logging.BotLogger;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.GetUpdates;
 import com.pengrad.telegrambot.response.BaseResponse;
@@ -13,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 class FakeBotApi implements BotAPI {
+    private static final String TAG = FakeBotApi.class.getSimpleName();
+
     private final String updateReq;
     List<BaseRequest> requests = new ArrayList<>();
 
@@ -35,15 +38,14 @@ class FakeBotApi implements BotAPI {
     }
 
     private <T extends BaseRequest, R extends BaseResponse> R getR(BaseRequest<T, R> request) {
-        //TODO normal logging
-        System.out.println(">> [" + request + "]");
+        BotLogger.info(TAG, ">> [" + request + "]");
         R response = null;
         if (request instanceof GetUpdates) {
             response = getUpdate(GetUpdatesResponse.class);
         } else {
             requests.add(request);
         }
-        System.out.println("<< " + response);
+        BotLogger.info(TAG, "<< " + response);
         return response;
     }
 
