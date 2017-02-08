@@ -15,5 +15,5 @@ dependencies {
     compile 'com.jcabi:jcabi-http:1.16'
     compile 'javax.json:javax.json-api:1.0'
     testCompile 'junit:junit:4.12'
-    testCompile group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
+    testCompile 'org.mockito:mockito-all:1.10.19'
 }

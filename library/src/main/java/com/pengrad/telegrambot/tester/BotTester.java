@@ -2,8 +2,9 @@ package com.pengrad.telegrambot.tester;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.commands.BotCommand;
-import com.pengrad.telegrambot.listeners.CommandAwareListener;
+import com.pengrad.telegrambot.listeners.HandlersChainListener;
 import com.pengrad.telegrambot.listeners.OneTimeListenerDecorator;
+import com.pengrad.telegrambot.listeners.handlers.MessageHandler;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.User;
@@ -18,6 +19,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
 import static ru.lanwen.verbalregex.VerbalExpression.regex;
 
@@ -115,8 +117,9 @@ public class BotTester {
         }
 
         private void startOnce(TelegramBot bot) {
-            CommandAwareListener listener = new CommandAwareListener(bot, botCommands);
-            listener.registerDefaultAction(defaultConsumer);
+            MessageHandler messageHandler = new MessageHandler(botCommands);
+            messageHandler.registerDefaultAction(defaultConsumer);
+            HandlersChainListener listener = new HandlersChainListener(bot, asList(messageHandler));
             bot.setUpdatesListener(new OneTimeListenerDecorator(bot, listener));
         }
     }

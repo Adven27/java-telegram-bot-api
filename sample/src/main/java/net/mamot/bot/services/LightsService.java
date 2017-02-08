@@ -3,7 +3,7 @@ package net.mamot.bot.services;
 public interface LightsService {
     void turnOffAll();
 
-    boolean shOffLights();
+    void turnOnAll();
 
     boolean hasOnLights();
 
@@ -14,6 +14,12 @@ public interface LightsService {
         public Light(int id, boolean isOn) {
             this.id = id;
             this.isOn = isOn;
+        }
+    }
+
+    class BridgeUnreachableEx extends RuntimeException {
+        public BridgeUnreachableEx(Exception e) {
+            super(e);
         }
     }
 }

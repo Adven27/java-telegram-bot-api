@@ -1,13 +1,14 @@
-package com.pengrad.telegrambot.listeners;
+package com.pengrad.telegrambot.listeners.handlers;
 
 import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.commands.BotCommand;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 
 import static com.pengrad.telegrambot.model.MessageEntity.Type.bot_command;
@@ -15,40 +16,27 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
-public class CommandAwareListener implements UpdatesListener {
-    private final TelegramBot bot;
+public class MessageHandler implements UpdateHandler {
     private final Map<String, BotCommand> commandRegistry = new HashMap<>();
     private BiConsumer<TelegramBot, Message> defaultConsumer;
 
-    public CommandAwareListener(TelegramBot bot, BotCommand... commands) {
-        this.bot = bot;
+    public MessageHandler(BotCommand... commands) {
         registerAll(commands);
     }
 
-    @Override
-    public int process(List<Update> updates) {
-        updates.stream().filter(u -> u.message() != null).forEach(u -> processMessage(bot, u.message()));
-        return CONFIRMED_UPDATES_ALL;
+    public boolean handle(TelegramBot bot, Update update) {
+        Message msg = update.message();
+        return msg != null ? handle(bot, msg) : false;
     }
 
-    private void processMessage(TelegramBot bot, Message msg) {
+    private boolean handle(TelegramBot bot, Message msg) {
         List<CommandInvocation> invocations = parseCommandInvocations(msg);
         if (invocations.isEmpty()) {
             notCommandAnswer(bot, msg);
         } else {
             tryExecuteCommands(bot, msg, invocations);
         }
-    }
-
-    private void tryExecuteCommands(TelegramBot bot, Message msg, List<CommandInvocation> commandInvocations) {
-        for (CommandInvocation inv : commandInvocations) {
-            BotCommand cmd = commandRegistry.get(inv.name);
-            if (cmd != null) {
-                cmd.execute(bot, msg.from(), msg.chat(), inv.params);
-            } else if (defaultConsumer != null) {
-                defaultConsumer.accept(bot, msg);
-            }
-        }
+        return true;
     }
 
     public void registerDefaultAction(BiConsumer<TelegramBot, Message> defaultConsumer) {
@@ -83,6 +71,17 @@ public class CommandAwareListener implements UpdatesListener {
             resultMap.put(c, deregister(c));
         }
         return resultMap;
+    }
+
+    private void tryExecuteCommands(TelegramBot bot, Message msg, List<CommandInvocation> commandInvocations) {
+        for (CommandInvocation inv : commandInvocations) {
+            BotCommand cmd = commandRegistry.get(inv.name);
+            if (cmd != null) {
+                cmd.execute(bot, msg.from(), msg.chat(), inv.params);
+            } else if (defaultConsumer != null) {
+                defaultConsumer.accept(bot, msg);
+            }
+        }
     }
 
     private List<CommandInvocation> parseCommandInvocations(Message msg) {

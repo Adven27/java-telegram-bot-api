@@ -1,27 +1,73 @@
 package com.pengrad.telegrambot.commands;
 
 import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.model.Chat;
-import com.pengrad.telegrambot.model.User;
+import com.pengrad.telegrambot.listeners.handlers.UpdateHandler;
+import com.pengrad.telegrambot.model.*;
+import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
+import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
+import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.request.SendSticker;
+import com.pengrad.telegrambot.response.SendResponse;
 import net.mamot.bot.services.LightsService;
 
-import static net.mamot.bot.services.Stickers.BLA;
+public class LightsCommand extends BotCommand implements UpdateHandler {
 
-public class LightsCommand extends BotCommand {
-
+    public static final String CALLBACK_OFF = "off";
+    public static final String CALLBACK_ON = "on";
     private final LightsService lightsService;
+    private Integer messageId;
+    private InlineKeyboardMarkup inlineKeyboard;
 
     public LightsCommand(LightsService lightsService) {
         super("/lights", "Lights");
         this.lightsService = lightsService;
+        inlineKeyboard = new InlineKeyboardMarkup(
+                                new InlineKeyboardButton[]{
+                                        new InlineKeyboardButton("off").callbackData(CALLBACK_OFF),
+                                        new InlineKeyboardButton("on").callbackData(CALLBACK_ON),
+                                });
     }
 
-    @Override
     public void execute(TelegramBot bot, User user, Chat chat, String params) {
-        lightsService.turnOffAll();
-        bot.execute(new SendSticker(chat.id(), BLA.id()));
-        bot.execute(new SendMessage(chat.id(), "Done"));
+        SendResponse response = bot.execute(new SendMessage(chat.id(), "Выберите действие:").replyMarkup(inlineKeyboard));
+        messageId = response.message().messageId();
+    }
+
+    public boolean handle(TelegramBot bot, Update update) {
+        CallbackQuery cb = update.callbackQuery();
+        return isThisCommandCallback(cb) ? handle(bot, cb) : false;
+    }
+
+    private boolean isThisCommandCallback(CallbackQuery cb) {
+        return cb != null && cb.message().messageId().equals(messageId);
+    }
+
+    private boolean handle(TelegramBot bot, CallbackQuery cb) {
+        try {
+            processCallback(cb);
+            showSucceedMessage(bot, cb.message());
+        } catch (LightsService.BridgeUnreachableEx e) {
+            apologize(bot, cb.message());
+        }
+        return true;
+    }
+
+    private void apologize(TelegramBot bot, Message msg) {
+        changeMessage(bot, msg, "Не шмагля...");
+    }
+
+    private void showSucceedMessage(TelegramBot bot, Message msg) {
+        changeMessage(bot, msg, "Сделано... Выберите действие:");
+    }
+
+    private void changeMessage(TelegramBot bot, Message msg, String text) {
+        bot.execute(new EditMessageText(msg.chat().id(), msg.messageId(), text).replyMarkup(inlineKeyboard));
+    }
+
+    private void processCallback(CallbackQuery cb) {
+        switch (cb.data()) {
+            case CALLBACK_OFF: lightsService.turnOffAll(); break;
+            case CALLBACK_ON: lightsService.turnOnAll(); break;
+        }
     }
 }

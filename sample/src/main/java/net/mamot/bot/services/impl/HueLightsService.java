@@ -37,11 +37,6 @@ public class HueLightsService implements LightsService {
     }
 
     @Override
-    public boolean shOffLights() {
-        return false;
-    }
-
-    @Override
     public boolean hasOnLights() {
         return false;
     }
@@ -51,7 +46,7 @@ public class HueLightsService implements LightsService {
             JsonObject jsonObject = new JdkRequest("http://" + bridgeURL + "/api/" + user + "/lights").fetch().as(JsonResponse.class).json().readObject();
             jsonObject.forEach(consumer);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new BridgeUnreachableEx(e);
         }
     }
 
@@ -63,5 +58,4 @@ public class HueLightsService implements LightsService {
             e.printStackTrace();
         }
     }
-
 }
