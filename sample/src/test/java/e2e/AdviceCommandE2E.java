@@ -1,6 +1,6 @@
 package e2e;
 
-import com.pengrad.telegrambot.commands.AdviceCommand;
+import net.mamot.bot.commands.AdviceCommand;
 import net.mamot.bot.services.impl.AdvicePrinter;
 import net.mamot.bot.services.impl.AdviceResource;
 import net.mamot.bot.services.impl.MessageFromURL;

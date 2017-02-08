@@ -1,6 +1,6 @@
 package e2e;
 
-import com.pengrad.telegrambot.commands.LightsCommand;
+import net.mamot.bot.commands.LightsCommand;
 import net.mamot.bot.services.LightsService;
 import org.junit.Test;
 

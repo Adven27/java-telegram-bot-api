@@ -1,7 +1,7 @@
 import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.commands.AdviceCommand;
-import com.pengrad.telegrambot.commands.HelloCommand;
-import com.pengrad.telegrambot.commands.LightsCommand;
+import net.mamot.bot.commands.AdviceCommand;
+import net.mamot.bot.commands.HelloCommand;
+import net.mamot.bot.commands.LightsCommand;
 import com.pengrad.telegrambot.listeners.HandlersChainListener;
 import com.pengrad.telegrambot.listeners.handlers.MessageHandler;
 import com.pengrad.telegrambot.listeners.handlers.UpdateHandler;
@@ -15,7 +15,7 @@ import static java.util.Arrays.asList;
 
 public class Main {
 
-    public static final String TOKEN = "token";
+    public static final String TOKEN = "310779376:AAEnyT1RnnTHn4UFlql7Ib-8MRF5z_sAtyU";
 
     public static void main(String[] args) {
         TelegramBot bot = buildDebug(TOKEN);

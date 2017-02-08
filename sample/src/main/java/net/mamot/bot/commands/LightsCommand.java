@@ -1,10 +1,12 @@
-package com.pengrad.telegrambot.commands;
+package net.mamot.bot.commands;
 
 import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.commands.BotCommand;
 import com.pengrad.telegrambot.listeners.handlers.UpdateHandler;
 import com.pengrad.telegrambot.model.*;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
+import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
@@ -29,7 +31,7 @@ public class LightsCommand extends BotCommand implements UpdateHandler {
     }
 
     public void execute(TelegramBot bot, User user, Chat chat, String params) {
-        SendResponse response = bot.execute(new SendMessage(chat.id(), "Выберите действие:").replyMarkup(inlineKeyboard));
+        SendResponse response = bot.execute(new SendMessage(chat.id(), "Р§С‚Рѕ СЃРґРµР»Р°С‚СЊ?").replyMarkup(inlineKeyboard));
         messageId = response.message().messageId();
     }
 
@@ -45,7 +47,7 @@ public class LightsCommand extends BotCommand implements UpdateHandler {
     private boolean handle(TelegramBot bot, CallbackQuery cb) {
         try {
             processCallback(cb);
-            showSucceedMessage(bot, cb.message());
+            bot.execute(new AnswerCallbackQuery(cb.id()).text("Р“РѕС‚РѕРІРѕ"));
         } catch (LightsService.BridgeUnreachableEx e) {
             apologize(bot, cb.message());
         }
@@ -53,15 +55,7 @@ public class LightsCommand extends BotCommand implements UpdateHandler {
     }
 
     private void apologize(TelegramBot bot, Message msg) {
-        changeMessage(bot, msg, "Не шмагля...");
-    }
-
-    private void showSucceedMessage(TelegramBot bot, Message msg) {
-        changeMessage(bot, msg, "Сделано... Выберите действие:");
-    }
-
-    private void changeMessage(TelegramBot bot, Message msg, String text) {
-        bot.execute(new EditMessageText(msg.chat().id(), msg.messageId(), text).replyMarkup(inlineKeyboard));
+        bot.execute(new EditMessageText(msg.chat().id(), msg.messageId(), "РќРµ С€РјР°РіР»СЏ...").replyMarkup(inlineKeyboard));
     }
 
     private void processCallback(CallbackQuery cb) {

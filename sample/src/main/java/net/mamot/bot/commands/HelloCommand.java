@@ -1,6 +1,7 @@
-package com.pengrad.telegrambot.commands;
+package net.mamot.bot.commands;
 
 import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.commands.BotCommand;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.request.SendMessage;

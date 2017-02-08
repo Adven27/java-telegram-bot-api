@@ -1,6 +1,7 @@
-package com.pengrad.telegrambot.commands;
+package net.mamot.bot.commands;
 
 import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.commands.BotCommand;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.request.SendMessage;
@@ -28,7 +29,7 @@ public class AdviceCommand extends BotCommand {
             text = messageFromURL.print();
         } catch (Exception e) {
             sticker = ALONE.id();
-            text = "Связь с ноосферой потеряна...";
+            text = "пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ...";
         }
         bot.execute(new SendSticker(chat.id(), sticker));
         bot.execute(new SendMessage(chat.id(), text).

@@ -5,6 +5,9 @@ targetCompatibility = 1.8
 
 repositories {
     jcenter()
+    maven {
+        url "http://4thline.org/m2/"
+    }
 }
 
 dependencies {
@@ -12,8 +15,12 @@ dependencies {
     compile 'com.sparkjava:spark-core:2.2'
     compile 'org.jsoup:jsoup:1.8.3'
     compile 'io.reactivex:rxjava:1.0.16'
+
     compile 'com.jcabi:jcabi-http:1.16'
+    compile 'org.glassfish:javax.json:1.0.4'
     compile 'javax.json:javax.json-api:1.0'
+
+    compile 'org.fourthline.cling:cling-core:2.1.2-SNAPSHOT'
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-all:1.10.19'
 }
