@@ -1,6 +1,5 @@
-package e2e;
+package net.mamot.bot.commands;
 
-import net.mamot.bot.commands.AdviceCommand;
 import net.mamot.bot.services.impl.AdvicePrinter;
 import net.mamot.bot.services.impl.AdviceResource;
 import net.mamot.bot.services.impl.MessageFromURL;
@@ -14,9 +13,9 @@ import static net.mamot.bot.services.Stickers.BLA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class AdviceCommandE2E {
+public class AdviceCommandTest {
 
-    private final AdviceResource resource = mock(AdviceResource.class);;
+    private final AdviceResource resource = mock(AdviceResource.class);
 
     @Test
     public void shouldReturnMessageFromAdviceResource() throws Exception {

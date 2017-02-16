@@ -1,57 +1,51 @@
 package e2e;
 
-import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
-import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import net.mamot.bot.commands.LightsCommand;
 import net.mamot.bot.services.LightsService;
+import net.mamot.bot.services.impl.BridgeFinder;
+import net.mamot.bot.services.impl.HueLightsService;
 import org.junit.Test;
 
-import static com.pengrad.telegrambot.tester.BotTester.*;
-import static net.mamot.bot.services.Stickers.BLA;
+import static com.pengrad.telegrambot.model.request.InlineKeyboardMarkup.*;
+import static com.pengrad.telegrambot.tester.BotTester.given;
+import static com.pengrad.telegrambot.tester.BotTester.message;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class LightsCommandE2E {
 
-    private final LightsService lightsService = mock(LightsService.class);
+    private final BridgeFinder bridgeFinder = mock(BridgeFinder.class);
+    private final LightsService lightsService = new HueLightsService(bridgeFinder);
     private final LightsCommand sut = new LightsCommand(lightsService);
-/*
-    @Test
-    public void shouldReturnDoneMessageAndInvokeTurnOffMethod() throws Exception {
-        given(sut).
-            got("/lights").
-        then().
-            shouldAnswer(sticker(BLA.id()),
-                         message("Done"));
-
-        verify(lightsService).turnOffAll();
-    }*/
 
     @Test
     public void lights_whenKnowsBridge_showsBridgeInfoAndAvailableLightModes() throws Exception {
-        final LightsService.BridgeInfo expectedInfo = new LightsService.BridgeInfo("My Bridge");
-        when(lightsService.bridgeInfo()).thenReturn(expectedInfo);
-
-        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(
-                new InlineKeyboardButton[]{
-                        new InlineKeyboardButton("off").callbackData("off"),
-                        new InlineKeyboardButton("on").callbackData("on"),
-                });
-
         given(sut).
             got("/lights").
         then().
-            shouldAnswer(message("Bridge: " + expectedInfo.desc()).replyMarkup(inlineKeyboard));
+            shouldAnswer(
+                message("Bridge: ").replyMarkup(
+                    keyboard(
+                            row(btn("off","off"),btn("on","on"))
+                    )));
     }
 
     @Test
-    public void lights_whenDoesNotKnowBridge_showsAvailableBridges() throws Exception {
+    public void lights_whenDoesNotKnowBridgeAndThereAreAvailableBridges_showsThem() throws Exception {
         given(sut).
             got("/lights").
         then().
-            shouldAnswer(sticker(BLA.id()), message("Done"));
+            shouldAnswer(
+                message("Choose bridge:").replyMarkup(
+                    keyboard(
+                            row(btn("Royal Philips Electronics Philips hue bridge 2012 929000226503","2f402f80-da50-11e1-9b23-0017881c3be3"))
+                    )));
+    }
 
-        verify(lightsService).turnOffAll();
+    @Test
+    public void lights_whenDoesNotKnowBridgeAndThereAreNoAvailableBridges_showsSorry() throws Exception {
+        given(sut).
+            got("/lights").
+        then().
+            shouldAnswer(message("Sorry. There are no available bridges..."));
     }
 }

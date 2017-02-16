@@ -5,10 +5,7 @@ import net.mamot.bot.commands.LightsCommand;
 import com.pengrad.telegrambot.listeners.HandlersChainListener;
 import com.pengrad.telegrambot.listeners.handlers.MessageHandler;
 import com.pengrad.telegrambot.listeners.handlers.UpdateHandler;
-import net.mamot.bot.services.impl.AdvicePrinter;
-import net.mamot.bot.services.impl.AdviceResource;
-import net.mamot.bot.services.impl.HueLightsService;
-import net.mamot.bot.services.impl.MessageFromURL;
+import net.mamot.bot.services.impl.*;
 
 import static com.pengrad.telegrambot.TelegramBotAdapter.buildDebug;
 import static java.util.Arrays.asList;
@@ -20,7 +17,7 @@ public class Main {
     public static void main(String[] args) {
         TelegramBot bot = buildDebug(TOKEN);
 
-        LightsCommand lightsCommand = new LightsCommand(new HueLightsService());
+        LightsCommand lightsCommand = new LightsCommand(new HueLightsService(new BridgeFinder()));
         UpdateHandler messageHandler = new MessageHandler(
                 new HelloCommand(),
                 lightsCommand,

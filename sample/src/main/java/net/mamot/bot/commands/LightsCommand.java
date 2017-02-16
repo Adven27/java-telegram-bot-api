@@ -12,6 +12,13 @@ import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import net.mamot.bot.services.LightsService;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.pengrad.telegrambot.model.request.InlineKeyboardMarkup.btn;
+import static com.pengrad.telegrambot.model.request.InlineKeyboardMarkup.keyboard;
+import static com.pengrad.telegrambot.model.request.InlineKeyboardMarkup.row;
+
 public class LightsCommand extends BotCommand implements UpdateHandler {
 
     public static final String CALLBACK_OFF = "off";
@@ -23,16 +30,35 @@ public class LightsCommand extends BotCommand implements UpdateHandler {
     public LightsCommand(LightsService lightsService) {
         super("/lights", "Lights");
         this.lightsService = lightsService;
-        inlineKeyboard = new InlineKeyboardMarkup(
-                                new InlineKeyboardButton[]{
-                                        new InlineKeyboardButton("off").callbackData(CALLBACK_OFF),
-                                        new InlineKeyboardButton("on").callbackData(CALLBACK_ON),
-                                });
+        inlineKeyboard = keyboard(
+                row(btn("off", CALLBACK_OFF), btn("on", CALLBACK_ON))
+        );
     }
 
+
     public void execute(TelegramBot bot, User user, Chat chat, String params) {
-        SendResponse response = bot.execute(new SendMessage(chat.id(), "Bridge: " + lightsService.bridgeInfo().desc()).replyMarkup(inlineKeyboard));
+        SendMessage request;
+        if (lightsService.currentBridge().isPresent()) {
+            String text = "Bridge: " + lightsService.currentBridge().get().desc();
+            request = new SendMessage(chat.id(), text).replyMarkup(inlineKeyboard);
+        } else {
+            List<LightsService.BridgeInfo> bridges = lightsService.searchBridges();
+            if (bridges.isEmpty()) {
+                request = new SendMessage(chat.id(), "Sorry. There are no available bridges...");
+            } else {
+                request = new SendMessage(chat.id(), "Choose bridge:").replyMarkup(getBridgesOptions(bridges));
+            }
+        }
+        SendResponse response = bot.execute(request);
         messageId = response.message().messageId();
+    }
+
+    private InlineKeyboardMarkup getBridgesOptions(List<LightsService.BridgeInfo> bridges) {
+        List<InlineKeyboardButton> btns = new ArrayList<>();
+        for (LightsService.BridgeInfo bridge : bridges) {
+            btns.add(btn(bridge.desc(), bridge.id()));
+        }
+        return keyboard(row(btns.toArray(new InlineKeyboardButton[]{})));
     }
 
     public boolean handle(TelegramBot bot, Update update) {
