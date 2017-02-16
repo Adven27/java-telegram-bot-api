@@ -31,7 +31,7 @@ public class LightsCommand extends BotCommand implements UpdateHandler {
     }
 
     public void execute(TelegramBot bot, User user, Chat chat, String params) {
-        SendResponse response = bot.execute(new SendMessage(chat.id(), "Что сделать?").replyMarkup(inlineKeyboard));
+        SendResponse response = bot.execute(new SendMessage(chat.id(), "Bridge: " + lightsService.bridgeInfo().desc()).replyMarkup(inlineKeyboard));
         messageId = response.message().messageId();
     }
 

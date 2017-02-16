@@ -24,7 +24,7 @@ public class HueLightsService implements LightsService {
     private final String bridgeURL;
 
     public HueLightsService() {
-        this.bridgeURL = getBridges().iterator().next().getDetails().getBaseURL().toString();
+        this.bridgeURL = "";//getBridges().iterator().next().getDetails().getBaseURL().toString();
     }
 
     public void turnOff(String id) {
@@ -39,13 +39,13 @@ public class HueLightsService implements LightsService {
         doForEachLight((id, value) ->  turnOn(id));
     }
 
-    public void turnOffAll() {
-        doForEachLight((id, value) ->  turnOff(id));
+    @Override
+    public BridgeInfo bridgeInfo() {
+        return null;
     }
 
-    @Override
-    public boolean hasOnLights() {
-        return false;
+    public void turnOffAll() {
+        doForEachLight((id, value) ->  turnOff(id));
     }
 
     private void doForEachLight(BiConsumer<String, JsonValue> consumer) {

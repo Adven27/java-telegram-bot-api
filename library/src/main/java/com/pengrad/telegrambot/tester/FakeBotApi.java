@@ -6,12 +6,15 @@ import com.pengrad.telegrambot.Callback;
 import com.pengrad.telegrambot.logging.BotLogger;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.GetUpdates;
+import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.GetUpdatesResponse;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 class FakeBotApi implements BotAPI {
     private static final String TAG = FakeBotApi.class.getSimpleName();
@@ -40,10 +43,17 @@ class FakeBotApi implements BotAPI {
     private <T extends BaseRequest, R extends BaseResponse> R getR(BaseRequest<T, R> request) {
         BotLogger.info(TAG, ">> [" + request + "]");
         R response = null;
+
+        //TODO make more adequate request-response mapping
         if (request instanceof GetUpdates) {
             response = getUpdate(GetUpdatesResponse.class);
-        } else {
+        } else if (request instanceof SendMessage){
             requests.add(request);
+            Map<String, Object> params = request.getParameters();
+            response = new Gson().fromJson("{\"ok\":true,\"result\":{\"message_id\": " + requests.size() + "," +
+                    "\"from\":{\"id\":" + params.get("chat_id") + ",\"first_name\":\"fake\",\"username\":\"fake\"}," +
+                    "\"chat\":{\"id\":" + params.get("chat_id") + ",\"first_name\":\"fake\",\"last_name\":\"fake\",\"username\":\"fake\",\"type\":\"private\"}," +
+                    "\"date\":" + new Date().getTime()/1000 + ",\"text\":\"" + params.get("text") + "\"}}", request.getResponseType());
         }
         BotLogger.info(TAG, "<< " + response);
         return response;

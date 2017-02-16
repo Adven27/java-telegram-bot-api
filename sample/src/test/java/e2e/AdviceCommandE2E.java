@@ -16,9 +16,10 @@ import static org.mockito.Mockito.when;
 
 public class AdviceCommandE2E {
 
+    private final AdviceResource resource = mock(AdviceResource.class);;
+
     @Test
     public void shouldReturnMessageFromAdviceResource() throws Exception {
-        AdviceResource resource = mock(AdviceResource.class);
         when(resource.fetch()).thenReturn(singletonMap("text", "fucking great advice"));
 
         given(new AdviceCommand(new MessageFromURL(resource, new AdvicePrinter()))).
@@ -30,7 +31,6 @@ public class AdviceCommandE2E {
 
     @Test
     public void shouldReturnApologize_IfAdviceResourceUnreachable() throws Exception {
-        AdviceResource resource = mock(AdviceResource.class);
         when(resource.fetch()).thenThrow(new RuntimeException());
 
         given(new AdviceCommand(new MessageFromURL(resource, new AdvicePrinter()))).

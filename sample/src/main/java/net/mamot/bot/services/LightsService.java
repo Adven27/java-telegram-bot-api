@@ -5,21 +5,23 @@ public interface LightsService {
 
     void turnOnAll();
 
-    boolean hasOnLights();
-
-    class Light {
-        final int id;
-        final boolean isOn;
-
-        public Light(int id, boolean isOn) {
-            this.id = id;
-            this.isOn = isOn;
-        }
-    }
+    BridgeInfo bridgeInfo();
 
     class BridgeUnreachableEx extends RuntimeException {
         public BridgeUnreachableEx(Exception e) {
             super(e);
+        }
+    }
+
+    class BridgeInfo {
+        final String desc;
+
+        public BridgeInfo(String desc) {
+            this.desc = desc;
+        }
+
+        public String desc() {
+            return desc;
         }
     }
 }

@@ -10,5 +10,4 @@ public class HueLightsServiceTest {
     public void turnOffAll() throws Exception {
         sut.turnOffAll();
     }
-
 }
