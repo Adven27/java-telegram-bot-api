@@ -10,52 +10,56 @@ import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
-import net.mamot.bot.services.LightsService;
+import net.mamot.bot.services.BridgeAdapter;
+import net.mamot.bot.services.HueBridge;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.pengrad.telegrambot.model.request.InlineKeyboardMarkup.btn;
-import static com.pengrad.telegrambot.model.request.InlineKeyboardMarkup.keyboard;
-import static com.pengrad.telegrambot.model.request.InlineKeyboardMarkup.row;
+import static com.pengrad.telegrambot.model.request.InlineKeyboardMarkup.*;
 
 public class LightsCommand extends BotCommand implements UpdateHandler {
 
     public static final String CALLBACK_OFF = "off";
     public static final String CALLBACK_ON = "on";
-    private final LightsService lightsService;
+    private final BridgeAdapter bridgeAdapter;
     private Integer messageId;
     private InlineKeyboardMarkup inlineKeyboard;
+    private HueBridge bridge;
 
-    public LightsCommand(LightsService lightsService) {
+    public LightsCommand(BridgeAdapter bridgeAdapter) {
         super("/lights", "Lights");
-        this.lightsService = lightsService;
+        this.bridgeAdapter = bridgeAdapter;
         inlineKeyboard = keyboard(
                 row(btn("off", CALLBACK_OFF), btn("on", CALLBACK_ON))
         );
     }
 
-
     public void execute(TelegramBot bot, User user, Chat chat, String params) {
         SendMessage request;
-        if (lightsService.currentBridge().isPresent()) {
-            String text = "Bridge: " + lightsService.currentBridge().get().desc();
-            request = new SendMessage(chat.id(), text).replyMarkup(inlineKeyboard);
-        } else {
-            List<LightsService.BridgeInfo> bridges = lightsService.searchBridges();
+        if (bridge == null) {
+            List<HueBridge> bridges = bridgeAdapter.search();
             if (bridges.isEmpty()) {
                 request = new SendMessage(chat.id(), "Sorry. There are no available bridges...");
+            } else if (bridges.size() == 1) {
+                bridge = bridges.get(0);
+                String text = "Bridge: " + bridge.desc();
+                request = new SendMessage(chat.id(), text).replyMarkup(inlineKeyboard);
             } else {
                 request = new SendMessage(chat.id(), "Choose bridge:").replyMarkup(getBridgesOptions(bridges));
             }
+        } else {
+            String text = "Bridge: " + bridge.desc();
+            request = new SendMessage(chat.id(), text).replyMarkup(inlineKeyboard);
         }
+
         SendResponse response = bot.execute(request);
         messageId = response.message().messageId();
     }
 
-    private InlineKeyboardMarkup getBridgesOptions(List<LightsService.BridgeInfo> bridges) {
+    private InlineKeyboardMarkup getBridgesOptions(List<HueBridge> bridges) {
         List<InlineKeyboardButton> btns = new ArrayList<>();
-        for (LightsService.BridgeInfo bridge : bridges) {
+        for (HueBridge bridge : bridges) {
             btns.add(btn(bridge.desc(), bridge.id()));
         }
         return keyboard(row(btns.toArray(new InlineKeyboardButton[]{})));
@@ -74,7 +78,7 @@ public class LightsCommand extends BotCommand implements UpdateHandler {
         try {
             processCallback(cb);
             bot.execute(new AnswerCallbackQuery(cb.id()).text("Готово"));
-        } catch (LightsService.BridgeUnreachableEx e) {
+        } catch (HueBridge.BridgeUnreachableEx e) {
             apologize(bot, cb.message());
         }
         return true;
@@ -86,8 +90,8 @@ public class LightsCommand extends BotCommand implements UpdateHandler {
 
     private void processCallback(CallbackQuery cb) {
         switch (cb.data()) {
-            case CALLBACK_OFF: lightsService.turnOffAll(); break;
-            case CALLBACK_ON: lightsService.turnOnAll(); break;
+            case CALLBACK_OFF: bridge.turnOffAll(); break;
+            case CALLBACK_ON: bridge.turnOnAll(); break;
         }
     }
 }

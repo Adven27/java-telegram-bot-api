@@ -8,9 +8,7 @@ import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.GetUpdates;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
-import com.pengrad.telegrambot.response.GetUpdatesResponse;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -19,11 +17,11 @@ import java.util.Map;
 class FakeBotApi implements BotAPI {
     private static final String TAG = FakeBotApi.class.getSimpleName();
 
-    private final String updateReq;
+    private final String updateResponse;
     List<BaseRequest> requests = new ArrayList<>();
 
-    public FakeBotApi(String updateReq) {
-        this.updateReq = updateReq;
+    public FakeBotApi(String updateResponse) {
+        this.updateResponse = updateResponse;
     }
 
     public List<BaseRequest> requests() {
@@ -46,7 +44,7 @@ class FakeBotApi implements BotAPI {
 
         //TODO make more adequate request-response mapping
         if (request instanceof GetUpdates) {
-            response = getUpdate(GetUpdatesResponse.class);
+            response = new Gson().fromJson(updateResponse, request.getResponseType());
         } else if (request instanceof SendMessage){
             requests.add(request);
             Map<String, Object> params = request.getParameters();
@@ -59,7 +57,4 @@ class FakeBotApi implements BotAPI {
         return response;
     }
 
-    private <R extends BaseResponse> R getUpdate(Type type) {
-        return new Gson().fromJson(updateReq, type);
-    }
 }

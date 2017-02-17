@@ -5,6 +5,7 @@ import com.pengrad.telegrambot.commands.BotCommand;
 import com.pengrad.telegrambot.listeners.HandlersChainListener;
 import com.pengrad.telegrambot.listeners.OneTimeListenerDecorator;
 import com.pengrad.telegrambot.listeners.handlers.MessageHandler;
+import com.pengrad.telegrambot.listeners.handlers.UpdateHandler;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.User;
@@ -13,20 +14,24 @@ import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SendSticker;
 import ru.lanwen.verbalregex.VerbalExpression;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
 import static ru.lanwen.verbalregex.VerbalExpression.regex;
 
 public class BotTester {
 
     public static GivenSpec given(BotCommand... botCommands) {
-        return new GivenSpec(botCommands);
+        return new GivenSpec(new ArrayList<>(), botCommands);
+    }
+
+    public static GivenSpec given(List<UpdateHandler> handlers, BotCommand... botCommands) {
+        return new GivenSpec(handlers, botCommands);
     }
 
     //TODO rid of hardcoded chat ID
@@ -51,7 +56,7 @@ public class BotTester {
         private final String messageEntityTemplate = "{\"type\":\"bot_command\",\"offset\":%s,\"length\":%s}";
         private final String userTemplate = "{\"id\": %d,\"first_name\": \"%s\",\"last_name\": \"%s\",\"username\": \"%s\"}";
         private final String chatTemplate = "{\"id\": %d,\"type\": \"%s\"}";
-        private final String updateTemplate = "{" +
+        private final String messageUpdateTemplate = "{" +
                 "    \"ok\":true,\"result\":" +
                 "    [{" +
                 "        \"update_id\": 563614790,\"message\": {" +
@@ -61,20 +66,41 @@ public class BotTester {
                 "        }" +
                 "    }]" +
                 "}";
+        private final String callbackUpdateTemplate ="{" +
+                "    \"ok\": true, \"result\": " +
+                "    [{" +
+                "        \"update_id\": 563616208, \"callback_query\": {" +
+                "            \"id\": \"986422975848168080\", \"from\": %s," +
+                "            \"message\": {" +
+                "                \"message_id\": %s, \"from\": { \"id\": 123, \"first_name\": \"tester\", \"username\": \"bot_tester\" }," +
+                "                \"chat\": %s,\"date\": %s, \"text\": \"%s\"" +
+                "            }, \"chat_instance\": \"-420149911601290801\", \"data\": \"%s\"" +
+                "        }" +
+                "    }]" +
+                "}";
+
+        private String callbackData = "";
         private long date = 1485957820;
         private String text = "";
         private String user = "{\"id\": 1,\"first_name\": \"White\",\"last_name\": \"Walter\",\"username\": \"heisenberg\"}";
         private String chat = "{\"id\": 1,\"type\": \"private\"}";
 
+        private final List<UpdateHandler> handlers;
         private final BotCommand[] botCommands;
         private BiConsumer<TelegramBot, Message> defaultConsumer;
 
-        public GivenSpec(BotCommand[] botCommands) {
+        public GivenSpec(List<UpdateHandler> handlers, BotCommand[] botCommands) {
+            this.handlers = handlers;
             this.botCommands = botCommands;
         }
 
         public GivenSpec got(String txt) {
             this.text = txt;
+            return this;
+        }
+
+        public GivenSpec gotCallback(String callbackData) {
+            this.callbackData = callbackData;
             return this;
         }
 
@@ -110,7 +136,10 @@ public class BotTester {
         }
 
         public ThenSpec then() {
-            FakeBotApi botApi = new FakeBotApi(format(updateTemplate, user, chat, date, text, entities(text)));
+            //TODO refactor
+            String updateResponse = callbackData.isEmpty() ? format(messageUpdateTemplate, user, chat, date, text, entities(text))
+                                                           : format(callbackUpdateTemplate, user, "333", chat, date, text, callbackData);
+            FakeBotApi botApi = new FakeBotApi(updateResponse);
             TelegramBot bot = new TelegramBot(botApi);
             startOnce(bot);
             return new ThenSpec(botApi.requests());
@@ -119,7 +148,8 @@ public class BotTester {
         private void startOnce(TelegramBot bot) {
             MessageHandler messageHandler = new MessageHandler(botCommands);
             messageHandler.registerDefaultAction(defaultConsumer);
-            HandlersChainListener listener = new HandlersChainListener(bot, asList(messageHandler));
+            handlers.add(messageHandler);
+            HandlersChainListener listener = new HandlersChainListener(bot, handlers);
             bot.setUpdatesListener(new OneTimeListenerDecorator(bot, listener));
         }
     }
