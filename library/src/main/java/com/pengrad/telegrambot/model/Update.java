@@ -15,6 +15,38 @@ public class Update {
     private ChosenInlineResult chosen_inline_result;
     private CallbackQuery callback_query;
 
+    public void setUpdate_id(Integer update_id) {
+        this.update_id = update_id;
+    }
+
+    public void setMessage(Message message) {
+        this.message = message;
+    }
+
+    public void setEdited_message(Message edited_message) {
+        this.edited_message = edited_message;
+    }
+
+    public void setChannel_post(Message channel_post) {
+        this.channel_post = channel_post;
+    }
+
+    public void setEdited_channel_post(Message edited_channel_post) {
+        this.edited_channel_post = edited_channel_post;
+    }
+
+    public void setInline_query(InlineQuery inline_query) {
+        this.inline_query = inline_query;
+    }
+
+    public void setChosen_inline_result(ChosenInlineResult chosen_inline_result) {
+        this.chosen_inline_result = chosen_inline_result;
+    }
+
+    public void setCallback_query(CallbackQuery callback_query) {
+        this.callback_query = callback_query;
+    }
+
     public Integer updateId() {
         return update_id;
     }

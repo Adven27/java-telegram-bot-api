@@ -16,6 +16,22 @@ public class BaseResponse {
     BaseResponse() {
     }
 
+    public void setOk(boolean ok) {
+        this.ok = ok;
+    }
+
+    public void setError_code(int error_code) {
+        this.error_code = error_code;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setParameters(ResponseParameters parameters) {
+        this.parameters = parameters;
+    }
+
     public boolean isOk() {
         return ok;
     }

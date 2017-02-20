@@ -16,6 +16,26 @@ public class MessageEntity {
     private String url;
     private User user;
 
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    public void setOffset(Integer offset) {
+        this.offset = offset;
+    }
+
+    public void setLength(Integer length) {
+        this.length = length;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public Type type() {
         return type;
     }

@@ -6,12 +6,11 @@ import com.pengrad.telegrambot.listeners.HandlersChainListener;
 import com.pengrad.telegrambot.listeners.OneTimeListenerDecorator;
 import com.pengrad.telegrambot.listeners.handlers.MessageHandler;
 import com.pengrad.telegrambot.listeners.handlers.UpdateHandler;
-import com.pengrad.telegrambot.model.Chat;
-import com.pengrad.telegrambot.model.Message;
-import com.pengrad.telegrambot.model.User;
+import com.pengrad.telegrambot.model.*;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SendSticker;
+import com.pengrad.telegrambot.response.GetUpdatesResponse;
 import ru.lanwen.verbalregex.VerbalExpression;
 
 import java.util.ArrayList;
@@ -19,9 +18,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
-import static java.lang.String.format;
-import static java.util.stream.Collectors.joining;
+import static java.util.Collections.singletonList;
 import static ru.lanwen.verbalregex.VerbalExpression.regex;
 
 public class BotTester {
@@ -53,37 +52,11 @@ public class BotTester {
     }
 
     public static class GivenSpec {
-        private final String messageEntityTemplate = "{\"type\":\"bot_command\",\"offset\":%s,\"length\":%s}";
-        private final String userTemplate = "{\"id\": %d,\"first_name\": \"%s\",\"last_name\": \"%s\",\"username\": \"%s\"}";
-        private final String chatTemplate = "{\"id\": %d,\"type\": \"%s\"}";
-        private final String messageUpdateTemplate = "{" +
-                "    \"ok\":true,\"result\":" +
-                "    [{" +
-                "        \"update_id\": 563614790,\"message\": {" +
-                "            \"message_id\": 373," +
-                "            \"from\": %s,\"chat\": %s,\"date\": %s," +
-                "            \"text\": \"%s\" %s"+
-                "        }" +
-                "    }]" +
-                "}";
-        private final String callbackUpdateTemplate ="{" +
-                "    \"ok\": true, \"result\": " +
-                "    [{" +
-                "        \"update_id\": 563616208, \"callback_query\": {" +
-                "            \"id\": \"986422975848168080\", \"from\": %s," +
-                "            \"message\": {" +
-                "                \"message_id\": %s, \"from\": { \"id\": 123, \"first_name\": \"tester\", \"username\": \"bot_tester\" }," +
-                "                \"chat\": %s,\"date\": %s, \"text\": \"%s\"" +
-                "            }, \"chat_instance\": \"-420149911601290801\", \"data\": \"%s\"" +
-                "        }" +
-                "    }]" +
-                "}";
-
         private String callbackData = "";
-        private long date = 1485957820;
+        private int date = 1485957820;
         private String text = "";
-        private String user = "{\"id\": 1,\"first_name\": \"White\",\"last_name\": \"Walter\",\"username\": \"heisenberg\"}";
-        private String chat = "{\"id\": 1,\"type\": \"private\"}";
+        private User user = createUser();
+        private Chat chat = createChat();
 
         private final List<UpdateHandler> handlers;
         private final BotCommand[] botCommands;
@@ -109,15 +82,8 @@ public class BotTester {
             return this;
         }
 
-        private String entities(String text) {
-            VerbalExpression cmdExp = regex().find("/").oneOrMore().word().build();
-            String messageEnt = cmdExp.getTextGroups(text, 0).stream().map(
-                        s -> format(messageEntityTemplate, 0, s.length())).collect(joining(","));
-            return messageEnt.isEmpty() ? "" : ",\"entities\":[" + messageEnt + "]";
-        }
-
         public GivenSpec chat(String id, Chat.Type type) {
-            chat =  format(chatTemplate, id, type.name().toLowerCase());
+            //chat =  format(chatTemplate, id, type.name().toLowerCase());
             return this;
         }
 
@@ -125,21 +91,32 @@ public class BotTester {
             return chat(id, Chat.Type.Private);
         }
 
-        public GivenSpec from(String id, String firstName) {
-            user = format(userTemplate, id, firstName, "", "");
+        public GivenSpec from(int id, String firstName) {
+            user.setId(id);
+            user.setFirst_name(firstName);
             return this;
         }
 
         public GivenSpec date(Date dt) {
-            date = dt.getTime();
+            //date = dt.getTime();
             return this;
         }
 
         public ThenSpec then() {
             //TODO refactor
-            String updateResponse = callbackData.isEmpty() ? format(messageUpdateTemplate, user, chat, date, text, entities(text))
-                                                           : format(callbackUpdateTemplate, user, "333", chat, date, text, callbackData);
-            FakeBotApi botApi = new FakeBotApi(updateResponse);
+            GetUpdatesResponse updatesResponse = new GetUpdatesResponse();
+            Update update = new Update();
+            update.setUpdate_id(1);
+            if (callbackData.isEmpty()) {
+                update.setMessage(createMessage(text, chat, user, date));
+            } else {
+                CallbackQuery callback_query = new CallbackQuery();
+                callback_query.setMessage(createMessage(text, chat, user, date));
+                callback_query.setData(callbackData);
+                update.setCallback_query(callback_query);
+            }
+            updatesResponse.setResult(singletonList(update));
+            FakeBotApi botApi = new FakeBotApi(updatesResponse);
             TelegramBot bot = new TelegramBot(botApi);
             startOnce(bot);
             return new ThenSpec(botApi.requests());
@@ -152,6 +129,46 @@ public class BotTester {
             HandlersChainListener listener = new HandlersChainListener(bot, handlers);
             bot.setUpdatesListener(new OneTimeListenerDecorator(bot, listener));
         }
+    }
+
+    private static Message createMessage(String text, Chat chat, User user, Integer date) {
+        Message message = new Message();
+        message.setText(text);
+        message.setChat(chat);
+        message.setFrom(user);
+        message.setDate(date);
+        message.setEntities(parseEntities(text).toArray(new MessageEntity[0]));
+        return message;
+    }
+
+    private static List<MessageEntity> parseEntities(String text) {
+        VerbalExpression cmdExp = regex().find("/").oneOrMore().word().build();
+        return cmdExp.getTextGroups(text, 0).stream().map(
+                s ->  createMessageEntity(s.length(), 0)).collect(Collectors.toList());
+    }
+
+    private static MessageEntity createMessageEntity(Integer length, Integer offset) {
+        MessageEntity messageEntity = new MessageEntity();
+        messageEntity.setLength(length);
+        messageEntity.setOffset(offset);
+        messageEntity.setType(MessageEntity.Type.bot_command);
+        return messageEntity;
+    }
+
+    private static Chat createChat() {
+        Chat chat = new Chat();
+        chat.setType(Chat.Type.Private);
+        chat.setId(1L);
+        return chat;
+    }
+
+    private static User createUser() {
+        User user = new User();
+        user.setId(1);
+        user.setFirst_name("Walter");
+        user.setLast_name("White");
+        user.setUsername("heisenberg");
+        return user;
     }
 
     public static class ThenSpec {

@@ -1,13 +1,17 @@
 package com.pengrad.telegrambot.tester;
 
-import com.google.gson.Gson;
 import com.pengrad.telegrambot.BotAPI;
 import com.pengrad.telegrambot.Callback;
 import com.pengrad.telegrambot.logging.BotLogger;
+import com.pengrad.telegrambot.model.Chat;
+import com.pengrad.telegrambot.model.Message;
+import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.GetUpdates;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
+import com.pengrad.telegrambot.response.GetUpdatesResponse;
+import com.pengrad.telegrambot.response.SendResponse;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,11 +21,11 @@ import java.util.Map;
 class FakeBotApi implements BotAPI {
     private static final String TAG = FakeBotApi.class.getSimpleName();
 
-    private final String updateResponse;
+    private final GetUpdatesResponse updatesResponse;
     List<BaseRequest> requests = new ArrayList<>();
 
-    public FakeBotApi(String updateResponse) {
-        this.updateResponse = updateResponse;
+    public FakeBotApi(GetUpdatesResponse updatesResponse) {
+        this.updatesResponse = updatesResponse;
     }
 
     public List<BaseRequest> requests() {
@@ -44,17 +48,35 @@ class FakeBotApi implements BotAPI {
 
         //TODO make more adequate request-response mapping
         if (request instanceof GetUpdates) {
-            response = new Gson().fromJson(updateResponse, request.getResponseType());
-        } else if (request instanceof SendMessage){
+            response = (R) updatesResponse;
+        } else if (request instanceof SendMessage) {
             requests.add(request);
             Map<String, Object> params = request.getParameters();
-            response = new Gson().fromJson("{\"ok\":true,\"result\":{\"message_id\": " + requests.size() + "," +
-                    "\"from\":{\"id\":" + params.get("chat_id") + ",\"first_name\":\"fake\",\"username\":\"fake\"}," +
-                    "\"chat\":{\"id\":" + params.get("chat_id") + ",\"first_name\":\"fake\",\"last_name\":\"fake\",\"username\":\"fake\",\"type\":\"private\"}," +
-                    "\"date\":" + new Date().getTime()/1000 + ",\"text\":\"" + params.get("text") + "\"}}", request.getResponseType());
+            SendResponse sendResponse = new SendResponse();
+            Message message = new Message();
+            message.setMessage_id(requests.size());
+
+            User from = new User();
+            from.setId(Integer.parseInt(params.get("chat_id").toString()));
+            from.setFirst_name("fake");
+            message.setFrom(from);
+
+            Chat chat = new Chat();
+            chat.setId(Long.parseLong(params.get("chat_id").toString()));
+            chat.setFirst_name("fake");
+            chat.setType(Chat.Type.Private);
+            message.setChat(chat);
+
+            message.setDate((int) (new Date().getTime() / 1000));
+            message.setText(params.get("text").toString());
+
+            sendResponse.message(message);
+            response = (R) sendResponse;
+        } else {
+            requests.add(request);
         }
         BotLogger.info(TAG, "<< " + response);
         return response;
     }
 
-}
+} 

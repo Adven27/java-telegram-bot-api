@@ -27,6 +27,34 @@ public class Chat {
 
     private Boolean all_members_are_administrators;
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    public void setFirst_name(String first_name) {
+        this.first_name = first_name;
+    }
+
+    public void setLast_name(String last_name) {
+        this.last_name = last_name;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setAll_members_are_administrators(Boolean all_members_are_administrators) {
+        this.all_members_are_administrators = all_members_are_administrators;
+    }
+
     public Long id() {
         return id;
     }

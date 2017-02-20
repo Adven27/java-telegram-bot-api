@@ -10,7 +10,8 @@ public class SendResponse extends BaseResponse {
 
     private Message result;
 
-    SendResponse() {
+    public SendResponse() {
+        setOk(true);
     }
 
     public Message message() {
@@ -22,5 +23,9 @@ public class SendResponse extends BaseResponse {
         return "SendResponse{" +
                 "result=" + result +
                 '}';
+    }
+
+    public void message(Message result) {
+        this.result = result;
     }
 }

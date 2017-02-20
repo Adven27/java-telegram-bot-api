@@ -64,7 +64,7 @@ abstract public class BaseRequest<T extends BaseRequest, R extends BaseResponse>
         if (o == null || getClass() != o.getClass()) return false;
         BaseRequest<?, ?> that = (BaseRequest<?, ?>) o;
         for (Map.Entry<String, Object> param : that.getParameters().entrySet()) {
-            String exp = getParameters().get(param.getKey()).toString();
+            String exp = getParameters().get(param.getKey()) == null ? "null" : getParameters().get(param.getKey()).toString();
             String act = param.getValue() == null ? "null" : param.getValue().toString();
             if (!act.equals(exp)) {
                 return false;

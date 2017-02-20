@@ -35,6 +35,12 @@ public class LightsCommand extends BotCommand implements UpdateHandler {
         );
     }
 
+
+    public LightsCommand(BridgeAdapter bridgeAdapter, HueBridge bridge) {
+        this(bridgeAdapter);
+        this.bridge = bridge;
+    }
+
     public void execute(TelegramBot bot, User user, Chat chat, String params) {
         SendMessage request;
         if (bridge == null) {
@@ -71,7 +77,7 @@ public class LightsCommand extends BotCommand implements UpdateHandler {
     }
 
     private boolean isThisCommandCallback(CallbackQuery cb) {
-        return cb != null && cb.message().messageId().equals(messageId);
+        return cb != null && (cb.message().messageId() == messageId || cb.message().messageId().equals(messageId));
     }
 
     private boolean handle(TelegramBot bot, CallbackQuery cb) {

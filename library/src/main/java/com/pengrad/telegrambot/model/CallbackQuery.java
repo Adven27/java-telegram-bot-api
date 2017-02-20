@@ -14,6 +14,34 @@ public class CallbackQuery {
     private String data;
     private String game_short_name;
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setFrom(User from) {
+        this.from = from;
+    }
+
+    public void setMessage(Message message) {
+        this.message = message;
+    }
+
+    public void setInline_message_id(String inline_message_id) {
+        this.inline_message_id = inline_message_id;
+    }
+
+    public void setChat_instance(String chat_instance) {
+        this.chat_instance = chat_instance;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    public void setGame_short_name(String game_short_name) {
+        this.game_short_name = game_short_name;
+    }
+
     public String id() {
         return id;
     }

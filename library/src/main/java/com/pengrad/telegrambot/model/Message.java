@@ -43,6 +43,142 @@ public class Message {
     private Long migrate_from_chat_id;
     private Message pinned_message;
 
+    public void setMessage_id(Integer message_id) {
+        this.message_id = message_id;
+    }
+
+    public void setFrom(User from) {
+        this.from = from;
+    }
+
+    public void setDate(Integer date) {
+        this.date = date;
+    }
+
+    public void setChat(Chat chat) {
+        this.chat = chat;
+    }
+
+    public void setForward_from(User forward_from) {
+        this.forward_from = forward_from;
+    }
+
+    public void setForward_from_chat(Chat forward_from_chat) {
+        this.forward_from_chat = forward_from_chat;
+    }
+
+    public void setForward_from_message_id(Integer forward_from_message_id) {
+        this.forward_from_message_id = forward_from_message_id;
+    }
+
+    public void setForward_date(Integer forward_date) {
+        this.forward_date = forward_date;
+    }
+
+    public void setReply_to_message(Message reply_to_message) {
+        this.reply_to_message = reply_to_message;
+    }
+
+    public void setEdit_date(Integer edit_date) {
+        this.edit_date = edit_date;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public void setEntities(MessageEntity[] entities) {
+        this.entities = entities;
+    }
+
+    public void setAudio(Audio audio) {
+        this.audio = audio;
+    }
+
+    public void setDocument(Document document) {
+        this.document = document;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
+    }
+
+    public void setPhoto(PhotoSize[] photo) {
+        this.photo = photo;
+    }
+
+    public void setSticker(Sticker sticker) {
+        this.sticker = sticker;
+    }
+
+    public void setVideo(Video video) {
+        this.video = video;
+    }
+
+    public void setVoice(Voice voice) {
+        this.voice = voice;
+    }
+
+    public void setCaption(String caption) {
+        this.caption = caption;
+    }
+
+    public void setContact(Contact contact) {
+        this.contact = contact;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    public void setVenue(Venue venue) {
+        this.venue = venue;
+    }
+
+    public void setNew_chat_member(User new_chat_member) {
+        this.new_chat_member = new_chat_member;
+    }
+
+    public void setLeft_chat_member(User left_chat_member) {
+        this.left_chat_member = left_chat_member;
+    }
+
+    public void setNew_chat_title(String new_chat_title) {
+        this.new_chat_title = new_chat_title;
+    }
+
+    public void setNew_chat_photo(PhotoSize[] new_chat_photo) {
+        this.new_chat_photo = new_chat_photo;
+    }
+
+    public void setDelete_chat_photo(Boolean delete_chat_photo) {
+        this.delete_chat_photo = delete_chat_photo;
+    }
+
+    public void setGroup_chat_created(Boolean group_chat_created) {
+        this.group_chat_created = group_chat_created;
+    }
+
+    public void setSupergroup_chat_created(Boolean supergroup_chat_created) {
+        this.supergroup_chat_created = supergroup_chat_created;
+    }
+
+    public void setChannel_chat_created(Boolean channel_chat_created) {
+        this.channel_chat_created = channel_chat_created;
+    }
+
+    public void setMigrate_to_chat_id(Long migrate_to_chat_id) {
+        this.migrate_to_chat_id = migrate_to_chat_id;
+    }
+
+    public void setMigrate_from_chat_id(Long migrate_from_chat_id) {
+        this.migrate_from_chat_id = migrate_from_chat_id;
+    }
+
+    public void setPinned_message(Message pinned_message) {
+        this.pinned_message = pinned_message;
+    }
+
     public Integer messageId() {
         return message_id;
     }

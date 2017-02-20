@@ -12,7 +12,8 @@ public class GetUpdatesResponse extends BaseResponse {
 
     private List<Update> result;
 
-    GetUpdatesResponse() {
+    public GetUpdatesResponse() {
+        setOk(true);
     }
 
     public List<Update> updates() {
@@ -24,5 +25,9 @@ public class GetUpdatesResponse extends BaseResponse {
         return "GetUpdatesResponse{" +
                 "result=" + result +
                 '}';
+    }
+
+    public void setResult(List<Update> result) {
+        this.result = result;
     }
 }

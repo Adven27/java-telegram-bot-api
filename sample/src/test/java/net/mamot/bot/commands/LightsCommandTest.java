@@ -1,7 +1,9 @@
 package net.mamot.bot.commands;
 
 import com.pengrad.telegrambot.listeners.handlers.UpdateHandler;
+import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import net.mamot.bot.services.BridgeAdapter;
+import net.mamot.bot.services.HueBridge;
 import net.mamot.bot.services.impl.FakeHueBridge;
 import org.junit.Test;
 
@@ -14,15 +16,14 @@ import static com.pengrad.telegrambot.tester.BotTester.message;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class LightsCommandTest {
 
     private final FakeHueBridge fakeBridge = new FakeHueBridge("1", "My Bridge 1", "url1");
     private final FakeHueBridge anotherFakeBridge = new FakeHueBridge("2", "My Bridge 2", "url2");
     private final BridgeAdapter bridgeAdapter = mock(BridgeAdapter.class);
-    private final LightsCommand sut = new LightsCommand(bridgeAdapter);
+    private LightsCommand sut = new LightsCommand(bridgeAdapter);
 
     @Test
     public void whenOnlyOneAvailableBridge_setAsCurrentAndShowOptions() throws Exception {
@@ -62,16 +63,19 @@ public class LightsCommandTest {
 
     @Test
     public void givenAvailableBridge_whenChooseOptionAllOff_bridgeShouldTryToTurnOffAll() throws Exception {
-        when(bridgeAdapter.search()).thenReturn(singletonList(fakeBridge));
+        HueBridge hueBridge = spy(fakeBridge);
+        when(bridgeAdapter.search()).thenReturn(singletonList(hueBridge));
         List<UpdateHandler> handlers = new ArrayList<>();
+
+        sut = new LightsCommand(bridgeAdapter, hueBridge);
         handlers.add(sut);
+
         given(handlers, sut).
-                gotCallback("off").
-            then().
-                shouldAnswer(
-                        message("Bridge: " + fakeBridge.desc()).replyMarkup(
-                                keyboard(row(btn("off","off"),
-                                        btn("on","on"))
-                                )));
+            gotCallback("off").
+        then().
+            shouldAnswer(new AnswerCallbackQuery(null).text("Готово"));
+
+        verify(hueBridge).turnOffAll();
+        verifyNoMoreInteractions(hueBridge);
     }
 }
