@@ -3,7 +3,6 @@ package net.mamot.bot.commands;
 import com.pengrad.telegrambot.listeners.handlers.UpdateHandler;
 import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import net.mamot.bot.services.BridgeAdapter;
-import net.mamot.bot.services.HueBridge;
 import net.mamot.bot.services.impl.FakeHueBridge;
 import org.junit.Test;
 
@@ -20,8 +19,8 @@ import static org.mockito.Mockito.*;
 
 public class LightsCommandTest {
 
-    private final FakeHueBridge fakeBridge = new FakeHueBridge("1", "My Bridge 1", "url1");
-    private final FakeHueBridge anotherFakeBridge = new FakeHueBridge("2", "My Bridge 2", "url2");
+    private final FakeHueBridge fakeBridge = spy(new FakeHueBridge("1", "My Bridge 1", "url1"));
+    private final FakeHueBridge anotherFakeBridge = spy(new FakeHueBridge("2", "My Bridge 2", "url2"));
     private final BridgeAdapter bridgeAdapter = mock(BridgeAdapter.class);
     private LightsCommand sut = new LightsCommand(bridgeAdapter);
 
@@ -63,19 +62,18 @@ public class LightsCommandTest {
 
     @Test
     public void givenAvailableBridge_whenChooseOptionAllOff_bridgeShouldTryToTurnOffAll() throws Exception {
-        HueBridge hueBridge = spy(fakeBridge);
-        when(bridgeAdapter.search()).thenReturn(singletonList(hueBridge));
+        when(bridgeAdapter.search()).thenReturn(singletonList(fakeBridge));
         List<UpdateHandler> handlers = new ArrayList<>();
 
-        sut = new LightsCommand(bridgeAdapter, hueBridge);
+        sut = new LightsCommand(bridgeAdapter, fakeBridge);
         handlers.add(sut);
 
         given(handlers, sut).
             gotCallback("off").
         then().
-            shouldAnswer(new AnswerCallbackQuery(null).text("Р“РѕС‚РѕРІРѕ"));
+            shouldAnswer(new AnswerCallbackQuery(null).text("Готово"));
 
-        verify(hueBridge).turnOffAll();
-        verifyNoMoreInteractions(hueBridge);
+        verify(fakeBridge).turnOffAll();
+        verifyNoMoreInteractions(fakeBridge);
     }
 }

@@ -1,5 +1,6 @@
 package com.pengrad.telegrambot.request;
 
+import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.request.ParseMode;
 
 /**
@@ -11,6 +12,10 @@ public class SendMessage extends AbstractSendRequest<SendMessage> {
     public SendMessage(Object chatId, String text) {
         super(chatId);
         add("text", text);
+    }
+
+    public static SendMessage message(Chat chat, String text) {
+        return new SendMessage(chat.id(), text);
     }
 
     public SendMessage parseMode(ParseMode parseMode) {

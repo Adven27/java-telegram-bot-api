@@ -1,8 +1,7 @@
 package net.mamot.bot.commands;
 
 import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.commands.BotCommand;
-import com.pengrad.telegrambot.listeners.handlers.UpdateHandler;
+import com.pengrad.telegrambot.commands.CallbackCommand;
 import com.pengrad.telegrambot.model.*;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
@@ -17,8 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.pengrad.telegrambot.model.request.InlineKeyboardMarkup.*;
+import static com.pengrad.telegrambot.request.SendMessage.message;
 
-public class LightsCommand extends BotCommand implements UpdateHandler {
+public class LightsCommand extends CallbackCommand {
 
     public static final String CALLBACK_OFF = "off";
     public static final String CALLBACK_ON = "on";
@@ -35,32 +35,49 @@ public class LightsCommand extends BotCommand implements UpdateHandler {
         );
     }
 
-
     public LightsCommand(BridgeAdapter bridgeAdapter, HueBridge bridge) {
         this(bridgeAdapter);
         this.bridge = bridge;
     }
 
+    @Override
     public void execute(TelegramBot bot, User user, Chat chat, String params) {
         SendMessage request;
         if (bridge == null) {
             List<HueBridge> bridges = bridgeAdapter.search();
             if (bridges.isEmpty()) {
-                request = new SendMessage(chat.id(), "Sorry. There are no available bridges...");
+                request = message(chat, "Sorry. There are no available bridges...");
             } else if (bridges.size() == 1) {
                 bridge = bridges.get(0);
                 String text = "Bridge: " + bridge.desc();
-                request = new SendMessage(chat.id(), text).replyMarkup(inlineKeyboard);
+                request = message(chat, text).replyMarkup(inlineKeyboard);
             } else {
-                request = new SendMessage(chat.id(), "Choose bridge:").replyMarkup(getBridgesOptions(bridges));
+                request = message(chat, "Choose bridge:").replyMarkup(getBridgesOptions(bridges));
             }
         } else {
             String text = "Bridge: " + bridge.desc();
-            request = new SendMessage(chat.id(), text).replyMarkup(inlineKeyboard);
+            request = message(chat, text).replyMarkup(inlineKeyboard);
         }
 
         SendResponse response = bot.execute(request);
         messageId = response.message().messageId();
+    }
+
+    @Override
+    public Integer originalMessage() {
+        return messageId;
+    }
+
+    @Override
+    public boolean callback(TelegramBot bot, CallbackQuery cb) {
+        try {
+            processCallback(cb);
+            bot.execute(new AnswerCallbackQuery(cb.id()).text("Готово"));
+        } catch (HueBridge.BridgeUnreachableEx e) {
+            Message msg = cb.message();
+            bot.execute(new EditMessageText(msg.chat().id(), messageId, "Не шмагля...").replyMarkup(inlineKeyboard));
+        }
+        return true;
     }
 
     private InlineKeyboardMarkup getBridgesOptions(List<HueBridge> bridges) {
@@ -69,29 +86,6 @@ public class LightsCommand extends BotCommand implements UpdateHandler {
             btns.add(btn(bridge.desc(), bridge.id()));
         }
         return keyboard(row(btns.toArray(new InlineKeyboardButton[]{})));
-    }
-
-    public boolean handle(TelegramBot bot, Update update) {
-        CallbackQuery cb = update.callbackQuery();
-        return isThisCommandCallback(cb) ? handle(bot, cb) : false;
-    }
-
-    private boolean isThisCommandCallback(CallbackQuery cb) {
-        return cb != null && (cb.message().messageId() == messageId || cb.message().messageId().equals(messageId));
-    }
-
-    private boolean handle(TelegramBot bot, CallbackQuery cb) {
-        try {
-            processCallback(cb);
-            bot.execute(new AnswerCallbackQuery(cb.id()).text("Готово"));
-        } catch (HueBridge.BridgeUnreachableEx e) {
-            apologize(bot, cb.message());
-        }
-        return true;
-    }
-
-    private void apologize(TelegramBot bot, Message msg) {
-        bot.execute(new EditMessageText(msg.chat().id(), msg.messageId(), "Не шмагля...").replyMarkup(inlineKeyboard));
     }
 
     private void processCallback(CallbackQuery cb) {

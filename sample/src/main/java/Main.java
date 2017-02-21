@@ -2,10 +2,7 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.listeners.HandlersChainListener;
 import com.pengrad.telegrambot.listeners.handlers.MessageHandler;
 import com.pengrad.telegrambot.listeners.handlers.UpdateHandler;
-import net.mamot.bot.commands.AdviceCommand;
-import net.mamot.bot.commands.HelloCommand;
-import net.mamot.bot.commands.InlineTestCommand;
-import net.mamot.bot.commands.LightsCommand;
+import net.mamot.bot.commands.*;
 import net.mamot.bot.services.impl.AdvicePrinter;
 import net.mamot.bot.services.impl.AdviceResource;
 import net.mamot.bot.services.impl.MessageFromURL;
@@ -22,15 +19,17 @@ public class Main {
         TelegramBot bot = buildDebug(TOKEN);
 
         LightsCommand lightsCommand = new LightsCommand(new UpnpBridgeAdapter());
+        TicTacToeCommand ticTacToeCommand = new TicTacToeCommand();
         InlineTestCommand inlineTestCommand = new InlineTestCommand();
         UpdateHandler messageHandler = new MessageHandler(
                 new HelloCommand(),
                 inlineTestCommand,
                 lightsCommand,
+                ticTacToeCommand,
                 new AdviceCommand(new MessageFromURL(new AdviceResource(), new AdvicePrinter())));
 
         bot.setUpdatesListener(new HandlersChainListener(bot, asList(
-                messageHandler, lightsCommand, inlineTestCommand
+                messageHandler, lightsCommand, inlineTestCommand,ticTacToeCommand
         )));
     }
 

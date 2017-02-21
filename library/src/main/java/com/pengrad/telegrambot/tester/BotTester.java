@@ -62,7 +62,7 @@ public class BotTester {
         private final BotCommand[] botCommands;
         private BiConsumer<TelegramBot, Message> defaultConsumer;
 
-        public GivenSpec(List<UpdateHandler> handlers, BotCommand[] botCommands) {
+        GivenSpec(List<UpdateHandler> handlers, BotCommand[] botCommands) {
             this.handlers = handlers;
             this.botCommands = botCommands;
         }
@@ -175,7 +175,7 @@ public class BotTester {
         private final List<BaseRequest> actualRequests;
         private final RequestMatcher matcher = new RequestMatcher();
 
-        public ThenSpec(List<BaseRequest> actualRequests) {
+        ThenSpec(List<BaseRequest> actualRequests) {
             this.actualRequests = actualRequests;
         }
 
