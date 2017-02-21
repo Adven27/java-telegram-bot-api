@@ -192,12 +192,12 @@ public enum Emoji {
     ROUND_PUSHPIN('\uD83D', '\uDCCD'),
     WAVING_HAND_SIGN('\uD83D', '\uDC4B');
 
-    Character firstChar;
-    Character secondChar;
+    private Character firstChar;
+    private Character secondChar;
 
-    Emoji(Character firstChar, Character secondChar) {
-        this.firstChar = firstChar;
-        this.secondChar = secondChar;
+    Emoji(Character first, Character second) {
+        this.firstChar = first;
+        this.secondChar = second;
     }
 
     @Override

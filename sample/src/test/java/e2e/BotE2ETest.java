@@ -7,16 +7,16 @@ import static com.pengrad.telegrambot.tester.BotTester.*;
 public class BotE2ETest {
 
     @Test
-    public void notCommandShouldReturnStubMessage() throws Exception {
+    public void notCommandShouldReturnNothing() throws Exception {
         given().
             got("hello").
         then().
-            shouldAnswer(message("answer to not command"));
+            noAnswer();
     }
 
     @Test
     public void unknownCommandShouldInvokeDefaultAction() throws Exception {
-        given().defaultAction((bot, message) -> bot.execute(message("help"))).
+        given().defaultAction((bot, u) -> bot.execute(message("help")) != null).
             got("/someUnknownCommand").
         then().
             shouldAnswer(message("help"));

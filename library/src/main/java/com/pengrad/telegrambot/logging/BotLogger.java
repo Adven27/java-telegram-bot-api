@@ -7,18 +7,24 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.*;
 
 public class BotLogger {
-    private static final Logger logger = Logger.getLogger("Telegram Bots Api");
+    private BotLogger(){}
+
+    private static final Logger LOGGER = Logger.getLogger("Telegram Bots Api");
 
     public static void setLevel(Level level) {
-        logger.setLevel(level);
+        LOGGER.setLevel(level);
     }
 
     public static void registerLogger(Handler handler) {
-        logger.addHandler(handler);
+        LOGGER.addHandler(handler);
     }
 
     public static void severe(String tag, String msg) {
-        logger.severe(String.format("%s - %s", tag, msg));
+        LOGGER.severe(format(tag, msg));
+    }
+
+    private static String format(String tag, String msg) {
+        return String.format("%s - %s", tag, msg);
     }
 
     public static void warn(String tag, String msg) {
@@ -38,63 +44,63 @@ public class BotLogger {
     }
 
     public static void warning(String tag, String msg) {
-        logger.warning(String.format("%s - %s", tag, msg));
+        LOGGER.warning(format(tag, msg));
     }
 
     public static void info(String tag, String msg) {
-        logger.info(String.format("%s - %s", tag, msg));
+        LOGGER.info(format(tag, msg));
     }
 
     public static void config(String tag, String msg) {
-        logger.config(String.format("%s - %s", tag, msg));
+        LOGGER.config(format(tag, msg));
     }
 
     public static void fine(String tag, String msg) {
-        logger.fine(String.format("%s - %s", tag, msg));
+        LOGGER.fine(format(tag, msg));
     }
 
     public static void finer(String tag, String msg) {
-        logger.finer(String.format("%s - %s", tag, msg));
+        LOGGER.finer(format(tag, msg));
     }
 
     public static void finest(String tag, String msg) {
-        logger.finest(String.format("%s - %s", tag, msg));
+        LOGGER.finest(format(tag, msg));
     }
 
     public static void log(Level level, String tag, Throwable throwable) {
-        logger.log(level, tag, throwable);
+        LOGGER.log(level, tag, throwable);
     }
 
     public static void log(Level level, String tag, String msg, Throwable thrown) {
-        logger.log(level, String.format("%s - %s", tag, msg), thrown);
+        LOGGER.log(level, format(tag, msg), thrown);
     }
 
     public static void severe(String tag, Throwable throwable) {
-        logger.log(SEVERE, tag, throwable);
+        LOGGER.log(SEVERE, tag, throwable);
     }
 
     public static void warning(String tag, Throwable throwable) {
-        logger.log(WARNING, tag, throwable);
+        LOGGER.log(WARNING, tag, throwable);
     }
 
     public static void info(String tag, Throwable throwable) {
-        logger.log(INFO, tag, throwable);
+        LOGGER.log(INFO, tag, throwable);
     }
 
     public static void config(String tag, Throwable throwable) {
-        logger.log(Level.CONFIG, tag, throwable);
+        LOGGER.log(Level.CONFIG, tag, throwable);
     }
 
     public static void fine(String tag, Throwable throwable) {
-        logger.log(FINE, tag, throwable);
+        LOGGER.log(FINE, tag, throwable);
     }
 
     public static void finer(String tag, Throwable throwable) {
-        logger.log(FINER, tag, throwable);
+        LOGGER.log(FINER, tag, throwable);
     }
 
     public static void finest(String tag, Throwable throwable) {
-        logger.log(FINEST, tag, throwable);
+        LOGGER.log(FINEST, tag, throwable);
     }
 
     public static void warn(String tag, Throwable throwable) {

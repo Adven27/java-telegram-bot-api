@@ -1,10 +1,9 @@
 package com.pengrad.telegrambot.tester;
 
 import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.commands.BotCommand;
+import com.pengrad.telegrambot.commands.MessageCommand;
 import com.pengrad.telegrambot.listeners.HandlersChainListener;
 import com.pengrad.telegrambot.listeners.OneTimeListenerDecorator;
-import com.pengrad.telegrambot.listeners.handlers.MessageHandler;
 import com.pengrad.telegrambot.listeners.handlers.UpdateHandler;
 import com.pengrad.telegrambot.model.*;
 import com.pengrad.telegrambot.request.BaseRequest;
@@ -13,10 +12,8 @@ import com.pengrad.telegrambot.request.SendSticker;
 import com.pengrad.telegrambot.response.GetUpdatesResponse;
 import ru.lanwen.verbalregex.VerbalExpression;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -25,12 +22,8 @@ import static ru.lanwen.verbalregex.VerbalExpression.regex;
 
 public class BotTester {
 
-    public static GivenSpec given(BotCommand... botCommands) {
-        return new GivenSpec(new ArrayList<>(), botCommands);
-    }
-
-    public static GivenSpec given(List<UpdateHandler> handlers, BotCommand... botCommands) {
-        return new GivenSpec(handlers, botCommands);
+    public static GivenSpec given(UpdateHandler... handlers) {
+        return new GivenSpec(handlers);
     }
 
     //TODO rid of hardcoded chat ID
@@ -42,8 +35,8 @@ public class BotTester {
         return new SendSticker(1 , sticker);
     }
 
-    public static BotCommand command(final String identifier, final Consumer<TelegramBot> consumer) {
-        return new BotCommand(identifier, "Hello World") {
+    public static MessageCommand command(final String identifier, final Consumer<TelegramBot> consumer) {
+        return new MessageCommand(identifier, "Hello World") {
             @Override
             public void execute(TelegramBot bot, User user, Chat chat, String params) {
                 consumer.accept(bot);
@@ -58,13 +51,11 @@ public class BotTester {
         private User user = createUser();
         private Chat chat = createChat();
 
-        private final List<UpdateHandler> handlers;
-        private final BotCommand[] botCommands;
-        private BiConsumer<TelegramBot, Message> defaultConsumer;
+        private final UpdateHandler[] handlers;
+        private UpdateHandler defaultConsumer;
 
-        GivenSpec(List<UpdateHandler> handlers, BotCommand[] botCommands) {
+        GivenSpec(UpdateHandler... handlers) {
             this.handlers = handlers;
-            this.botCommands = botCommands;
         }
 
         public GivenSpec got(String txt) {
@@ -77,7 +68,7 @@ public class BotTester {
             return this;
         }
 
-        public GivenSpec defaultAction(BiConsumer<TelegramBot, Message> defaultConsumer) {
+        public GivenSpec defaultAction(UpdateHandler defaultConsumer) {
             this.defaultConsumer = defaultConsumer;
             return this;
         }
@@ -123,22 +114,19 @@ public class BotTester {
         }
 
         private void startOnce(TelegramBot bot) {
-            MessageHandler messageHandler = new MessageHandler(botCommands);
-            messageHandler.registerDefaultAction(defaultConsumer);
-            handlers.add(messageHandler);
-            HandlersChainListener listener = new HandlersChainListener(bot, handlers);
+            HandlersChainListener listener = new HandlersChainListener(bot, defaultConsumer, handlers);
             bot.setUpdatesListener(new OneTimeListenerDecorator(bot, listener));
         }
     }
 
     private static Message createMessage(String text, Chat chat, User user, Integer date) {
-        Message message = new Message();
-        message.setText(text);
-        message.setChat(chat);
-        message.setFrom(user);
-        message.setDate(date);
-        message.setEntities(parseEntities(text).toArray(new MessageEntity[0]));
-        return message;
+        Message m = new Message();
+        m.setText(text);
+        m.setChat(chat);
+        m.setFrom(user);
+        m.setDate(date);
+        m.setEntities(parseEntities(text).toArray(new MessageEntity[0]));
+        return m;
     }
 
     private static List<MessageEntity> parseEntities(String text) {
@@ -148,11 +136,11 @@ public class BotTester {
     }
 
     private static MessageEntity createMessageEntity(Integer length, Integer offset) {
-        MessageEntity messageEntity = new MessageEntity();
-        messageEntity.setLength(length);
-        messageEntity.setOffset(offset);
-        messageEntity.setType(MessageEntity.Type.bot_command);
-        return messageEntity;
+        MessageEntity me = new MessageEntity();
+        me.setLength(length);
+        me.setOffset(offset);
+        me.setType(MessageEntity.Type.bot_command);
+        return me;
     }
 
     private static Chat createChat() {
@@ -183,6 +171,12 @@ public class BotTester {
             List<RequestMatcher.Mismatch> mismatches = matcher.match(expectedRequests, actualRequests);
             if (!mismatches.isEmpty()) {
                 throw new AssertionError(mismatches);
+            }
+        }
+
+        public void noAnswer() {
+            if (!actualRequests.isEmpty()) {
+                throw new AssertionError("No answer was expected, but got: \n " + actualRequests);
             }
         }
     }

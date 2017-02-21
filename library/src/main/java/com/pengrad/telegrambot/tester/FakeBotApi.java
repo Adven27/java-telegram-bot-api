@@ -22,7 +22,7 @@ class FakeBotApi implements BotAPI {
     private static final String TAG = FakeBotApi.class.getSimpleName();
 
     private final GetUpdatesResponse updatesResponse;
-    List<BaseRequest> requests = new ArrayList<>();
+    private List<BaseRequest> requests = new ArrayList<>();
 
     public FakeBotApi(GetUpdatesResponse updatesResponse) {
         this.updatesResponse = updatesResponse;

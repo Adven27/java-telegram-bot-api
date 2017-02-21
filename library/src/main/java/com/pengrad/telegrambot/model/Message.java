@@ -2,6 +2,8 @@ package com.pengrad.telegrambot.model;
 
 import java.util.Arrays;
 
+import static java.util.Arrays.copyOf;
+
 /**
  * stas
  * 8/4/15.
@@ -88,7 +90,7 @@ public class Message {
     }
 
     public void setEntities(MessageEntity[] entities) {
-        this.entities = entities;
+        this.entities = copyOf(entities, entities.length);
     }
 
     public void setAudio(Audio audio) {
@@ -104,7 +106,7 @@ public class Message {
     }
 
     public void setPhoto(PhotoSize[] photo) {
-        this.photo = photo;
+        this.photo = copyOf(photo, photo.length);
     }
 
     public void setSticker(Sticker sticker) {
@@ -148,7 +150,7 @@ public class Message {
     }
 
     public void setNew_chat_photo(PhotoSize[] new_chat_photo) {
-        this.new_chat_photo = new_chat_photo;
+        this.new_chat_photo = copyOf(new_chat_photo, new_chat_photo.length);
     }
 
     public void setDelete_chat_photo(Boolean delete_chat_photo) {

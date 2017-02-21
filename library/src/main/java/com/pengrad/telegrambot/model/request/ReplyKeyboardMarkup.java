@@ -1,5 +1,7 @@
 package com.pengrad.telegrambot.model.request;
 
+import static java.util.Arrays.copyOf;
+
 /**
  * stas
  * 8/4/15.
@@ -30,7 +32,7 @@ public class ReplyKeyboardMarkup extends Keyboard {
     }
 
     public ReplyKeyboardMarkup(KeyboardButton[]... keyboard) {
-        this.keyboard = keyboard;
+        this.keyboard = copyOf(keyboard, keyboard.length);
     }
 
     public ReplyKeyboardMarkup resizeKeyboard(boolean resizeKeyboard) {

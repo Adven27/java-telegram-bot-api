@@ -1,7 +1,7 @@
 package net.mamot.bot.commands;
 
 import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.commands.BotCommand;
+import com.pengrad.telegrambot.commands.MessageCommand;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.request.SendMessage;
@@ -12,7 +12,7 @@ import static com.pengrad.telegrambot.model.request.ParseMode.HTML;
 import static net.mamot.bot.services.Stickers.ALONE;
 import static net.mamot.bot.services.Stickers.BLA;
 
-public class AdviceCommand extends BotCommand {
+public class AdviceCommand extends MessageCommand {
 
     private final MessageFromURL messageFromURL;
 
@@ -22,14 +22,14 @@ public class AdviceCommand extends BotCommand {
     }
 
     @Override
-    public void execute(TelegramBot bot, User user, Chat chat, String params) {
+    final public void execute(TelegramBot bot, User user, Chat chat, String params) {
         String text = "";
         String sticker = BLA.id();
         try {
             text = messageFromURL.print();
         } catch (Exception e) {
             sticker = ALONE.id();
-            text = "����� � ��������� ��������...";
+            text = "Связь с ноосферой потеряна...";
         }
         bot.execute(new SendSticker(chat.id(), sticker));
         bot.execute(new SendMessage(chat.id(), text).

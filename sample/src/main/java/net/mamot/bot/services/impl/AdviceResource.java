@@ -16,7 +16,6 @@ public class AdviceResource extends JsonHttpResource implements URLResource {
     public Map<String, String> fetch() throws IOException {
         String js = from(BASEURL);
         BotLogger.info(LOGTAG, js);
-        Map<String, String> javaRootMapObject = new Gson().fromJson(js, Map.class);
-        return javaRootMapObject;
+        return new Gson().fromJson(js, Map.class);
     }
 }

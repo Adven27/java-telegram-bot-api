@@ -1,13 +1,9 @@
 package net.mamot.bot.commands;
 
-import com.pengrad.telegrambot.listeners.handlers.UpdateHandler;
 import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import net.mamot.bot.services.BridgeAdapter;
 import net.mamot.bot.services.impl.FakeHueBridge;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.pengrad.telegrambot.model.request.InlineKeyboardMarkup.*;
 import static com.pengrad.telegrambot.tester.BotTester.given;
@@ -63,15 +59,11 @@ public class LightsCommandTest {
     @Test
     public void givenAvailableBridge_whenChooseOptionAllOff_bridgeShouldTryToTurnOffAll() throws Exception {
         when(bridgeAdapter.search()).thenReturn(singletonList(fakeBridge));
-        List<UpdateHandler> handlers = new ArrayList<>();
 
-        sut = new LightsCommand(bridgeAdapter, fakeBridge);
-        handlers.add(sut);
-
-        given(handlers, sut).
+        given(new LightsCommand(bridgeAdapter, fakeBridge)).
             gotCallback("off").
         then().
-            shouldAnswer(new AnswerCallbackQuery(null).text("Готово"));
+            shouldAnswer(new AnswerCallbackQuery(null).text("Р“РѕС‚РѕРІРѕ"));
 
         verify(fakeBridge).turnOffAll();
         verifyNoMoreInteractions(fakeBridge);

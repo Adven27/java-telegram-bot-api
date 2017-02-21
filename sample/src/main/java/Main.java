@@ -1,7 +1,5 @@
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.listeners.HandlersChainListener;
-import com.pengrad.telegrambot.listeners.handlers.MessageHandler;
-import com.pengrad.telegrambot.listeners.handlers.UpdateHandler;
 import net.mamot.bot.commands.*;
 import net.mamot.bot.services.impl.AdvicePrinter;
 import net.mamot.bot.services.impl.AdviceResource;
@@ -9,7 +7,7 @@ import net.mamot.bot.services.impl.MessageFromURL;
 import net.mamot.bot.services.impl.UpnpBridgeAdapter;
 
 import static com.pengrad.telegrambot.TelegramBotAdapter.buildDebug;
-import static java.util.Arrays.asList;
+import static com.pengrad.telegrambot.tester.BotTester.message;
 
 public class Main {
 
@@ -18,19 +16,13 @@ public class Main {
     public static void main(String[] args) {
         TelegramBot bot = buildDebug(TOKEN);
 
-        LightsCommand lightsCommand = new LightsCommand(new UpnpBridgeAdapter());
-        TicTacToeCommand ticTacToeCommand = new TicTacToeCommand();
-        InlineTestCommand inlineTestCommand = new InlineTestCommand();
-        UpdateHandler messageHandler = new MessageHandler(
+        bot.setUpdatesListener(new HandlersChainListener(bot, (b, u) -> b.execute(message("help")) != null,
                 new HelloCommand(),
-                inlineTestCommand,
-                lightsCommand,
-                ticTacToeCommand,
-                new AdviceCommand(new MessageFromURL(new AdviceResource(), new AdvicePrinter())));
-
-        bot.setUpdatesListener(new HandlersChainListener(bot, asList(
-                messageHandler, lightsCommand, inlineTestCommand,ticTacToeCommand
-        )));
+                new AdviceCommand(new MessageFromURL(new AdviceResource(), new AdvicePrinter())),
+                new LightsCommand(new UpnpBridgeAdapter()),
+                new InlineTestCommand(),
+                new TicTacToeCommand()
+        ));
     }
 
 }

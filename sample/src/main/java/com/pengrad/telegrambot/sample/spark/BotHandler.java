@@ -12,7 +12,7 @@ import spark.Route;
  * stas
  * 12/2/15.
  */
-abstract public class BotHandler implements Route {
+public abstract class BotHandler implements Route {
 
     @Override
     public Object handle(Request request, Response response) throws Exception {

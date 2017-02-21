@@ -57,10 +57,7 @@ public class UpdatesHandler {
                             ? lastUpdateId(updates) + 1
                             : lastConfirmedUpdate + 1;
 
-                    newRequest = new GetUpdates()
-                            .limit(request.getLimit())
-                            .timeout(request.getTimeoutSeconds())
-                            .offset(offset);
+                    newRequest = new GetUpdates().limit(request.getLimit()).timeout(request.getTimeoutSeconds()).offset(offset);
                 }
                 getUpdates(newRequest);
             }

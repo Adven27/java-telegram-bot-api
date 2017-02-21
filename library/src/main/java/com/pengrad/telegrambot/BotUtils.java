@@ -5,11 +5,8 @@ import com.pengrad.telegrambot.model.Update;
 
 import java.io.Reader;
 
-/**
- * stas
- * 11/1/15.
- */
 public class BotUtils {
+    private BotUtils(){}
 
     private static Gson gson = new Gson();
 
