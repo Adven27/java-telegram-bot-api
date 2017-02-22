@@ -22,6 +22,8 @@ import static ru.lanwen.verbalregex.VerbalExpression.regex;
 
 public class BotTester {
 
+    public static final int ORIGINAL_MSG_ID = 1;
+
     public static GivenSpec given(UpdateHandler... handlers) {
         return new GivenSpec(handlers);
     }
@@ -46,6 +48,7 @@ public class BotTester {
 
     public static class GivenSpec {
         private String callbackData = "";
+        private int originalMsg;
         private int date = 1485957820;
         private String text = "";
         private User user = createUser();
@@ -65,6 +68,7 @@ public class BotTester {
 
         public GivenSpec gotCallback(String callbackData) {
             this.callbackData = callbackData;
+            this.originalMsg = ORIGINAL_MSG_ID;
             return this;
         }
 
@@ -99,10 +103,10 @@ public class BotTester {
             Update update = new Update();
             update.setUpdate_id(1);
             if (callbackData.isEmpty()) {
-                update.setMessage(createMessage(text, chat, user, date));
+                update.setMessage(createMessage(1, text, chat, user, date));
             } else {
                 CallbackQuery callback_query = new CallbackQuery();
-                callback_query.setMessage(createMessage(text, chat, user, date));
+                callback_query.setMessage(createMessage(originalMsg, text, chat, user, date));
                 callback_query.setData(callbackData);
                 update.setCallback_query(callback_query);
             }
@@ -119,8 +123,9 @@ public class BotTester {
         }
     }
 
-    private static Message createMessage(String text, Chat chat, User user, Integer date) {
+    private static Message createMessage(int id, String text, Chat chat, User user, Integer date) {
         Message m = new Message();
+        m.setMessage_id(id);
         m.setText(text);
         m.setChat(chat);
         m.setFrom(user);

@@ -31,21 +31,16 @@ public abstract class MessageCommand implements MessageHandler{
         return desc;
     }
 
-
     @Override
     public boolean handle(TelegramBot bot, Update update) {
         Message msg = update.message();
-        return msg != null ? handle(bot, msg) : false;
+        return msg != null && handle(bot, msg);
     }
 
     private boolean handle(TelegramBot bot, Message msg) {
         List<CommandInvocation> invocations = parseCommandInvocations(msg);
-        if (invocations.isEmpty()) {
-            return false;
-        }
-        return tryExecuteCommands(bot, msg, invocations);
+        return !invocations.isEmpty() && tryExecuteCommands(bot, msg, invocations);
     }
-
 
     private boolean tryExecuteCommands(TelegramBot bot, Message msg, List<CommandInvocation> commandInvocations) {
         for (CommandInvocation inv : commandInvocations) {

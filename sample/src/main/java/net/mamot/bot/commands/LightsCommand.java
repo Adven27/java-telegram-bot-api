@@ -2,18 +2,22 @@ package net.mamot.bot.commands;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.commands.CallbackCommand;
-import com.pengrad.telegrambot.model.*;
+import com.pengrad.telegrambot.model.CallbackQuery;
+import com.pengrad.telegrambot.model.Chat;
+import com.pengrad.telegrambot.model.Message;
+import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.AnswerCallbackQuery;
+import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.response.SendResponse;
 import net.mamot.bot.services.BridgeAdapter;
 import net.mamot.bot.services.HueBridge;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.pengrad.telegrambot.model.request.InlineKeyboardMarkup.*;
 import static com.pengrad.telegrambot.request.SendMessage.message;
@@ -23,22 +27,16 @@ public class LightsCommand extends CallbackCommand {
     public static final String CALLBACK_OFF = "off";
     public static final String CALLBACK_ON = "on";
     private final BridgeAdapter bridgeAdapter;
-    private Integer messageId;
     private InlineKeyboardMarkup inlineKeyboard;
 
-    private HueBridge bridge;
+    HueBridge bridge;
 
     public LightsCommand(BridgeAdapter bridgeAdapter) {
         super("/lights", "Lights");
         this.bridgeAdapter = bridgeAdapter;
         inlineKeyboard = keyboard(
-                row(btn("off", CALLBACK_OFF), btn("on", CALLBACK_ON))
+                row(btn("off", identifier() + CALLBACK_OFF), btn("on", identifier() + CALLBACK_ON))
         );
-    }
-
-    public LightsCommand(BridgeAdapter bridgeAdapter, HueBridge bridge) {
-        this(bridgeAdapter);
-        this.bridge = bridge;
     }
 
     @Override
@@ -59,29 +57,39 @@ public class LightsCommand extends CallbackCommand {
             String text = "Bridge: " + bridge.desc();
             request = message(chat, text).replyMarkup(inlineKeyboard);
         }
-
-        SendResponse response = bot.execute(request);
-        messageId = response.message().messageId();
-    }
-
-    @Override
-    public Integer originalMessage() {
-        return messageId;
+        bot.execute(request);
     }
 
     @Override
     public boolean callback(TelegramBot bot, CallbackQuery cb) {
         try {
-            processCallback(cb);
-            bot.execute(new AnswerCallbackQuery(cb.id()).text("Готово"));
+            BaseRequest request = new AnswerCallbackQuery(cb.id()).text("Готово");
+            switch (cb.data()) {
+                case CALLBACK_OFF: bridge.turnOffAll(); break;
+                case CALLBACK_ON: bridge.turnOnAll(); break;
+                default: request = tryToSetBridge(cb);
+            }
+            bot.execute(request);
         } catch (HueBridge.BridgeUnreachableEx e) {
             Message msg = cb.message();
-            bot.execute(new EditMessageText(msg.chat().id(), messageId, "Не шмагля...").replyMarkup(inlineKeyboard));
+            bot.execute(new EditMessageText(msg.chat().id(), cb.message().messageId(), "Не шмагля...").replyMarkup(inlineKeyboard));
         }
         return true;
     }
 
-    public HueBridge bridge() {
+    private BaseRequest tryToSetBridge(CallbackQuery cb) {
+        BaseRequest request = new AnswerCallbackQuery(cb.id()).text("Готово");
+        List<HueBridge> bridges = bridgeAdapter.search();
+        Optional<HueBridge> chosen = bridges.stream().filter(bridge -> cb.data().equals(bridge.id())).findFirst();
+        if (chosen.isPresent()) {
+            bridge = chosen.get();
+        } else {
+            request = message(cb.message().chat(), "Em... Bridge " + cb.data() + " suddenly disappeared... Choose again:").replyMarkup(getBridgesOptions(bridges));
+        }
+        return request;
+    }
+
+    HueBridge bridge() {
         return bridge;
     }
 
@@ -91,14 +99,5 @@ public class LightsCommand extends CallbackCommand {
             btns.add(btn(bridge.desc(), bridge.id()));
         }
         return keyboard(row(btns.toArray(new InlineKeyboardButton[]{})));
-    }
-
-    private void processCallback(CallbackQuery cb) {
-        switch (cb.data()) {
-            case CALLBACK_OFF: bridge.turnOffAll(); return;
-            case CALLBACK_ON: bridge.turnOnAll(); return;
-        }
-
-        bridge = bridgeAdapter.search().stream().filter(bridge -> cb.data().equals(bridge.id())).findFirst().get();
     }
 }

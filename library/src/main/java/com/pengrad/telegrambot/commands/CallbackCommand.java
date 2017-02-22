@@ -20,7 +20,6 @@ public abstract class CallbackCommand extends MessageCommand implements Callback
     }
 
     private boolean isThisCommandCallback(CallbackQuery cb) {
-        Integer om = originalMessage();
-        return cb != null && (cb.message().messageId() == om || cb.message().messageId().equals(om));
+        return cb.data().startsWith(identifier());
     }
 }

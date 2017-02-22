@@ -8,15 +8,13 @@ import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.response.SendResponse;
 
 import static com.pengrad.telegrambot.model.request.InlineKeyboardMarkup.*;
 
 public class InlineTestCommand extends CallbackCommand{
 
-    public static final String CALLBACK_OFF = "off";
-    public static final String CALLBACK_ON = "on";
-    private Integer messageId;
+    private static final String CALLBACK_OFF = "off";
+    private static final String CALLBACK_ON = "on";
     private InlineKeyboardMarkup inlineKeyboard;
 
     public InlineTestCommand() {
@@ -28,8 +26,7 @@ public class InlineTestCommand extends CallbackCommand{
 
     public void execute(TelegramBot bot, User user, Chat chat, String params) {
         SendMessage request = new SendMessage(chat.id(), "Test").replyMarkup(inlineKeyboard);
-        SendResponse response = bot.execute(request);
-        messageId = response.message().messageId();
+        bot.execute(request);
     }
 
     private void processCallback(CallbackQuery cb) {
@@ -41,10 +38,5 @@ public class InlineTestCommand extends CallbackCommand{
         processCallback(cb);
         bot.execute(new AnswerCallbackQuery(cb.id()).text("Готово"));
         return true;
-    }
-
-    @Override
-    public Integer originalMessage() {
-        return null;
     }
 }

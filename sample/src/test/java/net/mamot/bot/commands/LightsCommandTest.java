@@ -1,7 +1,9 @@
 package net.mamot.bot.commands;
 
 import com.pengrad.telegrambot.request.AnswerCallbackQuery;
+import com.pengrad.telegrambot.request.SendMessage;
 import net.mamot.bot.services.BridgeAdapter;
+import net.mamot.bot.services.HueBridge;
 import net.mamot.bot.services.impl.FakeHueBridge;
 import org.junit.Test;
 
@@ -11,6 +13,8 @@ import static com.pengrad.telegrambot.tester.BotTester.message;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static net.mamot.bot.commands.LightsCommand.CALLBACK_OFF;
+import static net.mamot.bot.commands.LightsCommand.CALLBACK_ON;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -19,7 +23,8 @@ public class LightsCommandTest {
     private final FakeHueBridge fakeBridge = spy(new FakeHueBridge("1", "My Bridge 1", "url1"));
     private final FakeHueBridge anotherFakeBridge = spy(new FakeHueBridge("2", "My Bridge 2", "url2"));
     private final BridgeAdapter bridgeAdapter = mock(BridgeAdapter.class);
-    private LightsCommand sut = new LightsCommand(bridgeAdapter);
+    private TestDoubleCommand sut = new TestDoubleCommand(bridgeAdapter);
+    private SendMessage sorryNoBridgesMessage = message("Sorry. There are no available bridges...");
 
     @Test
     public void whenOnlyOneAvailableBridge_setAsCurrentAndShowOptions() throws Exception {
@@ -29,8 +34,8 @@ public class LightsCommandTest {
         then().
             shouldAnswer(
                 message("Bridge: " + fakeBridge.desc()).replyMarkup(
-                        keyboard(row(btn("off","off"),
-                                     btn("on","on"))
+                        keyboard(row(btn("off", CALLBACK_OFF),
+                                     btn("on", CALLBACK_ON))
                         )));
     }
 
@@ -52,31 +57,94 @@ public class LightsCommandTest {
         when(bridgeAdapter.search()).thenReturn(emptyList());
 
         given(sut).
-                got("/lights").
-                then().
-                shouldAnswer(message("Sorry. There are no available bridges..."));
+            got("/lights").
+        then().
+            shouldAnswer(sorryNoBridgesMessage);
+
+        verify(bridgeAdapter).search();
+        verifyNoMoreInteractions(bridgeAdapter);
     }
 
     @Test
-    public void whenChooseBridge_setItAndInformUser() throws Exception {
+    public void whenBridgeWasChosen_setItAndInformUser() throws Exception {
         when(bridgeAdapter.search()).thenReturn(asList(fakeBridge, anotherFakeBridge));
         given(sut).
             gotCallback(fakeBridge.id()).
         then().
             shouldAnswer(new AnswerCallbackQuery(null).text("Готово"));
         assertEquals(fakeBridge.id(), sut.bridge().id());
+
+        verify(bridgeAdapter).search();
+        verifyNoMoreInteractions(bridgeAdapter);
     }
 
     @Test
-    public void givenAvailableBridge_whenChooseOptionAllOff_bridgeShouldTryToTurnOffAll() throws Exception {
-        when(bridgeAdapter.search()).thenReturn(singletonList(fakeBridge));
+    public void whenBridgeWasChosen_butItDisappearedInformUserAndAskToChooseAgain() throws Exception {
+        when(bridgeAdapter.search()).thenReturn(singletonList(anotherFakeBridge));
+        given(sut).
+            gotCallback(fakeBridge.id()).
+        then().
+            shouldAnswer(
+                message("Em... Bridge " + fakeBridge.id() + " suddenly disappeared... Choose again:").replyMarkup(
+                        keyboard(row(btn(anotherFakeBridge.desc(), anotherFakeBridge.id()))
+                ))
+            );
 
-        given(new LightsCommand(bridgeAdapter, fakeBridge)).
-            gotCallback("off").
+        assertEquals(sut.bridge(), null);
+
+        verify(bridgeAdapter).search();
+        verifyNoMoreInteractions(bridgeAdapter);
+    }
+
+    @Test
+    public void givenActiveBridge_whenOptionAllOffWasChosen_bridgeShouldTryToTurnOffAll() throws Exception {
+        sut.withBridge(fakeBridge);
+        given(sut).
+            gotCallback(sut.identifier() + CALLBACK_OFF).
         then().
             shouldAnswer(new AnswerCallbackQuery(null).text("Готово"));
 
         verify(fakeBridge).turnOffAll();
+        verifyNoMoreInteractions(bridgeAdapter);
         verifyNoMoreInteractions(fakeBridge);
+    }
+
+    @Test
+    public void givenActiveBridge_whenOptionAllOnWasChosen_bridgeShouldTryToTurnOnAll() throws Exception {
+        sut.withBridge(fakeBridge);
+        given(sut).
+            gotCallback(CALLBACK_ON).
+        then().
+            shouldAnswer(new AnswerCallbackQuery(null).text("Готово"));
+
+        verify(fakeBridge).turnOnAll();
+        verifyNoMoreInteractions(bridgeAdapter);
+        verifyNoMoreInteractions(fakeBridge);
+    }
+
+    @Test
+    public void givenStaleCurrentBridgeAndNoAvailableBridges_whenAnyOptionWasChosen_sorry() throws Exception {
+        //when(bridgeAdapter.search()).thenReturn(emptyList());
+        doThrow(HueBridge.BridgeUnreachableEx.class).when(fakeBridge).turnOnAll();
+        sut.withBridge(fakeBridge);
+
+        given(sut).
+            gotCallback(CALLBACK_ON).
+        then().
+            shouldAnswer(sorryNoBridgesMessage);
+
+        verify(fakeBridge).turnOnAll();
+        verifyNoMoreInteractions(bridgeAdapter);
+        verifyNoMoreInteractions(fakeBridge);
+    }
+
+    private class TestDoubleCommand extends LightsCommand {
+        TestDoubleCommand(BridgeAdapter adapter) {
+            super(adapter);
+        }
+
+        private void withBridge(HueBridge bridge) {
+            this.bridge = bridge;
+        }
     }
 }

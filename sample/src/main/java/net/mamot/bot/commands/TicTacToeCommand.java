@@ -7,7 +7,6 @@ import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.EditMessageText;
-import com.pengrad.telegrambot.response.SendResponse;
 import net.mamot.bot.games.TicTacToe;
 
 import static com.pengrad.telegrambot.model.request.InlineKeyboardMarkup.*;
@@ -16,7 +15,6 @@ import static java.lang.Integer.parseInt;
 
 public class TicTacToeCommand extends CallbackCommand {
     private final TicTacToe game = new TicTacToe();
-    private Integer originalMessage;
 
     public TicTacToeCommand() {
         super("/ttt", "Try to beat me skin bastard...");
@@ -24,13 +22,7 @@ public class TicTacToeCommand extends CallbackCommand {
 
     @Override
     public void execute(TelegramBot bot, User user, Chat chat, String params) {
-        SendResponse response = bot.execute(message(chat, game.toString()).replyMarkup(getKeyboard()));
-        originalMessage = response.message().messageId();
-    }
-
-    @Override
-    public Integer originalMessage() {
-        return originalMessage;
+        bot.execute(message(chat, game.toString()).replyMarkup(getKeyboard()));
     }
 
     @Override
@@ -40,7 +32,7 @@ public class TicTacToeCommand extends CallbackCommand {
         } else {
             game.move(parseInt(cb.data()));
         }
-        bot.execute(new EditMessageText(cb.message().chat().id(), originalMessage, game.toString()).replyMarkup(getKeyboard()));
+        bot.execute(new EditMessageText(cb.message().chat().id(), cb.message().messageId(), game.toString()).replyMarkup(getKeyboard()));
         return true;
     }
 
