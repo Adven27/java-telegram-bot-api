@@ -11,6 +11,7 @@ import static com.pengrad.telegrambot.tester.BotTester.message;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 public class LightsCommandTest {
@@ -51,9 +52,19 @@ public class LightsCommandTest {
         when(bridgeAdapter.search()).thenReturn(emptyList());
 
         given(sut).
-            got("/lights").
+                got("/lights").
+                then().
+                shouldAnswer(message("Sorry. There are no available bridges..."));
+    }
+
+    @Test
+    public void whenChooseBridge_setItAndInformUser() throws Exception {
+        when(bridgeAdapter.search()).thenReturn(asList(fakeBridge, anotherFakeBridge));
+        given(sut).
+            gotCallback(fakeBridge.id()).
         then().
-            shouldAnswer(message("Sorry. There are no available bridges..."));
+            shouldAnswer(new AnswerCallbackQuery(null).text("Готово"));
+        assertEquals(fakeBridge.id(), sut.bridge().id());
     }
 
     @Test

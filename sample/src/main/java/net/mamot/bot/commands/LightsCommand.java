@@ -25,6 +25,7 @@ public class LightsCommand extends CallbackCommand {
     private final BridgeAdapter bridgeAdapter;
     private Integer messageId;
     private InlineKeyboardMarkup inlineKeyboard;
+
     private HueBridge bridge;
 
     public LightsCommand(BridgeAdapter bridgeAdapter) {
@@ -80,6 +81,10 @@ public class LightsCommand extends CallbackCommand {
         return true;
     }
 
+    public HueBridge bridge() {
+        return bridge;
+    }
+
     private InlineKeyboardMarkup getBridgesOptions(List<HueBridge> bridges) {
         List<InlineKeyboardButton> btns = new ArrayList<>();
         for (HueBridge bridge : bridges) {
@@ -90,8 +95,10 @@ public class LightsCommand extends CallbackCommand {
 
     private void processCallback(CallbackQuery cb) {
         switch (cb.data()) {
-            case CALLBACK_OFF: bridge.turnOffAll(); break;
-            case CALLBACK_ON: bridge.turnOnAll(); break;
+            case CALLBACK_OFF: bridge.turnOffAll(); return;
+            case CALLBACK_ON: bridge.turnOnAll(); return;
         }
+
+        bridge = bridgeAdapter.search().stream().filter(bridge -> cb.data().equals(bridge.id())).findFirst().get();
     }
 }
