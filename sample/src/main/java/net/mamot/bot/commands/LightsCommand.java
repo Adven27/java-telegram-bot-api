@@ -4,7 +4,6 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.commands.CallbackCommand;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Chat;
-import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.AnswerCallbackQuery;
@@ -28,6 +27,7 @@ public class LightsCommand extends CallbackCommand {
     private InlineKeyboardMarkup inlineKeyboard;
 
     HueBridge bridge;
+    private boolean isFirstRetry = true;
 
     public LightsCommand(BridgeAdapter bridgeAdapter) {
         super("/lights", "Lights");
@@ -68,10 +68,27 @@ public class LightsCommand extends CallbackCommand {
             }
             bot.execute(request);
         } catch (HueBridge.BridgeUnreachableEx e) {
-            Message msg = cb.message();
-            bot.execute(new SendMessage(msg.chat().id(), "Sorry. There are no available bridges...").replyMarkup(inlineKeyboard));
+            if (isFirstRetry && retry(bot, cb)) {
+                return true;
+            }
+            isFirstRetry = true;
+            bot.execute(message(cb.message().chat(), "Sorry. There are no available bridges...").replyMarkup(inlineKeyboard));
         }
         return true;
+    }
+
+    private boolean retry(TelegramBot bot, CallbackQuery cb) {
+        isFirstRetry = false;
+        List<HueBridge> bridges = bridgeAdapter.search();
+        if (bridges.size() == 1) {
+            bridge = bridges.get(0);
+            callback(bot, cb);
+            return true;
+        } else if (bridges.size() > 1) {
+            bot.execute(message(cb.message().chat(), "Choose bridge:").replyMarkup(getBridgesOptions(bridges)));
+            return true;
+        }
+        return false;
     }
 
     private BaseRequest tryToSetBridge(CallbackQuery cb) {
