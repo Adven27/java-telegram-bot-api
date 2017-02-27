@@ -1,6 +1,7 @@
 package com.pengrad.telegrambot.tester;
 
 import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.commands.CallbackCommand;
 import com.pengrad.telegrambot.commands.MessageCommand;
 import com.pengrad.telegrambot.listeners.HandlersChainListener;
 import com.pengrad.telegrambot.listeners.OneTimeListenerDecorator;
@@ -69,6 +70,11 @@ public class BotTester {
         public GivenSpec gotCallback(String callbackData) {
             this.callbackData = callbackData;
             this.originalMsg = ORIGINAL_MSG_ID;
+            return this;
+        }
+
+        public GivenSpec gotCallbackFor(CallbackCommand handler, String callbackData) {
+            gotCallback(handler.callbackDataPrefix() + callbackData);
             return this;
         }
 

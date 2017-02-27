@@ -5,5 +5,5 @@ import com.pengrad.telegrambot.model.CallbackQuery;
 
 public interface CallbackHandler extends UpdateHandler {
     boolean callback(TelegramBot bot, CallbackQuery callbackQuery);
-    String identifier();
+    String callbackDataPrefix();
 }

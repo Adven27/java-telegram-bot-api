@@ -7,7 +7,7 @@ import net.mamot.bot.services.HueBridge;
 import net.mamot.bot.services.impl.FakeHueBridge;
 import org.junit.Test;
 
-import static com.pengrad.telegrambot.model.request.InlineKeyboardMarkup.*;
+import static com.pengrad.telegrambot.fluent.KeyboardBuilder.keyboard;
 import static com.pengrad.telegrambot.tester.BotTester.given;
 import static com.pengrad.telegrambot.tester.BotTester.message;
 import static java.util.Arrays.asList;
@@ -34,9 +34,10 @@ public class LightsCommandTest {
         then().
             shouldAnswer(
                 message("Bridge: " + fakeBridge.desc()).replyMarkup(
-                        keyboard(row(btn("off", CALLBACK_OFF),
-                                     btn("on", CALLBACK_ON))
-                        )));
+                        keyboard(sut.callbackDataPrefix()).row(
+                                "off", CALLBACK_OFF, "on", CALLBACK_ON)
+                        .build()
+                ));
     }
 
     @Test
@@ -47,9 +48,10 @@ public class LightsCommandTest {
         then().
             shouldAnswer(
                 message("Choose bridge:").replyMarkup(
-                        keyboard(row(btn(fakeBridge.desc(), fakeBridge.id()),
-                                     btn(anotherFakeBridge.desc(), anotherFakeBridge.id()))
-                        )));
+                        keyboard(sut.callbackDataPrefix()).row(
+                                fakeBridge.desc(), fakeBridge.id(), anotherFakeBridge.desc(), anotherFakeBridge.id())
+                        .build()
+                ));
     }
 
     @Test
@@ -69,7 +71,7 @@ public class LightsCommandTest {
     public void whenBridgeWasChosen_setItAndInformUser() throws Exception {
         when(bridgeAdapter.search()).thenReturn(asList(fakeBridge, anotherFakeBridge));
         given(sut).
-            gotCallback(fakeBridge.id()).
+            gotCallbackFor(sut, fakeBridge.id()).
         then().
             shouldAnswer(new AnswerCallbackQuery(null).text("Готово"));
         assertEquals(fakeBridge.id(), sut.bridge().id());
@@ -82,13 +84,14 @@ public class LightsCommandTest {
     public void whenBridgeWasChosen_butItDisappearedInformUserAndAskToChooseAgain() throws Exception {
         when(bridgeAdapter.search()).thenReturn(singletonList(anotherFakeBridge));
         given(sut).
-            gotCallback(fakeBridge.id()).
+            gotCallbackFor(sut, fakeBridge.id()).
         then().
             shouldAnswer(
                 message("Em... Bridge " + fakeBridge.id() + " suddenly disappeared... Choose again:").replyMarkup(
-                        keyboard(row(btn(anotherFakeBridge.desc(), anotherFakeBridge.id()))
-                ))
-            );
+                        keyboard(sut.callbackDataPrefix()).row(
+                                anotherFakeBridge.desc(), anotherFakeBridge.id())
+                        .build()
+                ));
 
         assertEquals(sut.bridge(), null);
 
@@ -100,7 +103,7 @@ public class LightsCommandTest {
     public void givenActiveBridge_whenOptionAllOffWasChosen_bridgeShouldTryToTurnOffAll() throws Exception {
         sut.withBridge(fakeBridge);
         given(sut).
-            gotCallback(sut.identifier() + CALLBACK_OFF).
+            gotCallbackFor(sut, CALLBACK_OFF).
         then().
             shouldAnswer(new AnswerCallbackQuery(null).text("Готово"));
 
@@ -113,7 +116,7 @@ public class LightsCommandTest {
     public void givenActiveBridge_whenOptionAllOnWasChosen_bridgeShouldTryToTurnOnAll() throws Exception {
         sut.withBridge(fakeBridge);
         given(sut).
-            gotCallback(CALLBACK_ON).
+            gotCallbackFor(sut, CALLBACK_ON).
         then().
             shouldAnswer(new AnswerCallbackQuery(null).text("Готово"));
 
@@ -129,7 +132,7 @@ public class LightsCommandTest {
         sut.withBridge(fakeBridge);
 
         given(sut).
-            gotCallback(CALLBACK_ON).
+            gotCallbackFor(sut, CALLBACK_ON).
         then().
             shouldAnswer(sorryNoBridgesMessage);
 

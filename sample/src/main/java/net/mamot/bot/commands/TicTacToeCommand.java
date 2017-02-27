@@ -9,7 +9,7 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.EditMessageText;
 import net.mamot.bot.games.TicTacToe;
 
-import static com.pengrad.telegrambot.model.request.InlineKeyboardMarkup.*;
+import static com.pengrad.telegrambot.fluent.KeyboardBuilder.keyboard;
 import static com.pengrad.telegrambot.request.SendMessage.message;
 import static java.lang.Integer.parseInt;
 
@@ -37,11 +37,10 @@ public class TicTacToeCommand extends CallbackCommand {
     }
 
     private InlineKeyboardMarkup getKeyboard() {
-        return keyboard(
-                row(btn("0", "0"),btn("1", "1"),btn("2", "2")),
-                row(btn("3", "3"),btn("4", "4"),btn("5", "5")),
-                row(btn("6", "6"),btn("7", "7"),btn("8", "8")),
-                row(btn("reset", "r"))
-        );
+        return keyboard(callbackDataPrefix()).row(
+                "0", "0", "1", "1", "2", "2",
+                "3", "3", "4", "4", "5", "5",
+                "6", "6", "7", "7", "8", "8",
+                "reset", "r").build();
     }
 }

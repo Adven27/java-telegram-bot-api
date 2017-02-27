@@ -6,11 +6,9 @@ import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.User;
-import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import com.pengrad.telegrambot.request.BaseRequest;
-import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
 import net.mamot.bot.services.BridgeAdapter;
 import net.mamot.bot.services.HueBridge;
@@ -19,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.pengrad.telegrambot.model.request.InlineKeyboardMarkup.*;
+import static com.pengrad.telegrambot.fluent.KeyboardBuilder.keyboard;
 import static com.pengrad.telegrambot.request.SendMessage.message;
 
 public class LightsCommand extends CallbackCommand {
@@ -34,9 +32,8 @@ public class LightsCommand extends CallbackCommand {
     public LightsCommand(BridgeAdapter bridgeAdapter) {
         super("/lights", "Lights");
         this.bridgeAdapter = bridgeAdapter;
-        inlineKeyboard = keyboard(
-                row(btn("off", identifier() + CALLBACK_OFF), btn("on", identifier() + CALLBACK_ON))
-        );
+        inlineKeyboard = keyboard(callbackDataPrefix()).row(
+                "off", CALLBACK_OFF, "on", CALLBACK_ON).build();
     }
 
     @Override
@@ -72,7 +69,7 @@ public class LightsCommand extends CallbackCommand {
             bot.execute(request);
         } catch (HueBridge.BridgeUnreachableEx e) {
             Message msg = cb.message();
-            bot.execute(new EditMessageText(msg.chat().id(), cb.message().messageId(), "Не шмагля...").replyMarkup(inlineKeyboard));
+            bot.execute(new SendMessage(msg.chat().id(), "Sorry. There are no available bridges...").replyMarkup(inlineKeyboard));
         }
         return true;
     }
@@ -94,10 +91,11 @@ public class LightsCommand extends CallbackCommand {
     }
 
     private InlineKeyboardMarkup getBridgesOptions(List<HueBridge> bridges) {
-        List<InlineKeyboardButton> btns = new ArrayList<>();
+        List<String> btns = new ArrayList<>();
         for (HueBridge bridge : bridges) {
-            btns.add(btn(bridge.desc(), bridge.id()));
+            btns.add(bridge.desc());
+            btns.add(bridge.id());
         }
-        return keyboard(row(btns.toArray(new InlineKeyboardButton[]{})));
+        return keyboard(callbackDataPrefix()).row(btns.toArray(new String[btns.size()])).build();
     }
 }

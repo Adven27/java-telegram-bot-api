@@ -19,7 +19,15 @@ public abstract class CallbackCommand extends MessageCommand implements Callback
         return isThisCommandCallback(cb) ? callback(bot, cb) : false;
     }
 
+    public final String callbackDataPrefix() {
+        return identifier() + ":";
+    }
+
     private boolean isThisCommandCallback(CallbackQuery cb) {
-        return cb.data().startsWith(identifier());
+        if(cb.data().startsWith(callbackDataPrefix())) {
+            cb.setData(cb.data().substring(callbackDataPrefix().length()));
+            return true;
+        }
+        return false;
     }
 }

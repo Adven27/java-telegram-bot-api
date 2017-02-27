@@ -23,7 +23,7 @@ public abstract class MessageCommand implements MessageHandler{
         this.desc = desc;
     }
 
-    public final String identifier() {
+    protected String identifier() {
         return commandIdentifier;
     }
 

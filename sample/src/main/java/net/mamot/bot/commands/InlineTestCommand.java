@@ -9,7 +9,7 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import com.pengrad.telegrambot.request.SendMessage;
 
-import static com.pengrad.telegrambot.model.request.InlineKeyboardMarkup.*;
+import static com.pengrad.telegrambot.fluent.KeyboardBuilder.keyboard;
 
 public class InlineTestCommand extends CallbackCommand{
 
@@ -19,9 +19,8 @@ public class InlineTestCommand extends CallbackCommand{
 
     public InlineTestCommand() {
         super("/it", "inline test");
-        inlineKeyboard = keyboard(
-                row(btn("off", CALLBACK_OFF), btn("on", CALLBACK_ON))
-        );
+        inlineKeyboard = keyboard(callbackDataPrefix()).row(
+                "off", CALLBACK_OFF, "on", CALLBACK_ON).build();
     }
 
     public void execute(TelegramBot bot, User user, Chat chat, String params) {
