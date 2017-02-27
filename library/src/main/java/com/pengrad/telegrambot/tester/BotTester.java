@@ -13,7 +13,6 @@ import com.pengrad.telegrambot.request.SendSticker;
 import com.pengrad.telegrambot.response.GetUpdatesResponse;
 import ru.lanwen.verbalregex.VerbalExpression;
 
-import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -29,7 +28,11 @@ public class BotTester {
         return new GivenSpec(handlers);
     }
 
-    //TODO rid of hardcoded chat ID
+    public static GivenSpec givenGotCallbackFor(CallbackCommand cmd, String callbackData) {
+        return given(cmd).gotCallbackFor(cmd, callbackData);
+    }
+
+    //TODO get rid of hardcoded chat ID
     public static SendMessage message(String text) {
         return new SendMessage(1 , text);
     }
@@ -83,23 +86,9 @@ public class BotTester {
             return this;
         }
 
-        public GivenSpec chat(String id, Chat.Type type) {
-            //chat =  format(chatTemplate, id, type.name().toLowerCase());
-            return this;
-        }
-
-        public GivenSpec chat(String id) {
-            return chat(id, Chat.Type.Private);
-        }
-
         public GivenSpec from(int id, String firstName) {
             user.setId(id);
             user.setFirst_name(firstName);
-            return this;
-        }
-
-        public GivenSpec date(Date dt) {
-            //date = dt.getTime();
             return this;
         }
 
