@@ -20,7 +20,6 @@ public class Main {
                 new HelloCommand(),
                 new AdviceCommand(new MessageFromURL(new AdviceResource(), new AdvicePrinter())),
                 new LightsCommand(new UpnpBridgeAdapter()),
-                new InlineTestCommand(),
                 new TicTacToeCommand()
         ));
     }

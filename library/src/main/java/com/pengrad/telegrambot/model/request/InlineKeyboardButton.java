@@ -17,6 +17,10 @@ public class InlineKeyboardButton {
         this.text = text;
     }
 
+    public static InlineKeyboardButton button(String text, String data) {
+        return new InlineKeyboardButton(text).callbackData(data);
+    }
+
     public InlineKeyboardButton url(String url) {
         this.url = url;
         return this;
@@ -40,5 +44,9 @@ public class InlineKeyboardButton {
     public InlineKeyboardButton callbackGame(String callbackGame) {
         callback_game = callbackGame;
         return this;
+    }
+
+    public String callbackData() {
+        return callback_data;
     }
 }

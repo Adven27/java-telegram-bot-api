@@ -77,7 +77,7 @@ public class BotTester {
         }
 
         public GivenSpec gotCallbackFor(CallbackCommand handler, String callbackData) {
-            gotCallback(handler.callbackDataPrefix() + callbackData);
+            gotCallback(handler.signCallback(callbackData));
             return this;
         }
 

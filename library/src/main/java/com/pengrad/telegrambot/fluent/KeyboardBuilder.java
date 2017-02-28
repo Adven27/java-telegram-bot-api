@@ -6,27 +6,28 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import java.util.ArrayList;
 import java.util.List;
 
-public class KeyboardBuilder {
-    final String prefix;
+import static com.pengrad.telegrambot.model.request.InlineKeyboardButton.button;
 
+public class KeyboardBuilder {
     List<InlineKeyboardButton[]> rows = new ArrayList<>();
 
-    public KeyboardBuilder(String prefix) {
-        this.prefix = prefix;
-    }
-
-    public static KeyboardBuilder keyboard(String callbackDataPrefix) {
-        return new KeyboardBuilder(callbackDataPrefix);
-    }
-
     public static KeyboardBuilder keyboard() {
-        return keyboard("");
+        return new KeyboardBuilder();
     }
 
     public KeyboardBuilder row(String... textDataPairs) {
         List<InlineKeyboardButton> row = new ArrayList<>();
         for (int i =0 ; i < textDataPairs.length; i = i + 2) {
-            row.add(new InlineKeyboardButton(textDataPairs[i]).callbackData(prefix + textDataPairs[i + 1]));
+            row.add(button(textDataPairs[i], textDataPairs[i + 1]));
+        }
+        rows.add(row.toArray(new InlineKeyboardButton[row.size()]));
+        return this;
+    }
+
+    public KeyboardBuilder row(InlineKeyboardButton... btns) {
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        for (int i =0 ; i < btns.length; i = i + 2) {
+            row.add(btns[i]);
         }
         rows.add(row.toArray(new InlineKeyboardButton[row.size()]));
         return this;

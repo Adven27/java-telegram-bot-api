@@ -8,9 +8,7 @@ import net.mamot.bot.services.impl.FakeHueBridge;
 import org.junit.Test;
 
 import static com.pengrad.telegrambot.fluent.KeyboardBuilder.keyboard;
-import static com.pengrad.telegrambot.tester.BotTester.given;
-import static com.pengrad.telegrambot.tester.BotTester.givenGotCallbackFor;
-import static com.pengrad.telegrambot.tester.BotTester.message;
+import static com.pengrad.telegrambot.tester.BotTester.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -35,12 +33,9 @@ public class LightsCommandTest {
         given(sut).
             got("/lights").
         then().
-            shouldAnswer(
-                message("Bridge: " + fakeBridge.desc()).replyMarkup(
-                        keyboard(sut.callbackDataPrefix()).row(
-                                "off", CALLBACK_OFF, "on", CALLBACK_ON)
-                        .build()
-                ));
+            shouldAnswer(message("Bridge: " + fakeBridge.desc()).replyMarkup(
+                sut.signCallbackKeyboard(keyboard().row("off", CALLBACK_OFF, "on", CALLBACK_ON).build())
+            ));
     }
 
     @Test
@@ -50,12 +45,9 @@ public class LightsCommandTest {
         given(sut).
             got("/lights").
         then().
-            shouldAnswer(
-                message("Choose bridge:").replyMarkup(
-                        keyboard(sut.callbackDataPrefix()).row(
-                                fakeBridge.desc(), fakeBridge.id(), anotherFakeBridge.desc(), anotherFakeBridge.id())
-                        .build()
-                ));
+            shouldAnswer(message("Choose bridge:").replyMarkup(
+                sut.signCallbackKeyboard(keyboard().row(fakeBridge.desc(), fakeBridge.id(), anotherFakeBridge.desc(), anotherFakeBridge.id()).build())
+            ));
     }
 
     @Test
@@ -88,9 +80,7 @@ public class LightsCommandTest {
 
         givenGotCallbackFor(sut, fakeBridge.id()).then().shouldAnswer(
                 message("Em... Bridge " + fakeBridge.id() + " suddenly disappeared... Choose again:").replyMarkup(
-                        keyboard(sut.callbackDataPrefix()).row(
-                                anotherFakeBridge.desc(), anotherFakeBridge.id())
-                        .build()
+                        sut.signCallbackKeyboard(keyboard().row(anotherFakeBridge.desc(), anotherFakeBridge.id()).build())
                 ));
 
         assertEquals(sut.bridge(), null);
@@ -172,10 +162,8 @@ public class LightsCommandTest {
         sut.withBridge(fakeBridge);
         when(bridgeAdapter.search()).thenReturn(asList(anotherFakeBridge, yetAnotherFakeBridge));
 
-        givenGotCallbackFor(sut, CALLBACK_ON).then().shouldAnswer( message("Choose bridge:").replyMarkup(
-                keyboard(sut.callbackDataPrefix()).row(
-                        anotherFakeBridge.desc(), anotherFakeBridge.id(), yetAnotherFakeBridge.desc(), yetAnotherFakeBridge.id())
-                        .build()
+        givenGotCallbackFor(sut, CALLBACK_ON).then().shouldAnswer(message("Choose bridge:").replyMarkup(
+            sut.signCallbackKeyboard(keyboard().row(anotherFakeBridge.desc(), anotherFakeBridge.id(), yetAnotherFakeBridge.desc(), yetAnotherFakeBridge.id()).build())
         ));
 
         verify(fakeBridge).turnOnAll();

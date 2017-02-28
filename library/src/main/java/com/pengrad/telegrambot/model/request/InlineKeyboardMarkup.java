@@ -11,4 +11,8 @@ public class InlineKeyboardMarkup extends Keyboard {
     public InlineKeyboardMarkup(InlineKeyboardButton[]... keyboard) {
         this.inline_keyboard = keyboard;
     }
+
+    public InlineKeyboardButton[][] keyboard() {
+        return inline_keyboard;
+    }
 }
