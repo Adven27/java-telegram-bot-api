@@ -23,6 +23,7 @@ public class HandlersChainListener implements UpdatesListener {
     @Override
     public int process(List<Update> updates) {
         updates.forEach(this::process);
+        //TODO shouldn't confirm always
         return CONFIRMED_UPDATES_ALL;
     }
 
