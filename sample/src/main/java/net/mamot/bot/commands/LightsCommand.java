@@ -32,7 +32,7 @@ public class LightsCommand extends CallbackCommand {
     public LightsCommand(BridgeAdapter bridgeAdapter) {
         super("/lights", "Lights");
         this.bridgeAdapter = bridgeAdapter;
-        inlineKeyboard = signCallbackKeyboard(keyboard().row("off", CALLBACK_OFF, "on", CALLBACK_ON).build());
+        inlineKeyboard = keyboard().row("off", CALLBACK_OFF, "on", CALLBACK_ON).build();
     }
 
     @Override
@@ -112,6 +112,6 @@ public class LightsCommand extends CallbackCommand {
             btns.add(bridge.desc());
             btns.add(bridge.id());
         }
-        return signCallbackKeyboard(keyboard().row(btns.toArray(new String[btns.size()])).build());
+        return keyboard().row(btns.toArray(new String[btns.size()])).build();
     }
 }

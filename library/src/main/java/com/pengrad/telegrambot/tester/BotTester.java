@@ -1,5 +1,6 @@
 package com.pengrad.telegrambot.tester;
 
+import com.pengrad.telegrambot.SimpleBot;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.commands.CallbackCommand;
 import com.pengrad.telegrambot.commands.MessageCommand;
@@ -13,11 +14,13 @@ import com.pengrad.telegrambot.request.SendSticker;
 import com.pengrad.telegrambot.response.GetUpdatesResponse;
 import ru.lanwen.verbalregex.VerbalExpression;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
+import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 import static ru.lanwen.verbalregex.VerbalExpression.regex;
 
 public class BotTester {
@@ -76,8 +79,8 @@ public class BotTester {
             return this;
         }
 
-        public GivenSpec gotCallbackFor(CallbackCommand handler, String callbackData) {
-            gotCallback(handler.signCallback(callbackData));
+        public GivenSpec gotCallbackFor(CallbackCommand cmd, String callbackData) {
+            gotCallback(cmd.signCallback(callbackData));
             return this;
         }
 
@@ -92,8 +95,16 @@ public class BotTester {
             return this;
         }
 
+        public ThenSpec then(CallbackCommand cmd) {
+            return new ThenSpec(getRequests(), cmd);
+        }
+
         public ThenSpec then() {
-            //TODO refactor
+            return then(null);
+        }
+
+        //TODO refactor
+        private List<BaseRequest> getRequests() {
             GetUpdatesResponse updatesResponse = new GetUpdatesResponse();
             Update update = new Update();
             update.setUpdate_id(1);
@@ -107,9 +118,9 @@ public class BotTester {
             }
             updatesResponse.setResult(singletonList(update));
             FakeBotApi botApi = new FakeBotApi(updatesResponse);
-            TelegramBot bot = new TelegramBot(botApi);
+            TelegramBot bot = new SimpleBot(botApi);
             startOnce(bot);
-            return new ThenSpec(botApi.requests());
+            return botApi.requests();
         }
 
         private void startOnce(TelegramBot bot) {
@@ -132,7 +143,7 @@ public class BotTester {
     private static List<MessageEntity> parseEntities(String text) {
         VerbalExpression cmdExp = regex().find("/").oneOrMore().word().build();
         return cmdExp.getTextGroups(text, 0).stream().map(
-                s ->  createMessageEntity(s.length(), 0)).collect(Collectors.toList());
+                s ->  createMessageEntity(s.length(), 0)).collect(toList());
     }
 
     private static MessageEntity createMessageEntity(Integer length, Integer offset) {
@@ -161,13 +172,20 @@ public class BotTester {
 
     public static class ThenSpec {
         private final List<BaseRequest> actualRequests;
+        private final CallbackCommand cmd;
         private final RequestMatcher matcher = new RequestMatcher();
 
-        ThenSpec(List<BaseRequest> actualRequests) {
+        ThenSpec(List<BaseRequest> actualRequests, CallbackCommand cmd) {
             this.actualRequests = actualRequests;
+            this.cmd = cmd;
         }
 
         public void shouldAnswer(BaseRequest... expectedRequests) {
+            if (cmd != null) {
+                List<BaseRequest> collect = new ArrayList<>();
+                stream(expectedRequests).forEach(r -> collect.add(cmd.signRequest(r)));
+                expectedRequests = collect.toArray(new BaseRequest[expectedRequests.length]);
+            }
             List<RequestMatcher.Mismatch> mismatches = matcher.match(expectedRequests, actualRequests);
             if (!mismatches.isEmpty()) {
                 throw new AssertionError(mismatches);

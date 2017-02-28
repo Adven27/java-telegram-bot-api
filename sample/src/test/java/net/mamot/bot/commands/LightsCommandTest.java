@@ -32,9 +32,9 @@ public class LightsCommandTest {
 
         given(sut).
             got("/lights").
-        then().
+        then(sut).
             shouldAnswer(message("Bridge: " + fakeBridge.desc()).replyMarkup(
-                sut.signCallbackKeyboard(keyboard().row("off", CALLBACK_OFF, "on", CALLBACK_ON).build())
+                keyboard().row("off", CALLBACK_OFF, "on", CALLBACK_ON).build()
             ));
     }
 
@@ -44,9 +44,9 @@ public class LightsCommandTest {
 
         given(sut).
             got("/lights").
-        then().
+        then(sut).
             shouldAnswer(message("Choose bridge:").replyMarkup(
-                sut.signCallbackKeyboard(keyboard().row(fakeBridge.desc(), fakeBridge.id(), anotherFakeBridge.desc(), anotherFakeBridge.id()).build())
+                keyboard().row(fakeBridge.desc(), fakeBridge.id(), anotherFakeBridge.desc(), anotherFakeBridge.id()).build()
             ));
     }
 
@@ -78,9 +78,9 @@ public class LightsCommandTest {
     public void r32_whenBridgeWasChosen_butItDisappearedInformUserAndAskToChooseAgain() throws Exception {
         when(bridgeAdapter.search()).thenReturn(singletonList(anotherFakeBridge));
 
-        givenGotCallbackFor(sut, fakeBridge.id()).then().shouldAnswer(
+        givenGotCallbackFor(sut, fakeBridge.id()).then(sut).shouldAnswer(
                 message("Em... Bridge " + fakeBridge.id() + " suddenly disappeared... Choose again:").replyMarkup(
-                        sut.signCallbackKeyboard(keyboard().row(anotherFakeBridge.desc(), anotherFakeBridge.id()).build())
+                        keyboard().row(anotherFakeBridge.desc(), anotherFakeBridge.id()).build()
                 ));
 
         assertEquals(sut.bridge(), null);
@@ -162,8 +162,8 @@ public class LightsCommandTest {
         sut.withBridge(fakeBridge);
         when(bridgeAdapter.search()).thenReturn(asList(anotherFakeBridge, yetAnotherFakeBridge));
 
-        givenGotCallbackFor(sut, CALLBACK_ON).then().shouldAnswer(message("Choose bridge:").replyMarkup(
-            sut.signCallbackKeyboard(keyboard().row(anotherFakeBridge.desc(), anotherFakeBridge.id(), yetAnotherFakeBridge.desc(), yetAnotherFakeBridge.id()).build())
+        givenGotCallbackFor(sut, CALLBACK_ON).then(sut).shouldAnswer(message("Choose bridge:").replyMarkup(
+            keyboard().row(anotherFakeBridge.desc(), anotherFakeBridge.id(), yetAnotherFakeBridge.desc(), yetAnotherFakeBridge.id()).build()
         ));
 
         verify(fakeBridge).turnOnAll();

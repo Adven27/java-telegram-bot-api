@@ -43,7 +43,7 @@ class FakeBotApi implements BotAPI {
     }
 
     private <T extends BaseRequest, R extends BaseResponse> R getR(BaseRequest<T, R> request) {
-        BotLogger.info(TAG, ">> [" + request + "]");
+        BotLogger.info(TAG, ">> " + request);
         R response = null;
 
         //TODO make more adequate request-response mapping

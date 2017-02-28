@@ -23,11 +23,11 @@ public class TelegramBotAdapter {
     }
 
     public static TelegramBot buildCustom(String botToken, OkHttpClient okHttpClient) {
-        return new TelegramBot(new TelegramBotClient(okHttpClient, gson(), apiUrl(botToken)));
+        return new SimpleBot(new TelegramBotClient(okHttpClient, gson(), apiUrl(botToken)));
     }
 
     public static TelegramBot buildCustom(BotAPI botAPI) {
-        return new TelegramBot(botAPI);
+        return new SimpleBot(botAPI);
     }
 
     private static OkHttpClient client(Interceptor interceptor) {
