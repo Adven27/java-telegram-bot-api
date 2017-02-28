@@ -28,7 +28,8 @@ public class Main {
                 new AdviceCommand(new MessageFromURL(new AdviceResource(), new AdvicePrinter())),
                 new LightsCommand(new UpnpBridgeAdapter()),
                 new TicTacToeCommand(),
-                new WeatherCommand(weather)
+                new WeatherCommand(weather),
+                new Game2048Command(new PGSQLGameRepo(), new LeaderBoardImpl(new PGSQLGameLeaderBoardRepo()))
         ));
     }
 

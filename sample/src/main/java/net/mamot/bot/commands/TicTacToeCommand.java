@@ -37,10 +37,9 @@ public class TicTacToeCommand extends CallbackCommand {
     }
 
     private InlineKeyboardMarkup getKeyboard() {
-        return keyboard().row(
-                "0", "0", "1", "1", "2", "2",
-                "3", "3", "4", "4", "5", "5",
-                "6", "6", "7", "7", "8", "8",
-                "reset", "r").build();
+        return keyboard().row("0", "0", "1", "1", "2", "2").
+                          row("3", "3", "4", "4", "5", "5").
+                          row("6", "6", "7", "7", "8", "8").
+                          row("reset", "r").build();
     }
 }

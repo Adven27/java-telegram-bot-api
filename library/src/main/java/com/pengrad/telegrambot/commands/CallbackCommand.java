@@ -1,6 +1,8 @@
 package com.pengrad.telegrambot.commands;
 
-import com.pengrad.telegrambot.*;
+import com.pengrad.telegrambot.Callback;
+import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.listeners.handlers.CallbackHandler;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Update;
@@ -8,6 +10,7 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.Keyboard;
 import com.pengrad.telegrambot.request.BaseRequest;
+import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.GetUpdates;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
@@ -44,6 +47,14 @@ public abstract class CallbackCommand extends MessageCommand implements Callback
     public  <T extends BaseRequest, R extends BaseResponse> BaseRequest<T, R> signRequest(BaseRequest<T, R> request) {
         if (request instanceof SendMessage) {
             SendMessage message = (SendMessage) request;
+            Keyboard replyMarkup = (Keyboard) message.getParameters().get("reply_markup");
+            if(replyMarkup instanceof InlineKeyboardMarkup) {
+                InlineKeyboardMarkup inlineKeyboard = (InlineKeyboardMarkup) replyMarkup;
+                message.replyMarkup(signCallbackKeyboard(inlineKeyboard));
+                request = (BaseRequest<T, R>) message;
+            }
+        } else if (request instanceof EditMessageText) {
+            EditMessageText message = (EditMessageText) request;
             Keyboard replyMarkup = (Keyboard) message.getParameters().get("reply_markup");
             if(replyMarkup instanceof InlineKeyboardMarkup) {
                 InlineKeyboardMarkup inlineKeyboard = (InlineKeyboardMarkup) replyMarkup;
