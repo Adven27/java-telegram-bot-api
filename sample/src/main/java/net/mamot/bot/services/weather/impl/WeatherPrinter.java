@@ -1,6 +1,6 @@
-package net.mamot.bot.services.impl;
+package net.mamot.bot.services.weather.impl;
 
-import net.mamot.bot.services.DAO;
+import net.mamot.bot.services.impl.DAO;
 import net.mamot.bot.services.Emoji;
 import net.mamot.bot.services.LocalizationService;
 import org.json.JSONObject;

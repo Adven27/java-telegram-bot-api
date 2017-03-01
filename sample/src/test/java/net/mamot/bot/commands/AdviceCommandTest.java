@@ -1,7 +1,7 @@
 package net.mamot.bot.commands;
 
-import net.mamot.bot.services.impl.AdvicePrinter;
-import net.mamot.bot.services.impl.AdviceResource;
+import net.mamot.bot.services.advice.impl.AdvicePrinter;
+import net.mamot.bot.services.advice.impl.AdviceResource;
 import net.mamot.bot.services.impl.MessageFromURL;
 import org.junit.Test;
 

@@ -1,5 +1,6 @@
-package net.mamot.bot.services.impl;
+package net.mamot.bot.services.weather.impl;
 
+import net.mamot.bot.services.impl.JsonResource;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;

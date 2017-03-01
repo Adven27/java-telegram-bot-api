@@ -1,4 +1,4 @@
-package net.mamot.bot.services;
+package net.mamot.bot.services.games;
 
 import java.util.Map;
 

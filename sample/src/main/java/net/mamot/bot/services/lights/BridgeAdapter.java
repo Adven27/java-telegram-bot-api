@@ -1,4 +1,4 @@
-package net.mamot.bot.services;
+package net.mamot.bot.services.lights;
 
 import java.util.List;
 

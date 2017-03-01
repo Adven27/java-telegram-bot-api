@@ -1,6 +1,6 @@
-package net.mamot.bot.services.impl;
+package net.mamot.bot.services.weather.impl;
 
-import net.mamot.bot.services.Weather;
+import net.mamot.bot.services.weather.Weather;
 
 public class SimpleWeather implements Weather {
 

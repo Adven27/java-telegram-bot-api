@@ -1,6 +1,6 @@
 package net.mamot.bot.services.impl;
 
-import net.mamot.bot.services.HueBridge;
+import net.mamot.bot.services.lights.HueBridge;
 
 public class FakeHueBridge implements HueBridge {
     private final String id;

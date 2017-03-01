@@ -1,4 +1,4 @@
-package net.mamot.bot.services.impl;
+package net.mamot.bot.services.advice.impl;
 
 import net.mamot.bot.services.MessagePrinter;
 

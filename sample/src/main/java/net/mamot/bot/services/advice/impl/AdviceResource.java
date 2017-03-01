@@ -1,8 +1,9 @@
-package net.mamot.bot.services.impl;
+package net.mamot.bot.services.advice.impl;
 
 import com.google.gson.Gson;
 import com.pengrad.telegrambot.logging.BotLogger;
 import net.mamot.bot.services.URLResource;
+import net.mamot.bot.services.impl.JsonHttpResource;
 
 import java.io.IOException;
 import java.util.Map;

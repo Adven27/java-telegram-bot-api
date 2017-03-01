@@ -1,4 +1,4 @@
-package net.mamot.bot.services;
+package net.mamot.bot.services.weather;
 
 public interface Weather {
     String printForecastFor(String city, String language, String units);

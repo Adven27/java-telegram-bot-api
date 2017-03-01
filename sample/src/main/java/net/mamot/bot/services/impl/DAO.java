@@ -1,4 +1,4 @@
-package net.mamot.bot.services;
+package net.mamot.bot.services.impl;
 
 import java.io.*;
 import java.nio.file.Files;

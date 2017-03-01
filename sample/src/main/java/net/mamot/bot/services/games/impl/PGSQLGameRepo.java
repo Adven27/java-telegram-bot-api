@@ -1,6 +1,6 @@
-package net.mamot.bot.services.impl;
+package net.mamot.bot.services.games.impl;
 
-import net.mamot.bot.services.GameRepo;
+import net.mamot.bot.services.games.GameRepo;
 
 import java.net.URI;
 import java.net.URISyntaxException;

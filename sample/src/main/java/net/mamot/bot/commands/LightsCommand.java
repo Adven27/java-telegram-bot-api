@@ -9,8 +9,8 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.SendMessage;
-import net.mamot.bot.services.BridgeAdapter;
-import net.mamot.bot.services.HueBridge;
+import net.mamot.bot.services.lights.BridgeAdapter;
+import net.mamot.bot.services.lights.HueBridge;
 
 import java.util.ArrayList;
 import java.util.List;

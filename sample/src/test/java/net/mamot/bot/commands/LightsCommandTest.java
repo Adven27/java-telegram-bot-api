@@ -2,8 +2,8 @@ package net.mamot.bot.commands;
 
 import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import com.pengrad.telegrambot.request.SendMessage;
-import net.mamot.bot.services.BridgeAdapter;
-import net.mamot.bot.services.HueBridge;
+import net.mamot.bot.services.lights.BridgeAdapter;
+import net.mamot.bot.services.lights.HueBridge;
 import net.mamot.bot.services.impl.FakeHueBridge;
 import org.junit.Test;
 

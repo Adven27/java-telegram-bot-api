@@ -1,10 +1,20 @@
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.listeners.HandlersChainListener;
 import net.mamot.bot.commands.*;
-import net.mamot.bot.services.DAO;
+import net.mamot.bot.services.impl.DAO;
 import net.mamot.bot.services.LocalizationService;
-import net.mamot.bot.services.Weather;
+import net.mamot.bot.services.advice.impl.AdvicePrinter;
+import net.mamot.bot.services.advice.impl.AdviceResource;
+import net.mamot.bot.services.lights.impl.UpnpBridgeAdapter;
+import net.mamot.bot.services.weather.Weather;
+import net.mamot.bot.services.games.impl.LeaderBoardImpl;
+import net.mamot.bot.services.games.impl.PGSQLGameLeaderBoardRepo;
+import net.mamot.bot.services.games.impl.PGSQLGameRepo;
 import net.mamot.bot.services.impl.*;
+import net.mamot.bot.services.weather.impl.SimpleWeather;
+import net.mamot.bot.services.weather.impl.WeatherLoggingDecorator;
+import net.mamot.bot.services.weather.impl.WeatherPrinter;
+import net.mamot.bot.services.weather.impl.WeatherResource;
 
 import static com.pengrad.telegrambot.TelegramBotAdapter.buildDebug;
 import static com.pengrad.telegrambot.tester.BotTester.message;

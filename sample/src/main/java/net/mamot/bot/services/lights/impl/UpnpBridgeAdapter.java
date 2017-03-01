@@ -1,7 +1,7 @@
-package net.mamot.bot.services.impl;
+package net.mamot.bot.services.lights.impl;
 
-import net.mamot.bot.services.BridgeAdapter;
-import net.mamot.bot.services.HueBridge;
+import net.mamot.bot.services.lights.BridgeAdapter;
+import net.mamot.bot.services.lights.HueBridge;
 import org.fourthline.cling.UpnpService;
 import org.fourthline.cling.UpnpServiceImpl;
 import org.fourthline.cling.model.meta.Device;

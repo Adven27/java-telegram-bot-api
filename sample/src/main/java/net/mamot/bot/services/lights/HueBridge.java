@@ -1,4 +1,4 @@
-package net.mamot.bot.services;
+package net.mamot.bot.services.lights;
 
 public interface HueBridge {
     String id();

@@ -1,8 +1,8 @@
-package net.mamot.bot.services.impl;
+package net.mamot.bot.services.games.impl;
 
 import net.mamot.bot.games.game2048.Game2048;
-import net.mamot.bot.services.LeaderBoard;
-import net.mamot.bot.services.LeaderBoardRepo;
+import net.mamot.bot.services.games.LeaderBoard;
+import net.mamot.bot.services.games.LeaderBoardRepo;
 
 import java.util.List;
 import java.util.stream.Collectors;

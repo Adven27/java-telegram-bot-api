@@ -5,7 +5,7 @@ import com.pengrad.telegrambot.commands.MessageCommand;
 import com.pengrad.telegrambot.logging.BotLogger;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.User;
-import net.mamot.bot.services.Weather;
+import net.mamot.bot.services.weather.Weather;
 
 import static com.pengrad.telegrambot.model.request.ParseMode.Markdown;
 import static com.pengrad.telegrambot.request.SendMessage.message;

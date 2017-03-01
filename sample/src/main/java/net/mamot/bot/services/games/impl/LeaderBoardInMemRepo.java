@@ -1,6 +1,6 @@
-package net.mamot.bot.services.impl;
+package net.mamot.bot.services.games.impl;
 
-import net.mamot.bot.services.LeaderBoardRepo;
+import net.mamot.bot.services.games.LeaderBoardRepo;
 
 import java.util.ArrayList;
 import java.util.List;

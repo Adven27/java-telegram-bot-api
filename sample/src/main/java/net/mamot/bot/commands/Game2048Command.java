@@ -9,9 +9,9 @@ import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import net.mamot.bot.games.game2048.Game2048;
 import net.mamot.bot.services.Emoji;
-import net.mamot.bot.services.GameRepo;
-import net.mamot.bot.services.LeaderBoard;
-import net.mamot.bot.services.LeaderBoardRepo;
+import net.mamot.bot.services.games.GameRepo;
+import net.mamot.bot.services.games.LeaderBoard;
+import net.mamot.bot.services.games.LeaderBoardRepo;
 
 import java.util.*;
 

@@ -1,8 +1,8 @@
-package net.mamot.bot.services.impl;
+package net.mamot.bot.services.lights.impl;
 
 import com.jcabi.http.request.JdkRequest;
 import com.jcabi.http.response.JsonResponse;
-import net.mamot.bot.services.HueBridge;
+import net.mamot.bot.services.lights.HueBridge;
 
 import javax.json.JsonValue;
 import java.io.IOException;

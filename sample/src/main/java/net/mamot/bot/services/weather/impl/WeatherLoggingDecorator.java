@@ -1,8 +1,8 @@
-package net.mamot.bot.services.impl;
+package net.mamot.bot.services.weather.impl;
 
 import com.pengrad.telegrambot.logging.BotLogger;
 import net.mamot.bot.services.LocalizationService;
-import net.mamot.bot.services.Weather;
+import net.mamot.bot.services.weather.Weather;
 
 public class WeatherLoggingDecorator implements Weather {
     private static final String LOGTAG = "WEATHERSERVICE";
