@@ -5,6 +5,8 @@ import net.mamot.bot.services.impl.DAO;
 import net.mamot.bot.services.LocalizationService;
 import net.mamot.bot.services.advice.impl.AdvicePrinter;
 import net.mamot.bot.services.advice.impl.AdviceResource;
+import net.mamot.bot.services.joke.impl.JokePrinter;
+import net.mamot.bot.services.joke.impl.JokeResource;
 import net.mamot.bot.services.lights.impl.UpnpBridgeAdapter;
 import net.mamot.bot.services.quote.impl.QuotePrinter;
 import net.mamot.bot.services.quote.impl.QuoteResource;
@@ -43,7 +45,9 @@ public class Main {
                 new Game2048Command(new PGSQLGameRepo(), new LeaderBoardImpl(new PGSQLGameLeaderBoardRepo())),
                 new AdviceCommand(new MessageFromURL(new AdviceResource(), new AdvicePrinter())),
                 new QuoteCommand(new MessageFromURL(new QuoteResource(), new QuotePrinter())),
-                new SupCommand(dao)
+                new SupCommand(dao),
+                new PollCommand(),
+                new JokeCommand(new MessageFromURL(new JokeResource(), new JokePrinter()))
         ));
     }
 
