@@ -14,7 +14,11 @@ public class MessageFromURL {
         this.printer = printer;
     }
 
-    public String print() throws IOException {
-        return printer.print(resource.fetch());
+    public String print() {
+        try {
+            return printer.print(resource.fetch());
+        } catch (IOException e) {
+            return "Связь с ноосферой";
+        }
     }
 }

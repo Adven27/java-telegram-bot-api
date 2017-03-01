@@ -6,6 +6,8 @@ import net.mamot.bot.services.LocalizationService;
 import net.mamot.bot.services.advice.impl.AdvicePrinter;
 import net.mamot.bot.services.advice.impl.AdviceResource;
 import net.mamot.bot.services.lights.impl.UpnpBridgeAdapter;
+import net.mamot.bot.services.quote.impl.QuotePrinter;
+import net.mamot.bot.services.quote.impl.QuoteResource;
 import net.mamot.bot.services.weather.Weather;
 import net.mamot.bot.services.games.impl.LeaderBoardImpl;
 import net.mamot.bot.services.games.impl.PGSQLGameLeaderBoardRepo;
@@ -35,11 +37,13 @@ public class Main {
 
         bot.setUpdatesListener(new HandlersChainListener(bot, (b, u) -> b.execute(message("help")) != null,
                 new HelloCommand(),
-                new AdviceCommand(new MessageFromURL(new AdviceResource(), new AdvicePrinter())),
                 new LightsCommand(new UpnpBridgeAdapter()),
-                new TicTacToeCommand(),
                 new WeatherCommand(weather),
-                new Game2048Command(new PGSQLGameRepo(), new LeaderBoardImpl(new PGSQLGameLeaderBoardRepo()))
+                new TicTacToeCommand(),
+                new Game2048Command(new PGSQLGameRepo(), new LeaderBoardImpl(new PGSQLGameLeaderBoardRepo())),
+                new AdviceCommand(new MessageFromURL(new AdviceResource(), new AdvicePrinter())),
+                new QuoteCommand(new MessageFromURL(new QuoteResource(), new QuotePrinter())),
+                new SupCommand(dao)
         ));
     }
 

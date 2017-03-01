@@ -1,5 +1,7 @@
 package com.pengrad.telegrambot.request;
 
+import com.pengrad.telegrambot.model.Chat;
+
 import java.io.File;
 
 /**
@@ -18,6 +20,10 @@ public class SendSticker extends AbstractMultipartRequest<SendSticker> {
 
     public SendSticker(Object chatId, byte[] sticker) {
         super(chatId, sticker);
+    }
+
+    public static SendSticker sticker(Chat chat, String sticker){
+        return new SendSticker(chat.id(), sticker);
     }
 
     @Override
