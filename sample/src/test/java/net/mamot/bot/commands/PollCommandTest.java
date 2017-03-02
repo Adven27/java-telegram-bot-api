@@ -13,8 +13,8 @@ import static com.pengrad.telegrambot.fluent.KeyboardBuilder.Type.TEXT_EQUALS_DA
 import static com.pengrad.telegrambot.fluent.KeyboardBuilder.keyboard;
 import static com.pengrad.telegrambot.tester.BotTester.*;
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static net.mamot.bot.commands.PollCommand.HELP_MSG;
 import static net.mamot.bot.services.Stickers.ASK;
 import static net.mamot.bot.services.poll.Poll.OPTIONS_SPLITTER;
@@ -22,8 +22,8 @@ import static net.mamot.bot.services.poll.Poll.poll;
 import static org.junit.Assert.assertEquals;
 
 public class PollCommandTest {
-    public static final SendMessage HELP_MESSAGE = message(HELP_MSG);
-    public static final AnswerCallbackQuery THANKS_CALLBACK_ANSWER = answerCallbackQuery("Thanks");
+    private static final SendMessage HELP_MESSAGE = message(HELP_MSG);
+    private static final AnswerCallbackQuery THANKS_CALLBACK_ANSWER = answerCallbackQuery("Thanks");
 
     //TODO  get rid of magic number (equals original message id)...
     private final Poll freshPoll = poll(1, "question?", "opt1", "opt2");
@@ -71,10 +71,10 @@ public class PollCommandTest {
             from("Walter", "White").
         then(sut).
             shouldAnswer(THANKS_CALLBACK_ANSWER,
-                         editMessage(format("%s\n\n%s - [White Walter]\n%s - \n", "question?", "opt1", "opt2")).
+                         editMessage(format("%s%n%n%s - [White Walter]%n%s - %n", "question?", "opt1", "opt2")).
                                  replyMarkup(keyboard().row(TEXT_EQUALS_DATA_LIST, "opt1", "opt2").build()));
 
-        assertEquals(asList("White Walter"), votesFor("opt1"));
+        assertEquals(singletonList("White Walter"), votesFor("opt1"));
         assertEquals(emptyList(), votesFor("opt2"));
     }
 
@@ -87,11 +87,11 @@ public class PollCommandTest {
             from("Walter", "White").
         then(sut).
             shouldAnswer(THANKS_CALLBACK_ANSWER,
-                         editMessage(format("%s\n\n%s - \n%s - [White Walter]\n", "question?", "opt1", "opt2")).
+                         editMessage(format("%s%n%n%s - %n%s - [White Walter]%n", "question?", "opt1", "opt2")).
                             replyMarkup(keyboard().row(TEXT_EQUALS_DATA_LIST, "opt1", "opt2").build()));
 
         assertEquals(emptyList(), votesFor("opt1"));
-        assertEquals(asList("White Walter"), votesFor("opt2"));
+        assertEquals(singletonList("White Walter"), votesFor("opt2"));
     }
 
     private List<String> votesFor(String option) {

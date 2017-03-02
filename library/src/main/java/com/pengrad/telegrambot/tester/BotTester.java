@@ -23,7 +23,9 @@ import static ru.lanwen.verbalregex.VerbalExpression.regex;
 
 public class BotTester {
 
-    public static final int ORIGINAL_MSG_ID = 1;
+    private static final long CHAT_ID = 1;
+    private static final int USER_ID = 1;
+    static final int ORIGINAL_MSG_ID = 1;
 
     public static GivenSpec given(UpdateHandler... handlers) {
         return new GivenSpec(handlers);
@@ -35,12 +37,12 @@ public class BotTester {
 
     //TODO get rid of hardcoded chat ID
     public static SendMessage message(String text) {
-        return new SendMessage(1 , text);
+        return new SendMessage(CHAT_ID , text);
     }
 
     //TODO get rid of hardcoded IDs
     public static EditMessageText editMessage(String text) {
-        return new EditMessageText(1, 1, text);
+        return new EditMessageText(CHAT_ID, ORIGINAL_MSG_ID, text);
     }
 
     public static AnswerCallbackQuery answerCallbackQuery(String text) {
@@ -48,7 +50,7 @@ public class BotTester {
     }
 
     public static SendSticker sticker(String sticker) {
-        return new SendSticker(1 , sticker);
+        return new SendSticker(CHAT_ID , sticker);
     }
 
     public static MessageCommand command(final String identifier, final Consumer<TelegramBot> consumer) {
@@ -109,7 +111,7 @@ public class BotTester {
         }
 
         public GivenSpec from(String firstName, String lastName) {
-            from(1, firstName, lastName);
+            from(USER_ID, firstName, lastName);
             return this;
         }
 
@@ -176,13 +178,13 @@ public class BotTester {
     private static Chat createChat() {
         Chat chat = new Chat();
         chat.setType(Chat.Type.Private);
-        chat.setId(1L);
+        chat.setId(CHAT_ID);
         return chat;
     }
 
     private static User createUser() {
         User user = new User();
-        user.setId(1);
+        user.setId(USER_ID);
         user.setFirst_name("Walter");
         user.setLast_name("White");
         user.setUsername("heisenberg");
