@@ -8,77 +8,69 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.AnswerCallbackQuery;
-import com.pengrad.telegrambot.request.SendSticker;
-import net.mamot.bot.poll.Poll;
+import com.pengrad.telegrambot.response.SendResponse;
+import net.mamot.bot.services.poll.Poll;
+import net.mamot.bot.services.poll.PollsRepo;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
+import static com.pengrad.telegrambot.fluent.KeyboardBuilder.Type.TEXT_EQUALS_DATA_LIST;
 import static com.pengrad.telegrambot.fluent.KeyboardBuilder.keyboard;
 import static com.pengrad.telegrambot.request.EditMessageText.editMessage;
 import static com.pengrad.telegrambot.request.SendMessage.message;
-import static net.mamot.bot.services.Stickers.*;
+import static com.pengrad.telegrambot.request.SendSticker.sticker;
+import static net.mamot.bot.services.Stickers.ASK;
 
 public class PollCommand extends CallbackCommand {
+    public static final String HELP_MSG = "Пример: Чей крым? наш | не наш";
+    private final PollsRepo pollsRepo;
 
-    private static final String HELP_MSG = "Пример: Чей крым? наш / не наш";
-    private static Map<String, Poll> polls = new HashMap();
-
-    public PollCommand() {
+    public PollCommand(PollsRepo pollsRepo) {
         super("/poll","polls");
+        this.pollsRepo = pollsRepo;
     }
 
     @Override
     public void execute(TelegramBot bot, User user, Chat chat, String params) {
         try {
             Poll p = new Poll(params);
-            String pollId = generatePollId();
-
-            polls.put(pollId, p);
-            bot.execute(new SendSticker(chat, ASK.id()));
-            bot.execute(message(chat, p.question()).replyMarkup(getKeyboard(pollId, p.options())));
+            bot.execute(sticker(chat, ASK.id()));
+            SendResponse resp = bot.execute(message(chat, p.question()).replyMarkup(keyboardFrom(p.options())));
+            p.id(resp.message().messageId());
+            pollsRepo.add(p);
         } catch (Poll.InvalidQuestionFormatEx e) {
             bot.execute(message(chat, HELP_MSG));
         }
     }
 
-    private String generatePollId() {
-        return String.valueOf(System.currentTimeMillis());
-    }
-
-    private InlineKeyboardMarkup getKeyboard(String pollId, Set<String> vars) {
-        LinkedList<String> textDataPairs = new LinkedList<>();
-        for (String v : vars) {
-            textDataPairs.add(v);
-            textDataPairs.add(pollId + "#" + v);
-        }
-        return keyboard().row(textDataPairs.toArray(new String[textDataPairs.size()])).build();
-    }
-
     @Override
     public boolean callback(TelegramBot bot, CallbackQuery cb) {
-        String[] answer = cb.data().split("#");
-        String pollId = answer[0];
-        String option = answer[1];
-        Poll poll = polls.get(pollId);
+        int pollId = cb.message().messageId();
+        String option = cb.data();
+        Optional<Poll> nullablePoll = pollsRepo.get(pollId);
         Message originalMessage = cb.message();
 
-        if (poll == null) {
+        if (!nullablePoll.isPresent()) {
             bot.execute(editMessage(originalMessage, originalMessage.text()));
             return true;
         }
+        Poll poll = nullablePoll.get();
+        pollsRepo.update(poll.revote(option, voter(cb)));
 
-        polls.put(pollId,  vote(poll, option, cb.from().lastName() + " " + cb.from().firstName()));
-
-        bot.execute(new AnswerCallbackQuery(cb.id()).text("Спасибушки"));
-        bot.execute(editMessage(originalMessage, screen(poll)).replyMarkup(getKeyboard(pollId, poll.options())));
+        bot.execute(new AnswerCallbackQuery(cb.id()).text("Thanks"));
+        bot.execute(editMessage(originalMessage, screen(poll)).replyMarkup(keyboardFrom(poll.options())));
         return true;
     }
 
-    private Poll vote(Poll poll, String option, String voter) {
-        Optional<String> prevOpt = poll.optionOf(voter);
-        prevOpt.ifPresent(opt -> poll.unvote(opt, voter));
-        poll.vote(option, voter);
-        return poll;
+    private InlineKeyboardMarkup keyboardFrom(Set<String> vars) {
+        return keyboard().row(TEXT_EQUALS_DATA_LIST, vars.toArray(new String[vars.size()])).build();
+    }
+
+    private String voter(CallbackQuery cb) {
+        return cb.from().lastName() + " " + cb.from().firstName();
     }
 
     private String screen(Poll poll) {

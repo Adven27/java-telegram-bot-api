@@ -16,12 +16,13 @@ import static org.mockito.Mockito.when;
 public class AdviceCommandTest {
 
     private final AdviceResource resource = mock(AdviceResource.class);
+    private AdviceCommand sut = new AdviceCommand(new MessageFromURL(resource, new AdvicePrinter()));
 
     @Test
     public void shouldReturnMessageFromAdviceResource() throws Exception {
         when(resource.fetch()).thenReturn(singletonMap("text", "fucking great advice"));
 
-        given(new AdviceCommand(new MessageFromURL(resource, new AdvicePrinter()))).
+        given(sut).
             got("/advice").
         then().
             shouldAnswer(sticker(BLA.id()),
@@ -32,7 +33,7 @@ public class AdviceCommandTest {
     public void shouldReturnApologize_IfAdviceResourceUnreachable() throws Exception {
         when(resource.fetch()).thenThrow(new RuntimeException());
 
-        given(new AdviceCommand(new MessageFromURL(resource, new AdvicePrinter()))).
+        given(sut).
             got("/advice").
         then().
             shouldAnswer(sticker(ALONE.id()),

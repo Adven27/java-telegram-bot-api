@@ -1,4 +1,4 @@
-package net.mamot.bot.poll;
+package net.mamot.bot.services.poll;
 
 import org.junit.Test;
 
@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import static java.util.Arrays.asList;
+import static net.mamot.bot.services.poll.Poll.OPTIONS_SPLITTER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -54,7 +55,7 @@ public class PollTest {
 
     @Test
     public void partAfterQuestionMarkIsSlashSeparatedOptions() throws Exception {
-        assertEquals(new HashSet(asList("option1", "option2")), new Poll("question?option1/option2").options());
+        assertEquals(new HashSet(asList("option1", "option2")), new Poll("question?option1" + OPTIONS_SPLITTER + "option2").options());
     }
 
     @Test
@@ -64,32 +65,32 @@ public class PollTest {
 
     @Test(expected = Poll.InvalidQuestionFormatEx.class)
     public void questionWithAllOptionsEmptyIsInvalid() throws Exception {
-        new Poll("question?/");
+        new Poll("question?" + OPTIONS_SPLITTER + "");
     }
 
     @Test
     public void emptyOptionsAreIgnored() throws Exception {
-        assertEquals(new HashSet(asList("1")), new Poll("question?1/").options());
+        assertEquals(new HashSet(asList("1")), new Poll("question?1" + OPTIONS_SPLITTER + "").options());
     }
 
     @Test
     public void emptyOptionsAreIgnored_2() throws Exception {
-        assertEquals(new HashSet(asList("2")), new Poll("question?/2").options());
+        assertEquals(new HashSet(asList("2")), new Poll("question?" + OPTIONS_SPLITTER + "2").options());
     }
 
     @Test
     public void emptyOptionsAreIgnored_3() throws Exception {
-        assertEquals(new HashSet(asList("2")), new Poll("question?/2/").options());
+        assertEquals(new HashSet(asList("2")), new Poll("question?" + OPTIONS_SPLITTER + "2" + OPTIONS_SPLITTER + "").options());
     }
 
     @Test
     public void emptyOptionsAreIgnored_4() throws Exception {
-        assertEquals(new HashSet(asList("1", "3")), new Poll("question?1//3").options());
+        assertEquals(new HashSet(asList("1", "3")), new Poll("question?1" + OPTIONS_SPLITTER + OPTIONS_SPLITTER + "3").options());
     }
 
     @Test
     public void canVoteForOption() throws Exception {
-        Poll sut = new Poll("question?1/2");
+        Poll sut = new Poll("question?1" + OPTIONS_SPLITTER + "2");
         String optionToVote = sut.options().iterator().next();
 
         sut.vote(optionToVote, "some voter");
@@ -99,7 +100,7 @@ public class PollTest {
 
     @Test
     public void canVoteForOption_2() throws Exception {
-        Poll sut = new Poll("question?1/2");
+        Poll sut = new Poll("question?1" + OPTIONS_SPLITTER + "2");
         String opt = sut.options().iterator().next();
 
         sut.vote(opt, "some voter 1");
@@ -110,7 +111,7 @@ public class PollTest {
 
     @Test
     public void canVoteForOption_3() throws Exception {
-        Poll sut = new Poll("question?1/2");
+        Poll sut = new Poll("question?1" + OPTIONS_SPLITTER + "2");
         Iterator<String> i = sut.options().iterator();
         String option1 = i.next();
         String option2 = i.next();
@@ -125,7 +126,7 @@ public class PollTest {
 
     @Test
     public void canUnvoteForOption() throws Exception {
-        Poll sut = new Poll("question?1/2");
+        Poll sut = new Poll("question?1" + OPTIONS_SPLITTER + "2");
         String opt = sut.options().iterator().next();
 
         sut.vote(opt, "some voter");
@@ -136,7 +137,7 @@ public class PollTest {
 
     @Test
     public void unvoteForNotVotedOptionDoesNothing() throws Exception {
-        Poll sut = new Poll("question?1/2");
+        Poll sut = new Poll("question?1" + OPTIONS_SPLITTER + "2");
         String opt = sut.options().iterator().next();
 
         sut.unvote(opt, "some voter");
@@ -146,7 +147,7 @@ public class PollTest {
 
     @Test
     public void canGetOptionOfVoter() throws Exception {
-        Poll sut = new Poll("question?1/2");
+        Poll sut = new Poll("question?1" + OPTIONS_SPLITTER + "2");
         String opt = sut.options().iterator().next();
 
         sut.vote(opt, "some voter");
@@ -156,6 +157,6 @@ public class PollTest {
 
     @Test
     public void ifVoterDoesNotVote_GetOptionOfVoterReturnEmpty() throws Exception {
-        assertFalse(new Poll("question?1/2").optionOf("some voter").isPresent());
+        assertFalse(new Poll("question?1" + OPTIONS_SPLITTER + "2").optionOf("some voter").isPresent());
     }
 }

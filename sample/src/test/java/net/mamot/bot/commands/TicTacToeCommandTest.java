@@ -1,25 +1,20 @@
 package net.mamot.bot.commands;
 
+import org.junit.Ignore;
+import org.junit.Test;
+
+import static com.pengrad.telegrambot.tester.BotTester.given;
+import static com.pengrad.telegrambot.tester.BotTester.message;
+
 public class TicTacToeCommandTest {
+    private TicTacToeCommand sut = new TicTacToeCommand();
 
-
-   /* @Test
+    @Test @Ignore //TODO write tests!
     public void shouldReturnMessageFromAdviceResource() throws Exception {
-        given(new AdviceCommand(new MessageFromURL(resource, new AdvicePrinter()))).
-            got("/advice").
+        given(sut).
+            got("/ttt").
         then().
-            shouldAnswer(sticker(BLA.id()),
-                         message("fucking great advice").disableWebPagePreview(true).parseMode(HTML));
+            shouldAnswer(message("JUST WRITE THEM! YESTERDAY YOU SAID TOMORROW!"));
     }
 
-    @Test
-    public void shouldReturnApologize_IfAdviceResourceUnreachable() throws Exception {
-        when(resource.fetch()).thenThrow(new RuntimeException());
-
-        given(new AdviceCommand(new MessageFromURL(resource, new AdvicePrinter()))).
-            got("/advice").
-        then().
-            shouldAnswer(sticker(ALONE.id()),
-                         message("Связь с ноосферой потеряна...").disableWebPagePreview(true).parseMode(HTML));
-    }*/
 }

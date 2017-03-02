@@ -8,6 +8,7 @@ import net.mamot.bot.services.advice.impl.AdviceResource;
 import net.mamot.bot.services.joke.impl.JokePrinter;
 import net.mamot.bot.services.joke.impl.JokeResource;
 import net.mamot.bot.services.lights.impl.UpnpBridgeAdapter;
+import net.mamot.bot.services.poll.PollsInMemRepo;
 import net.mamot.bot.services.quote.impl.QuotePrinter;
 import net.mamot.bot.services.quote.impl.QuoteResource;
 import net.mamot.bot.services.weather.Weather;
@@ -46,7 +47,7 @@ public class Main {
                 new AdviceCommand(new MessageFromURL(new AdviceResource(), new AdvicePrinter())),
                 new QuoteCommand(new MessageFromURL(new QuoteResource(), new QuotePrinter())),
                 new SupCommand(dao),
-                new PollCommand(),
+                new PollCommand(new PollsInMemRepo()),
                 new JokeCommand(new MessageFromURL(new JokeResource(), new JokePrinter()))
         ));
     }

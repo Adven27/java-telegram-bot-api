@@ -24,7 +24,7 @@ public class LightsCommandTest {
     private final BridgeAdapter bridgeAdapter = mock(BridgeAdapter.class);
     private TestDoubleCommand sut = new TestDoubleCommand(bridgeAdapter);
     private SendMessage sorryNoBridgesMessage = message("Sorry. There are no available bridges...");
-    private AnswerCallbackQuery doneCallbackAnswer = new AnswerCallbackQuery(null).text("Готово");
+    private static final AnswerCallbackQuery DONE_CALLBACK_ANSWER = answerCallbackQuery("Готово");
 
     @Test
     public void r2_whenOnlyOneAvailableBridge_setAsCurrentAndShowOptions() throws Exception {
@@ -67,7 +67,7 @@ public class LightsCommandTest {
     public void r31_whenBridgeWasChosen_setItAndInformUser() throws Exception {
         when(bridgeAdapter.search()).thenReturn(asList(fakeBridge, anotherFakeBridge));
 
-        givenGotCallbackFor(sut, fakeBridge.id()).then().shouldAnswer(doneCallbackAnswer);
+        givenGotCallbackFor(sut, fakeBridge.id()).then().shouldAnswer(DONE_CALLBACK_ANSWER);
 
         assertEquals(fakeBridge.id(), sut.bridge().id());
         verify(bridgeAdapter).search();
@@ -92,7 +92,7 @@ public class LightsCommandTest {
     public void r41_givenActiveBridge_whenOptionAllOffWasChosen_bridgeShouldTryToTurnOffAll() throws Exception {
         sut.withBridge(fakeBridge);
 
-        givenGotCallbackFor(sut, CALLBACK_OFF).then().shouldAnswer(doneCallbackAnswer);
+        givenGotCallbackFor(sut, CALLBACK_OFF).then().shouldAnswer(DONE_CALLBACK_ANSWER);
 
         verify(fakeBridge).turnOffAll();
         verifyNoMoreInteractions(bridgeAdapter);
@@ -103,7 +103,7 @@ public class LightsCommandTest {
     public void r42_givenActiveBridge_whenOptionAllOnWasChosen_bridgeShouldTryToTurnOnAll() throws Exception {
         sut.withBridge(fakeBridge);
 
-        givenGotCallbackFor(sut, CALLBACK_ON).then().shouldAnswer(doneCallbackAnswer);
+        givenGotCallbackFor(sut, CALLBACK_ON).then().shouldAnswer(DONE_CALLBACK_ANSWER);
 
         verify(fakeBridge).turnOnAll();
         verifyNoMoreInteractions(bridgeAdapter);
@@ -129,7 +129,7 @@ public class LightsCommandTest {
         sut.withBridge(fakeBridge);
         when(bridgeAdapter.search()).thenReturn(singletonList(anotherFakeBridge));
 
-        givenGotCallbackFor(sut, CALLBACK_ON).then().shouldAnswer(doneCallbackAnswer);
+        givenGotCallbackFor(sut, CALLBACK_ON).then().shouldAnswer(DONE_CALLBACK_ANSWER);
 
         verify(fakeBridge).turnOnAll();
         verify(anotherFakeBridge).turnOnAll();

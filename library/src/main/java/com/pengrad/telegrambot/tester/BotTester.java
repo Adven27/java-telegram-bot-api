@@ -8,9 +8,7 @@ import com.pengrad.telegrambot.listeners.HandlersChainListener;
 import com.pengrad.telegrambot.listeners.OneTimeListenerDecorator;
 import com.pengrad.telegrambot.listeners.handlers.UpdateHandler;
 import com.pengrad.telegrambot.model.*;
-import com.pengrad.telegrambot.request.BaseRequest;
-import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.request.SendSticker;
+import com.pengrad.telegrambot.request.*;
 import com.pengrad.telegrambot.response.GetUpdatesResponse;
 import ru.lanwen.verbalregex.VerbalExpression;
 
@@ -38,6 +36,15 @@ public class BotTester {
     //TODO get rid of hardcoded chat ID
     public static SendMessage message(String text) {
         return new SendMessage(1 , text);
+    }
+
+    //TODO get rid of hardcoded IDs
+    public static EditMessageText editMessage(String text) {
+        return new EditMessageText(1, 1, text);
+    }
+
+    public static AnswerCallbackQuery answerCallbackQuery(String text) {
+        return new AnswerCallbackQuery(null).text(text);
     }
 
     public static SendSticker sticker(String sticker) {
@@ -90,8 +97,19 @@ public class BotTester {
         }
 
         public GivenSpec from(int id, String firstName) {
+            from(id, firstName, "");
+            return this;
+        }
+
+        public GivenSpec from(int id, String firstName, String lastName) {
             user.setId(id);
             user.setFirst_name(firstName);
+            user.setLast_name(lastName);
+            return this;
+        }
+
+        public GivenSpec from(String firstName, String lastName) {
+            from(1, firstName, lastName);
             return this;
         }
 
@@ -112,6 +130,7 @@ public class BotTester {
                 update.setMessage(createMessage(1, text, chat, user, date));
             } else {
                 CallbackQuery callback_query = new CallbackQuery();
+                callback_query.setFrom(user);
                 callback_query.setMessage(createMessage(originalMsg, text, chat, user, date));
                 callback_query.setData(callbackData);
                 update.setCallback_query(callback_query);

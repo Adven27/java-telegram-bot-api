@@ -9,7 +9,7 @@ import java.util.List;
 import static com.pengrad.telegrambot.model.request.InlineKeyboardButton.button;
 
 public class KeyboardBuilder {
-    List<InlineKeyboardButton[]> rows = new ArrayList<>();
+    private List<InlineKeyboardButton[]> rows = new ArrayList<>();
 
     public static KeyboardBuilder keyboard() {
         return new KeyboardBuilder();
@@ -24,16 +24,25 @@ public class KeyboardBuilder {
         return this;
     }
 
-    public KeyboardBuilder row(InlineKeyboardButton... btns) {
-        List<InlineKeyboardButton> row = new ArrayList<>();
-        for (int i =0 ; i < btns.length; i = i + 2) {
-            row.add(btns[i]);
+    public KeyboardBuilder row(Type type, String... vars) {
+        if (Type.TEXT_DATA_PAIRS.equals(type)) {
+            return row(vars);
+        } else if (Type.TEXT_EQUALS_DATA_LIST.equals(type)) {
+            List<InlineKeyboardButton> row = new ArrayList<>();
+            for (String v : vars) {
+                row.add(button(v, v));
+            }
+            rows.add(row.toArray(new InlineKeyboardButton[row.size()]));
         }
-        rows.add(row.toArray(new InlineKeyboardButton[row.size()]));
         return this;
     }
 
     public InlineKeyboardMarkup build() {
         return new InlineKeyboardMarkup(rows.toArray(new InlineKeyboardButton[rows.size()][]));
+    }
+
+    public enum Type {
+        TEXT_DATA_PAIRS,
+        TEXT_EQUALS_DATA_LIST
     }
 }
