@@ -11,19 +11,23 @@ import static java.util.stream.Collectors.toList;
 import static net.mamot.bot.games.TicTacToe.Result.*;
 
 public class TicTacToe {
+    public static final String MSG_AI_WON = "Проиграл, кожаный ублюдок!";
+    public static final String MSG_AI_LOSE = "Не может быть!!! Кожаный ублюдок выйграл... :(";
+    public static final String MSG_TIE = "Ничья, кожаный ублюдок!";
+    public static final String MSG_YOUR_TURN = "Твой ход, кожаный ублюдок!";
     private Result result = Result.NONE;
 
-    Integer[] board = {0, 1, 2, 3, 4, 5, 6, 7, 8};
+    private Integer[] board = {0, 1, 2, 3, 4, 5, 6, 7, 8};
     public final static int HUPLAYER = -1;
     public final static int AIPLAYER = -2;
-    int iter = 0;
-    int round = 0;
+    private int iter = 0;
+    private int round = 0;
 
     public List<Integer> availableMoves() {
        return asList(avail(board));
     }
 
-    public List<Integer> board() {
+    private List<Integer> board() {
         return asList(board);
     }
 
@@ -45,30 +49,30 @@ public class TicTacToe {
         if (board[move] != HUPLAYER && board[move] != AIPLAYER) {
             round++;
             board[move] = player;
-            System.out.println("---HUMAN---\n" + stream(board).map(i -> print(i)).reduce((s, s2) -> reduce(s, s2)).get());
+            log("HUMAN");
             if (winning(board, player)) {
                 result = HU;
-                return;
             } else if (round > 8) {
                 result = TIE;
-                return;
             } else {
                 round++;
                 int index = minimax(board, AIPLAYER).index;
                 board[index] = AIPLAYER;
-                System.out.println("----AI----\n" + stream(board).map(i -> print(i)).reduce((s, s2) -> reduce(s, s2)).get());
+                log("AI");
                 if (winning(board, AIPLAYER)) {
                     result = AI;
-                    return;
                 } else if (round == 0) {
                     result = TIE;
-                    return;
                 }
             }
         }
     }
 
-    public Move minimax(Integer[] reboard, int player) {
+    private void log(final String player) {
+        System.out.println("---" + player + "---\n" + stream(board).map(this::print).reduce(this::reduce).get());
+    }
+
+    private Move minimax(Integer[] reboard, int player) {
         iter++;
         Integer[] array = avail(reboard);
         if (winning(reboard, HUPLAYER)) {
@@ -80,10 +84,10 @@ public class TicTacToe {
         }
 
         List<Move> moves = new ArrayList<>();
-        for (int i = 0; i < array.length; i++) {
-            Move move = new Move();
-            move.index = reboard[array[i]];
-            reboard[array[i]] = player;
+        for (Integer anArray : array) {
+            Move move = new Move(0);
+            move.index = reboard[anArray];
+            reboard[anArray] = player;
 
             if (player == AIPLAYER) {
                 Move g = minimax(reboard, HUPLAYER);
@@ -92,7 +96,7 @@ public class TicTacToe {
                 Move g = minimax(reboard, AIPLAYER);
                 move.score = g.score;
             }
-            reboard[array[i]] = move.index;
+            reboard[anArray] = move.index;
             moves.add(move);
         }
 
@@ -121,14 +125,13 @@ public class TicTacToe {
         int index;
         int score;
 
-        public Move(int score) {
+        Move(int score) {
             this.score = score;
         }
 
-        public Move() {}
     }
 
-    public boolean keepPlaying() {
+    boolean keepPlaying() {
         return result == NONE;
     }
 
@@ -137,30 +140,24 @@ public class TicTacToe {
     }
 
     private boolean winning(Integer[] board, int player) {
-        if (
-                (board[0] == player && board[1] == player && board[2] == player) ||
-                        (board[3] == player && board[4] == player && board[5] == player) ||
-                        (board[6] == player && board[7] == player && board[8] == player) ||
-                        (board[0] == player && board[3] == player && board[6] == player) ||
-                        (board[1] == player && board[4] == player && board[7] == player) ||
-                        (board[2] == player && board[5] == player && board[8] == player) ||
-                        (board[0] == player && board[4] == player && board[8] == player) ||
-                        (board[2] == player && board[4] == player && board[6] == player)
-                ) {
-            return true;
-        } else {
-            return false;
-        }
+        return  (board[0] == player && board[1] == player && board[2] == player) ||
+                (board[3] == player && board[4] == player && board[5] == player) ||
+                (board[6] == player && board[7] == player && board[8] == player) ||
+                (board[0] == player && board[3] == player && board[6] == player) ||
+                (board[1] == player && board[4] == player && board[7] == player) ||
+                (board[2] == player && board[5] == player && board[8] == player) ||
+                (board[0] == player && board[4] == player && board[8] == player) ||
+                (board[2] == player && board[4] == player && board[6] == player);
     }
 
     @Override
     public String toString() {
         String result = "";
         switch (result()) {
-            case AI: result += "Проиграл, кожаный ублюдок!"; break;
-            case HU: result += "Не может быть!!! Кожаный ублюдок выйграл... :("; break;
-            case TIE: result += "Ничья, кожаный ублюдок!"; break;
-            case NONE: result += "Твой ход, кожаный ублюдок!"; break;
+            case AI: result += MSG_AI_WON; break;
+            case HU: result += MSG_AI_LOSE; break;
+            case TIE: result += MSG_TIE; break;
+            case NONE: result += MSG_YOUR_TURN; break;
         }
         return result + "\n\n" + board().stream().map(this::print).reduce(this::reduce).get();
     }
@@ -182,6 +179,6 @@ public class TicTacToe {
     }
 
     public enum Result {
-        AI, HU, TIE, NONE;
+        AI, HU, TIE, NONE
     }
 }
