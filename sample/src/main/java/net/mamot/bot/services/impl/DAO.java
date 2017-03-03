@@ -1,6 +1,7 @@
 package net.mamot.bot.services.impl;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -26,13 +27,13 @@ public class DAO {
 
     public Map<Integer, String> getWeekMenu() {
         Map<Integer, String> words = new HashMap();
-        words.put(1, "30% на салаты и 2 коктейля по цене одного");
-        words.put(2, "30% на роллы и 2 коктейля по цене одного");
-        words.put(3, "30% на пасты и бургеры и 2 коктейля по цене одного");
-        words.put(4, "30% на горячие закуски и 2 коктейля по цене одного");
-        words.put(5, "с 3 часов ночи скидка на все алкогольные коктейли 30%");
-        words.put(6, "с 3 часов ночи скидка на все алкогольные коктейли 30%");
-        words.put(7, "30% на все горячие блюда и 2 коктейля по цене одного");
+        words.put(1, "2 коктейля по цене одного");
+        words.put(2, "2 коктейля по цене одного");
+        words.put(3, "2 коктейля по цене одного");
+        words.put(4, "2 коктейля по цене одного");
+        words.put(5, "2 коктейля по цене одного");
+        words.put(6, "2 коктейля по цене одного");
+        words.put(7, "2 коктейля по цене одного");
         return words;
     }
 
@@ -47,26 +48,6 @@ public class DAO {
         }
         return list;
     }
-
-    public void saveLevel(int lvl) {
-        String file = "data.txt";
-        System.out.println("Writing to file: " + file);
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(getClass().getResource("/data.txt").getPath()))) {
-            writer.write("level:" + lvl);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public int getLevel() {
-        try (BufferedReader writer = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/data.txt")))) {
-            return Integer.valueOf(writer.readLine().split(":")[1]);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return 1;
-    }
-
 
     public String getQuote() {
         int i = new Random().nextInt(200) + 1;
