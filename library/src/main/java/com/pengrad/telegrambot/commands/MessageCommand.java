@@ -28,7 +28,7 @@ public abstract class MessageCommand implements MessageHandler{
     }
 
     public final String description() {
-        return desc;
+        return commandIdentifier + " " + desc;
     }
 
     @Override
@@ -61,7 +61,7 @@ public abstract class MessageCommand implements MessageHandler{
                 collect(toList());
     }
 
-    private class CommandInvocation {
+    private static class CommandInvocation {
         private final String name;
         private final String params;
 

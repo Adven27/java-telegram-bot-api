@@ -6,18 +6,21 @@ import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
+import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import net.mamot.bot.games.TicTacToe;
 
 import static com.pengrad.telegrambot.fluent.KeyboardBuilder.keyboard;
 import static com.pengrad.telegrambot.request.EditMessageText.editMessage;
 import static com.pengrad.telegrambot.request.SendMessage.message;
 import static java.lang.Integer.parseInt;
+import static net.mamot.bot.games.TicTacToe.Result.NONE;
 
 public class TicTacToeCommand extends CallbackCommand {
+    public static final String COMMAND = "/ttt";
     private final TicTacToe game = new TicTacToe();
 
     public TicTacToeCommand() {
-        super("/ttt", "Try to beat me, skin bastard...");
+        super(COMMAND, "Try to beat me, skin bastard...");
     }
 
     @Override
@@ -29,8 +32,11 @@ public class TicTacToeCommand extends CallbackCommand {
     public boolean callback(TelegramBot bot, CallbackQuery cb) {
         if ("r".equals(cb.data())) {
             game.reset();
-        } else {
+        } else if (game.result() == NONE){
             game.move(parseInt(cb.data()));
+        } else {
+            bot.execute(new AnswerCallbackQuery(cb.id()).text("Game Over"));
+            return true;
         }
         bot.execute(editMessage(cb.message(), game.toString()).replyMarkup(getKeyboard()));
         return true;

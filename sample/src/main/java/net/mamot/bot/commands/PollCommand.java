@@ -26,10 +26,11 @@ import static net.mamot.bot.services.Stickers.ASK;
 
 public class PollCommand extends CallbackCommand {
     public static final String HELP_MSG = "Пример: Чей крым? наш | не наш";
+    public static final String COMMAND = "/poll";
     private final PollsRepo pollsRepo;
 
     public PollCommand(PollsRepo pollsRepo) {
-        super("/poll","polls");
+        super(COMMAND,"polls");
         this.pollsRepo = pollsRepo;
     }
 
@@ -74,10 +75,10 @@ public class PollCommand extends CallbackCommand {
     }
 
     private String screen(Poll poll) {
-        String text = poll.question() + "\n\n";
+        StringBuilder text = new StringBuilder(poll.question() + "\n\n");
         for (Map.Entry<String, List<String>> e : poll.votes().entrySet()) {
-            text += e.getKey() + " - " + (e.getValue().size() == 0 ? "" : e.getValue()) + "\n";
+            text.append(e.getKey() + " - " + (e.getValue().size() == 0 ? "" : e.getValue()) + "\n");
         }
-        return text;
+        return text.toString();
     }
 }

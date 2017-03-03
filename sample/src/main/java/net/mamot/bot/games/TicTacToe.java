@@ -117,7 +117,7 @@ public class TicTacToe {
         return moves.get(bestMove);
     }
 
-    class Move {
+    private static class Move {
         int index;
         int score;
 
@@ -157,10 +157,10 @@ public class TicTacToe {
     public String toString() {
         String result = "";
         switch (result()) {
-            case AI: result += "Проиграл, кожаный ублюдок!"; break;
-            case HU: result += "Не может быть!!! Кожаный ублюдок выйграл... :("; break;
-            case TIE: result += "Ничья, кожаный ублюдок!"; break;
-            case NONE: result += "Твой ход, кожаный ублюдок!"; break;
+            case AI: result += "РџСЂРѕРёРіСЂР°Р», РєРѕР¶Р°РЅС‹Р№ СѓР±Р»СЋРґРѕРє!"; break;
+            case HU: result += "РќРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ!!! РљРѕР¶Р°РЅС‹Р№ СѓР±Р»СЋРґРѕРє РІС‹Р№РіСЂР°Р»... :("; break;
+            case TIE: result += "РќРёС‡СЊСЏ, РєРѕР¶Р°РЅС‹Р№ СѓР±Р»СЋРґРѕРє!"; break;
+            case NONE: result += "РўРІРѕР№ С…РѕРґ, РєРѕР¶Р°РЅС‹Р№ СѓР±Р»СЋРґРѕРє!"; break;
         }
         return result + "\n\n" + board().stream().map(this::print).reduce(this::reduce).get();
     }

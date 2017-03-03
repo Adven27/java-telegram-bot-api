@@ -14,7 +14,7 @@ public class HandlersChainListener implements UpdatesListener {
     private final UpdateHandler defaultConsumer;
     private final List<UpdateHandler> handlers;
 
-    public HandlersChainListener(TelegramBot bot,UpdateHandler defaultHandler, UpdateHandler... handlers) {
+    public HandlersChainListener(TelegramBot bot, UpdateHandler defaultHandler, UpdateHandler... handlers) {
         this.bot = bot;
         this.defaultConsumer = defaultHandler;
         this.handlers = asList(handlers);
@@ -27,8 +27,8 @@ public class HandlersChainListener implements UpdatesListener {
         return CONFIRMED_UPDATES_ALL;
     }
 
-    void process(Update u) {
-        if (!handlers.stream().filter(h -> h.handle(bot, u)).findFirst().isPresent() && defaultConsumer != null) {
+    private void process(Update u) {
+        if (handlers.stream().noneMatch(h -> h.handle(bot, u)) && defaultConsumer != null) {
             defaultConsumer.handle(bot, u);
         }
     }

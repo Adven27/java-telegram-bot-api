@@ -71,7 +71,7 @@ public class PollCommandTest {
             from("Walter", "White").
         then(sut).
             shouldAnswer(THANKS_CALLBACK_ANSWER,
-                         editMessage(format("%s%n%n%s - [White Walter]%n%s - %n", "question?", "opt1", "opt2")).
+                         editMessage(format("%s\n\n%s - [White Walter]\n%s - \n", "question?", "opt1", "opt2")).
                                  replyMarkup(keyboard().row(TEXT_EQUALS_DATA_LIST, "opt1", "opt2").build()));
 
         assertEquals(singletonList("White Walter"), votesFor("opt1"));
@@ -87,7 +87,7 @@ public class PollCommandTest {
             from("Walter", "White").
         then(sut).
             shouldAnswer(THANKS_CALLBACK_ANSWER,
-                         editMessage(format("%s%n%n%s - %n%s - [White Walter]%n", "question?", "opt1", "opt2")).
+                         editMessage(format("%s\n\n%s - \n%s - [White Walter]\n", "question?", "opt1", "opt2")).
                             replyMarkup(keyboard().row(TEXT_EQUALS_DATA_LIST, "opt1", "opt2").build()));
 
         assertEquals(emptyList(), votesFor("opt1"));
