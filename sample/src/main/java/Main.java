@@ -47,7 +47,8 @@ import static java.util.stream.Collectors.joining;
 import static net.mamot.bot.services.Stickers.HELP;
 
 public class Main {
-    private static final String SBT_TEAM_CHAT_ID = /*"-145229307";*/ "229669496";
+    //TODO get rid of hardcode (use DB)
+    private static final String SBT_TEAM_CHAT_ID = System.getenv("TEAM_CHAT");
 
     public static void main(String[] args) {
         final String token = System.getenv("TELEGRAM_TOKEN");
