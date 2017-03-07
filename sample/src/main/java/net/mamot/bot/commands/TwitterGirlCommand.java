@@ -8,13 +8,13 @@ import net.mamot.bot.services.twitter.TwitterService;
 
 import static com.pengrad.telegrambot.request.SendMessage.message;
 
-//TODO tests
 public class TwitterGirlCommand extends MessageCommand {
+    public static final String COMMAND = "/scalagirl";
     private final TwitterService twitter;
-    private static final String GIRL_NAME_IN_TWITTER = "besseifunction";
+    public static final String GIRL_NAME_IN_TWITTER = "besseifunction";
 
     public TwitterGirlCommand(TwitterService twitter) {
-        super("/scalagirl", "Latest tweet of scala girl");
+        super(COMMAND, "Latest tweet of scala girl");
         this.twitter = twitter;
     }
 

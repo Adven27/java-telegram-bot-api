@@ -15,7 +15,6 @@ public class TicTacToeCommandTest {
         given(sut).
             got(COMMAND).
         then().
-            shouldAnswer(message("JUST WRITE THEM! YESTERDAY YOU SAID TOMORROW!"));
+            shouldAnswer(message("JUST WRITE THEM! YESTERDAY YOU SAID 'TOMORROW'!"));
     }
-
 }
