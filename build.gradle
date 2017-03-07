@@ -1,5 +1,8 @@
+apply plugin: 'java'
 subprojects {
     repositories {
         jcenter()
     }
 }
+
+task stage(dependsOn: [':sample:installDist', 'clean'])

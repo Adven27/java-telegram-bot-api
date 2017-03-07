@@ -1,0 +1,1 @@
+worker: sh sample/build/install/sample/bin/sample
