@@ -16,12 +16,12 @@ public class BardakCommandTest {
 
     @Test
     public void shouldReturnMenuForToday() throws Exception {
-        when(menu.today()).thenReturn("джинжер виски бесплатно!");
+        when(menu.today()).thenReturn("РґР¶РёРЅР¶РµСЂ РІРёСЃРєРё Р±РµСЃРїР»Р°С‚РЅРѕ!");
 
         given(sut).
             got(COMMAND).
         then().
-            shouldAnswer(message("джинжер виски бесплатно!"));
+            shouldAnswer(message("РґР¶РёРЅР¶РµСЂ РІРёСЃРєРё Р±РµСЃРїР»Р°С‚РЅРѕ!"));
     }
 
 }

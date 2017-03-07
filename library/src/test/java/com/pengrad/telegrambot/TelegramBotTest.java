@@ -27,7 +27,6 @@ public class TelegramBotTest {
     TelegramBot bot;
     Integer chatId, forwardMessageId;
     String channelName = "@bottest";
-    Long channelId = -1001002720332L;
     String stickerId;
     String imagefile = getClass().getClassLoader().getResource("image.png").getFile();
     String audioFile = getClass().getClassLoader().getResource("beep.mp3").getFile();

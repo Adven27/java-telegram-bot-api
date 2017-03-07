@@ -16,8 +16,10 @@ import net.mamot.bot.services.games.LeaderBoardRepo;
 import java.util.*;
 
 import static com.pengrad.telegrambot.fluent.KeyboardBuilder.keyboard;
+import static com.pengrad.telegrambot.model.Chat.Type.Private;
 import static com.pengrad.telegrambot.request.EditMessageText.editMessage;
 import static com.pengrad.telegrambot.request.SendMessage.message;
+import static java.util.stream.Collectors.toSet;
 import static net.mamot.bot.services.Emoji.RIGHT_ARROW;
 
 public class Game2048Command extends CallbackCommand {
@@ -49,13 +51,13 @@ public class Game2048Command extends CallbackCommand {
     public void execute(TelegramBot bot, User user, Chat chat, String params) {
         String userName = getUserName(user);
         if (userGames.get(userName) != null) {
-            bot.execute(message(chat, screen()).replyMarkup(getInlineKeyboard()));
+            bot.execute(message(chat, screen(chat)).replyMarkup(getInlineKeyboard()));
             return;
         }
         Game2048 g = new Game2048();
         userGames.put(userName, g);
         gameRepo.insert(userName, g.toJSON());
-        bot.execute(message(chat, screen()).replyMarkup(getInlineKeyboard()));
+        bot.execute(message(chat, screen(chat)).replyMarkup(getInlineKeyboard()));
     }
 
     private String getUserName(User user) {
@@ -85,9 +87,11 @@ public class Game2048Command extends CallbackCommand {
         }
     }
 
-    private String screen() {
+    private String screen(Chat chat) {
         String msg = "";
-        Set<Map.Entry<String, Game2048>> games = userGames.entrySet();
+        Set<Map.Entry<String, Game2048>> games = chat.type() == Private
+                ? userGames.entrySet().stream().filter(e -> e.getKey().equals(chat.lastName())).collect(toSet())
+                : userGames.entrySet();
         LinkedList<Game2048> gs = new LinkedList<>();
         for (Map.Entry<String, Game2048> game : games) {
             Game2048 g = game.getValue();
@@ -162,7 +166,7 @@ public class Game2048Command extends CallbackCommand {
 
         doAction(data, from);
 
-        bot.execute(editMessage(message, screen()).replyMarkup(getInlineKeyboard()));
+        bot.execute(editMessage(message, screen(message.chat())).replyMarkup(getInlineKeyboard()));
         return true;
     }
 
