@@ -4,6 +4,7 @@ import com.pengrad.telegrambot.model.*;
 import com.pengrad.telegrambot.model.request.*;
 import com.pengrad.telegrambot.request.*;
 import com.pengrad.telegrambot.response.*;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -20,6 +21,7 @@ import static org.junit.Assert.assertTrue;
  * stas
  * 5/2/16.
  */
+@Ignore
 public class TelegramBotTest {
 
     TelegramBot bot;
