@@ -20,11 +20,10 @@ public class ImgFromTextCommand extends MessageCommand {
 
     @Override
     public void execute(TelegramBot bot, User user, Chat chat, String params) {
-        bot.execute(new SendPhoto(chat.id(), p2()));
+        bot.execute(new SendPhoto(chat.id(), print(params)));
     }
 
-    private byte[] p2(){
-        String text = "Hello";
+    private byte[] print(String text){
 
         /*
            Because font metrics is based on a graphics context, we need to create

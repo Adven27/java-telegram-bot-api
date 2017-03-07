@@ -3,8 +3,9 @@ import com.pengrad.telegrambot.commands.MessageCommand;
 import com.pengrad.telegrambot.listeners.HandlersChainListener;
 import com.pengrad.telegrambot.listeners.handlers.UpdateHandler;
 import com.pengrad.telegrambot.model.Chat;
-import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.request.SendSticker;
+import com.pengrad.telegrambot.model.Message;
+import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.request.*;
 import net.mamot.bot.commands.*;
 import net.mamot.bot.services.LocalizationService;
 import net.mamot.bot.services.advice.impl.AdvicePrinter;
@@ -35,6 +36,7 @@ import net.mamot.bot.timertasks.TimerExecutor;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.pengrad.telegrambot.TelegramBotAdapter.build;
 import static com.pengrad.telegrambot.TelegramBotAdapter.buildDebug;
@@ -49,6 +51,7 @@ import static net.mamot.bot.services.Stickers.HELP;
 public class Main {
     //TODO get rid of hardcode (use DB)
     private static final String SBT_TEAM_CHAT_ID = System.getenv("TEAM_CHAT");
+    public static final String CHAT_TO_REPOST = System.getenv("REPOST_CHAT");
 
     public static void main(String[] args) {
         final String token = System.getenv("TELEGRAM_TOKEN");
@@ -57,16 +60,35 @@ public class Main {
         final UpdateHandler[] handlers = updateHandlers();
 
         bot.setUpdatesListener(new HandlersChainListener(bot,
-                (b, u) -> {
-                    Chat chat = u.message().chat();
-                    b.execute(sticker(chat, HELP.id()));
-                    b.execute(message(chat, helpMessage(handlers)));
-                    return true;
-                },
-                handlers
+            (b, u) -> u.message() != null ? printHelp(handlers, b, u.message().chat()) : repostFromChannel(b, u),
+            handlers
         ));
-
         scheduleTasks(bot, getTimerTasks());
+    }
+
+    private static boolean printHelp(UpdateHandler[] handlers, TelegramBot b,  Chat chat) {
+        b.execute(sticker(chat, HELP.id()));
+        b.execute(message(chat, helpMessage(handlers)));
+        return true;
+    }
+
+    private static boolean repostFromChannel(TelegramBot b, Update u) {
+        Message post = u.channelPost() == null? u.editedChannelPost() : u.channelPost();
+        if (post != null) {
+            if (post.document() != null) {
+                b.execute(new SendDocument(CHAT_TO_REPOST, post.document().fileId()));
+            } else if (post.audio() != null) {
+                b.execute(new SendAudio(CHAT_TO_REPOST, post.audio().fileId()));
+            } else if (post.video() != null) {
+                b.execute(new SendVideo(CHAT_TO_REPOST, post.video().fileId()));
+            } else if (post.photo() != null) {
+                b.execute(new SendPhoto(CHAT_TO_REPOST, post.photo()[0].fileId()));
+            } else if (!isNullOrEmpty(post.text())) {
+                b.execute(new SendMessage(CHAT_TO_REPOST, post.text()));
+            }
+            return true;
+        }
+        return false;
     }
 
     private static UpdateHandler[] updateHandlers() {
@@ -87,7 +109,9 @@ public class Main {
                 new PollCommand(new PollsInMemRepo()),
                 new JokeCommand(new MessageFromURL(new JokeResource(), new JokePrinter())),
                 new BardakCommand(new BardakMenu(dao)),
-                new TwitterGirlCommand(new TwitterServiceImpl())};
+                new ImgFromTextCommand(),
+                new TwitterGirlCommand(new TwitterServiceImpl())
+        };
     }
 
     private static void scheduleTasks(TelegramBot bot, List<CustomTimerTask> tasks) {
