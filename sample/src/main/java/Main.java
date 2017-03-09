@@ -11,6 +11,7 @@ import net.mamot.bot.services.LocalizationService;
 import net.mamot.bot.services.advice.impl.AdvicePrinter;
 import net.mamot.bot.services.advice.impl.AdviceResource;
 import net.mamot.bot.services.bardak.BardakMenu;
+import net.mamot.bot.services.debts.FakeDebtsManager;
 import net.mamot.bot.services.games.impl.LeaderBoardImpl;
 import net.mamot.bot.services.games.impl.PGSQLGameLeaderBoardRepo;
 import net.mamot.bot.services.games.impl.PGSQLGameRepo;
@@ -66,6 +67,30 @@ public class Main {
         scheduleTasks(bot, getTimerTasks());
     }
 
+    private static UpdateHandler[] updateHandlers() {
+        final LocalizationService localizationService = new LocalizationService();
+        final DAO dao = new DAO();
+        final WeatherPrinter weatherPrinter = new WeatherPrinter(localizationService, dao);
+        final Weather weather = new WeatherLoggingDecorator(
+                new SimpleWeather(weatherPrinter, new WeatherResource()), localizationService);
+
+        return new UpdateHandler[]{
+                new LightsCommand(new UpnpBridgeAdapter()),
+                new WeatherCommand(weather),
+                new TicTacToeCommand(),
+                new Game2048Command(new PGSQLGameRepo(), new LeaderBoardImpl(new PGSQLGameLeaderBoardRepo())),
+                new AdviceCommand(new MessageFromURL(new AdviceResource(), new AdvicePrinter())),
+                new QuoteCommand(new MessageFromURL(new QuoteResource(), new QuotePrinter())),
+                new SupCommand(dao),
+                new PollCommand(new PollsInMemRepo()),
+                new JokeCommand(new MessageFromURL(new JokeResource(), new JokePrinter())),
+                new BardakCommand(new BardakMenu(dao)),
+                new ImgFromTextCommand(),
+                new DebtsCommand(new FakeDebtsManager()),
+                new TwitterGirlCommand(new TwitterServiceImpl())
+        };
+    }
+
     private static boolean printHelp(UpdateHandler[] handlers, TelegramBot b,  Chat chat) {
         b.execute(sticker(chat, HELP.id()));
         b.execute(message(chat, helpMessage(handlers)));
@@ -89,29 +114,6 @@ public class Main {
             return true;
         }
         return false;
-    }
-
-    private static UpdateHandler[] updateHandlers() {
-        final LocalizationService localizationService = new LocalizationService();
-        final DAO dao = new DAO();
-        final WeatherPrinter weatherPrinter = new WeatherPrinter(localizationService, dao);
-        final Weather weather = new WeatherLoggingDecorator(
-                new SimpleWeather(weatherPrinter, new WeatherResource()), localizationService);
-
-        return new UpdateHandler[]{
-                new LightsCommand(new UpnpBridgeAdapter()),
-                new WeatherCommand(weather),
-                new TicTacToeCommand(),
-                new Game2048Command(new PGSQLGameRepo(), new LeaderBoardImpl(new PGSQLGameLeaderBoardRepo())),
-                new AdviceCommand(new MessageFromURL(new AdviceResource(), new AdvicePrinter())),
-                new QuoteCommand(new MessageFromURL(new QuoteResource(), new QuotePrinter())),
-                new SupCommand(dao),
-                new PollCommand(new PollsInMemRepo()),
-                new JokeCommand(new MessageFromURL(new JokeResource(), new JokePrinter())),
-                new BardakCommand(new BardakMenu(dao)),
-                new ImgFromTextCommand(),
-                new TwitterGirlCommand(new TwitterServiceImpl())
-        };
     }
 
     private static void scheduleTasks(TelegramBot bot, List<CustomTimerTask> tasks) {

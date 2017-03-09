@@ -98,15 +98,26 @@ public class BotTester {
             return this;
         }
 
-        public GivenSpec from(int id, String firstName) {
-            from(id, firstName, "");
+        public GivenSpec from(int id, String firstName, String lastName) {
+            from(id, firstName, lastName, "");
             return this;
         }
 
-        public GivenSpec from(int id, String firstName, String lastName) {
+        public GivenSpec from(int id, String username) {
+            from(id, "", "", username);
+            return this;
+        }
+
+        public GivenSpec from(User user) {
+            this.user = user;
+            return this;
+        }
+
+        public GivenSpec from(int id, String firstName, String lastName, String username) {
             user.setId(id);
             user.setFirst_name(firstName);
             user.setLast_name(lastName);
+            user.setUsername(username);
             return this;
         }
 
@@ -188,6 +199,15 @@ public class BotTester {
         user.setFirst_name("Walter");
         user.setLast_name("White");
         user.setUsername("heisenberg");
+        return user;
+    }
+
+    public static User createUser(int id, String nick) {
+        User user = new User();
+        user.setId(id);
+        user.setFirst_name("");
+        user.setLast_name("");
+        user.setUsername(nick);
         return user;
     }
 
