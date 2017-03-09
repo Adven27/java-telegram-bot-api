@@ -3,80 +3,99 @@ package net.mamot.bot.commands;
 import com.pengrad.telegrambot.fluent.KeyboardBuilder;
 import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.tester.BotTester;
-import net.mamot.bot.services.debts.DebtsManager;
+import net.mamot.bot.services.debts.WizardSession;
 import net.mamot.bot.services.debts.WizardStep;
 import org.junit.Test;
 
 import static com.pengrad.telegrambot.fluent.KeyboardBuilder.Type.TEXT_EQUALS_DATA_LIST;
 import static com.pengrad.telegrambot.tester.BotTester.*;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public class DebtsCommandTest {
 
-    private final DebtsManager debtsManager = mock(DebtsManager.class);
-    private DebtsCommand sut = new DebtsCommand(debtsManager);
+    private final WizardSession wizardSession = mock(WizardSession.class);
+    private final WizardStep step = mock(WizardStep.class);
+    private final WizardStep nextStep = mock(WizardStep.class);
+    private final DebtsCommand sut = new DebtsCommand(wizardSession);
     private final User heisenberg = BotTester.createUser(737, "heisenberg");
-    private final WizardStep someStep = new WizardStep() {
-        @Override
-        public String screen() { return "step desc"; }
-
-        @Override
-        public KeyboardBuilder keyboard() { return KeyboardBuilder.keyboard().row(TEXT_EQUALS_DATA_LIST, "btn1", "btn2"); }
-
-        @Override
-        public WizardStep callback(String data) {
-            return null;
-        }
-    };
+    private final KeyboardBuilder keyboard = KeyboardBuilder.keyboard().row(TEXT_EQUALS_DATA_LIST, "btn1", "btn2");
 
     @Test
     public void shouldShowInfoFromStep() throws Exception {
-        when(debtsManager.stateFor(heisenberg)).thenReturn(someStep);
+        when(step.screen()).thenReturn("step desc");
+        when(step.keyboard()).thenReturn(keyboard);
+        when(wizardSession.get(heisenberg.id())).thenReturn(step);
 
         given(sut).
             got("/debts").from(heisenberg).
         then(sut).
-            shouldAnswer(message(someStep.screen()).replyMarkup(someStep.keyboard().build()));
+            shouldAnswer(message("step desc").replyMarkup(keyboard.build()));
 
-        verify(debtsManager).stateFor(heisenberg);
-        verifyNoMoreInteractions(debtsManager);
+        verify(step).screen();
+        verify(step).keyboard();
+        verifyNoMoreInteractions(step);
+        verify(wizardSession).get(heisenberg.id());
+        verifyNoMoreInteractions(wizardSession);
     }
 
     @Test
     public void shouldShowErrorIfNoStepFound() throws Exception {
-        when(debtsManager.stateFor(any(User.class))).thenReturn(null);
+        when(wizardSession.get(anyInt())).thenReturn(null);
 
         given(sut).
             got("/debts").
         then(sut).
             shouldAnswer(message("Wizard is broken"));
 
-        verify(debtsManager).stateFor(any(User.class));
-        verifyNoMoreInteractions(debtsManager);
+        verify(wizardSession).get(anyInt());
+        verifyNoMoreInteractions(wizardSession);
     }
 
     @Test
     public void shouldRethrowCallbackToDebtsManagerAndShowUpdatedStep() throws Exception {
-        when(debtsManager.updateFor(heisenberg, "btn1")).thenReturn(someStep);
+        when(nextStep.screen()).thenReturn("step desc");
+        when(nextStep.keyboard()).thenReturn(keyboard);
+        when(step.callback("btn")).thenReturn(nextStep);
+        when(wizardSession.get(heisenberg.id())).thenReturn(step);
 
-        givenGotCallbackFor(sut, "btn1").from(heisenberg).
+        givenGotCallbackFor(sut, "btn").from(heisenberg).
         then(sut).
-            shouldAnswer(editMessage(someStep.screen()).replyMarkup(someStep.keyboard().build()));
+            shouldAnswer(editMessage("step desc").replyMarkup(keyboard.build()));
 
-        verify(debtsManager).updateFor(heisenberg, "btn1");
-        verifyNoMoreInteractions(debtsManager);
+        verify(step).callback("btn");
+        verifyNoMoreInteractions(step);
+        verify(nextStep).screen();
+        verify(nextStep).keyboard();
+        verifyNoMoreInteractions(nextStep);
+        verify(wizardSession).get(heisenberg.id());
+        verify(wizardSession).set(heisenberg.id(), nextStep);
+        verifyNoMoreInteractions(wizardSession);
     }
 
     @Test
-    public void shouldShowErrorIfManagerDidNotReturnUpdatedStep() throws Exception {
-        when(debtsManager.updateFor(any(User.class), eq("some callback"))).thenReturn(null);
+    public void shouldShowErrorIfRepoDidNotReturnCurrentStep() throws Exception {
+        when(wizardSession.get(anyInt())).thenReturn(null);
 
         givenGotCallbackFor(sut, "some callback").
         then(sut).
             shouldAnswer(editMessage("Wizard is broken"));
 
-        verify(debtsManager).updateFor(any(User.class), eq("some callback"));
-        verifyNoMoreInteractions(debtsManager);
+        verify(wizardSession).get(anyInt());
+        verifyNoMoreInteractions(wizardSession);
+    }
+
+    @Test
+    public void shouldShowErrorIfCurrentStepDidNotReturnUpdatedStep() throws Exception {
+        when(step.callback("btn")).thenReturn(null);
+        when(wizardSession.get(heisenberg.id())).thenReturn(step);
+
+        givenGotCallbackFor(sut, "btn").from(heisenberg).
+        then(sut).
+            shouldAnswer(editMessage("Wizard is broken"));
+
+        verify(step).callback("btn");
+        verifyNoMoreInteractions(step);
+        verify(wizardSession).get(heisenberg.id());
+        verifyNoMoreInteractions(wizardSession);
     }
 }

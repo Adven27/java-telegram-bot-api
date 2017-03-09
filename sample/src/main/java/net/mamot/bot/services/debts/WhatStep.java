@@ -2,22 +2,23 @@ package net.mamot.bot.services.debts;
 
 import com.pengrad.telegrambot.fluent.KeyboardBuilder;
 
-public class WhoStep implements WizardStep {
+public class WhatStep implements WizardStep {
     @Override
     public String screen() {
-        return "Who?";
+        return "What?";
     }
 
     @Override
     public KeyboardBuilder keyboard() {
         return KeyboardBuilder.keyboard().
-                row("jessy", "jessy").
-                row("gus", "gus").
-                row("saul", "saul");
+                row("income", "in").
+                row("outcome", "out").
+                row("even", "even").
+                row("back", "back");
     }
 
     @Override
     public WizardStep callback(String data) {
-        return new WhatStep();
+        return new WhoStep();
     }
 }

@@ -11,7 +11,8 @@ import net.mamot.bot.services.LocalizationService;
 import net.mamot.bot.services.advice.impl.AdvicePrinter;
 import net.mamot.bot.services.advice.impl.AdviceResource;
 import net.mamot.bot.services.bardak.BardakMenu;
-import net.mamot.bot.services.debts.FakeDebtsManager;
+import net.mamot.bot.services.debts.InMemWizardSession;
+import net.mamot.bot.services.debts.WhoStep;
 import net.mamot.bot.services.games.impl.LeaderBoardImpl;
 import net.mamot.bot.services.games.impl.PGSQLGameLeaderBoardRepo;
 import net.mamot.bot.services.games.impl.PGSQLGameRepo;
@@ -86,7 +87,7 @@ public class Main {
                 new JokeCommand(new MessageFromURL(new JokeResource(), new JokePrinter())),
                 new BardakCommand(new BardakMenu(dao)),
                 new ImgFromTextCommand(),
-                new DebtsCommand(new FakeDebtsManager()),
+                new DebtsCommand(new InMemWizardSession(new WhoStep())),
                 new TwitterGirlCommand(new TwitterServiceImpl())
         };
     }
