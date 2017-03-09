@@ -8,6 +8,7 @@ import com.pengrad.telegrambot.model.Update;
 
 import java.util.List;
 
+import static com.pengrad.telegrambot.logging.BotLogger.error;
 import static com.pengrad.telegrambot.model.MessageEntity.Type.bot_command;
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptyList;
@@ -45,7 +46,11 @@ public abstract class MessageCommand implements MessageHandler{
     private boolean tryExecuteCommands(TelegramBot bot, Message msg, List<CommandInvocation> commandInvocations) {
         for (CommandInvocation inv : commandInvocations) {
             if (commandIdentifier.equals(inv.name)) {
-                execute(bot, msg.from(), msg.chat(), inv.params);
+                try {
+                    execute(bot, msg.from(), msg.chat(), inv.params);
+                } catch (Exception e) {
+                    error("MessageCommand", e);
+                }
                 return true;
             }
         }
