@@ -2,9 +2,7 @@ package com.pengrad.telegrambot.commands;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.listeners.handlers.MessageHandler;
-import com.pengrad.telegrambot.model.Message;
-import com.pengrad.telegrambot.model.MessageEntity;
-import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.model.*;
 
 import java.util.List;
 
@@ -39,8 +37,13 @@ public abstract class MessageCommand implements MessageHandler{
     }
 
     private boolean handle(TelegramBot bot, Message msg) {
-        List<CommandInvocation> invocations = parseCommandInvocations(msg);
-        return !invocations.isEmpty() && tryExecuteCommands(bot, msg, invocations);
+        if (msg.replyToMessage() != null) {
+            List<CommandInvocation> invocations = parseCommandInvocations(msg.replyToMessage());
+            return !invocations.isEmpty() && tryReply(bot, msg, invocations);
+        } else {
+            List<CommandInvocation> invocations = parseCommandInvocations(msg);
+            return !invocations.isEmpty() && tryExecuteCommands(bot, msg, invocations);
+        }
     }
 
     private boolean tryExecuteCommands(TelegramBot bot, Message msg, List<CommandInvocation> commandInvocations) {
@@ -57,6 +60,20 @@ public abstract class MessageCommand implements MessageHandler{
         return false;
     }
 
+    private boolean tryReply(TelegramBot bot, Message reply, List<CommandInvocation> commandInvocations) {
+        for (CommandInvocation inv : commandInvocations) {
+            if (commandIdentifier.equals(inv.name)) {
+                try {
+                    reply(bot, reply.from(), reply.chat(), reply.text());
+                } catch (Exception e) {
+                    error("MessageCommand", e);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
     private List<CommandInvocation> parseCommandInvocations(Message msg) {
         return  msg.entities() == null ? emptyList() : stream(msg.entities()).
                 filter(e -> e.type().equals(bot_command)).
@@ -64,6 +81,11 @@ public abstract class MessageCommand implements MessageHandler{
                 map(e -> new CommandInvocation(msg.text().substring(e.offset(), e.length()),
                         msg.text().substring(e.offset() + e.length()))).
                 collect(toList());
+    }
+
+    @Override
+    public void reply(TelegramBot bot, User user, Chat chat, String params) {
+
     }
 
     private static class CommandInvocation {

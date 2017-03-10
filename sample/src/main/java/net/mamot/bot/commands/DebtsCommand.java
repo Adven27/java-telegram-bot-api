@@ -5,7 +5,11 @@ import com.pengrad.telegrambot.commands.CallbackCommand;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.User;
+import com.pengrad.telegrambot.model.request.ForceReply;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
+import com.pengrad.telegrambot.request.SendMessage;
+import net.mamot.bot.services.debts.Transaction;
+import net.mamot.bot.services.debts.WhoStep;
 import net.mamot.bot.services.debts.WizardSession;
 import net.mamot.bot.services.debts.WizardStep;
 
@@ -23,12 +27,14 @@ public class DebtsCommand extends CallbackCommand {
 
     @Override
     public void execute(TelegramBot bot, User user, Chat chat, String params) {
-        WizardStep state = session.get(user.id());
-        if (state == null) {
-            bot.execute(message(chat, "Wizard is broken"));
-        } else  {
-            bot.execute(message(chat, state.screen()).replyMarkup(getKeyboard(state)));
-        }
+        WizardStep step = session.getOrStartFrom(user.id(), new WhoStep(new Transaction(user.id ())));
+        bot.execute(message(chat, step.screen()).replyMarkup(getKeyboard(step)));
+    }
+
+    @Override
+    public void reply(TelegramBot bot, User user, Chat chat, String params) {
+        WizardStep step = session.get(user.id());
+        bot.execute(message(chat, step.screen()).replyMarkup(getKeyboard(step)));
     }
 
     @Override
@@ -37,12 +43,16 @@ public class DebtsCommand extends CallbackCommand {
         if (state == null) {
             bot.execute(editMessage(cb.message(), "Wizard is broken"));
         } else {
-            WizardStep updatedStep = state.callback(cb.data());
-            if (updatedStep == null) {
-                bot.execute(editMessage(cb.message(), "Wizard is broken"));
+            if ("enter".equals(cb.data())) {
+                bot.execute(new SendMessage(cb.message().chat().id(), COMMAND + " enter name").replyMarkup(new ForceReply()));
             } else {
-                session.set(cb.from().id(), updatedStep);
-                bot.execute(editMessage(cb.message(), updatedStep.screen()).replyMarkup(getKeyboard(updatedStep)));
+                WizardStep updatedStep = state.callback(cb.data());
+                if (updatedStep == null) {
+                    bot.execute(editMessage(cb.message(), "Wizard is broken"));
+                } else {
+                    session.set(cb.from().id(), updatedStep);
+                    bot.execute(editMessage(cb.message(), updatedStep.screen()).replyMarkup(getKeyboard(updatedStep)));
+                }
             }
         }
         return true;

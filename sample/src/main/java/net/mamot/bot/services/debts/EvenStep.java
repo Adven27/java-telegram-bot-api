@@ -4,16 +4,16 @@ import com.pengrad.telegrambot.fluent.KeyboardBuilder;
 
 import static java.lang.Integer.parseInt;
 
-public class WhoStep implements WizardStep {
+public class EvenStep implements WizardStep {
     private final Transaction transaction;
 
-    public WhoStep(Transaction transaction) {
+    public EvenStep(Transaction transaction) {
         this.transaction = transaction;
     }
 
     @Override
     public String screen() {
-        return "Who?\n" + transaction.toString();
+        return "Even?";
     }
 
     @Override
@@ -21,15 +21,11 @@ public class WhoStep implements WizardStep {
         return KeyboardBuilder.keyboard().
                 row("jessy", "1").
                 row("gus", "2").
-                row("saul", "3").
-                row("enter", "enter");
+                row("saul", "3");
     }
 
     @Override
     public WizardStep callback(String data) {
-        if ("enter".equals(data)) {
-
-        }
         transaction.to(parseInt(data));
         return new WhatStep(transaction);
     }

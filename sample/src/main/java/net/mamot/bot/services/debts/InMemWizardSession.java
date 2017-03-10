@@ -4,16 +4,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InMemWizardSession implements WizardSession {
-    private WizardStep initStep;
     private final Map<Integer, WizardStep> stepMap = new HashMap<>();
-
-    public InMemWizardSession(WizardStep initStep) {
-        this.initStep = initStep;
-    }
 
     @Override
     public WizardStep get(int id) {
-        return stepMap.get(id) == null ? initStep : stepMap.get(id);
+        return stepMap.get(id);
+    }
+
+    @Override
+    public WizardStep getOrStartFrom(int id, WizardStep step) {
+        if (stepMap.get(id) == null) {
+            stepMap.put(id, step);
+            return step;
+        }
+        return stepMap.get(id);
     }
 
     @Override
