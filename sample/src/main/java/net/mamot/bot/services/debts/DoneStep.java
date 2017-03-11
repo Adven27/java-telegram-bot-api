@@ -11,14 +11,14 @@ public class DoneStep implements WizardStep {
 
     @Override
     public String screen() {
-        return "Done\n" + transaction.toString();
+        return "Выполнено:\n" + transaction.toString();
     }
 
     @Override
     public KeyboardBuilder keyboard() {
         return KeyboardBuilder.keyboard().
-                row("To favorites", "fav").
-                row("Ok", "OK");
+                row("Ok", "OK").
+                row("\uD83C\uDF1F Добавить в избранное", "fav");
     }
 
     @Override

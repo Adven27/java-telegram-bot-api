@@ -13,16 +13,16 @@ public class WhatStep implements WizardStep {
 
     @Override
     public String screen() {
-        return "What?\n" + transaction.toString();
+        return "Что сделал?\n" + transaction.toString();
     }
 
     @Override
     public KeyboardBuilder keyboard() {
         return KeyboardBuilder.keyboard().
-                row("income", "true").
-                row("outcome", "false").
-                row("even", "even").
-                row("back", "back");
+                row("\uD83D\uDCC8 Дал мне денег", "true").
+                row("\uD83D\uDCC9 Взял у меня денег", "false").
+                row("⚖️ В расчете", "even").
+                row("\uD83D\uDD19", "back");
     }
 
     @Override

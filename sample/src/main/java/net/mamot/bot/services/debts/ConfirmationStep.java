@@ -11,16 +11,17 @@ public class ConfirmationStep implements WizardStep {
 
     @Override
     public String screen() {
-        return "Confirm?\n" + transaction.toString();
+        return "Подтвердите:\n" + transaction.toString();
     }
 
     @Override
     public KeyboardBuilder keyboard() {
         return KeyboardBuilder.keyboard().
-                row("Change 'who'", "who").
-                row("Change amount", "amount").
-                row("Cancel", "cancel").
-                row("Ok", "OK");
+                row("✅ Ok", "OK").
+                row("\uD83D\uDEAB Cancel", "cancel").
+                row("\uD83D\uDE4E\u200D♂️ Изменить кто", "who").
+                row("\uD83D\uDCB0 Изменить сумму", "amount");
+
     }
 
     @Override

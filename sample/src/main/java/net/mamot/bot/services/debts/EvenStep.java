@@ -2,8 +2,6 @@ package net.mamot.bot.services.debts;
 
 import com.pengrad.telegrambot.fluent.KeyboardBuilder;
 
-import static java.lang.Integer.parseInt;
-
 public class EvenStep implements WizardStep {
     private final Transaction transaction;
 
@@ -13,20 +11,22 @@ public class EvenStep implements WizardStep {
 
     @Override
     public String screen() {
-        return "Even?";
+        return "В расчете";
     }
 
     @Override
     public KeyboardBuilder keyboard() {
         return KeyboardBuilder.keyboard().
-                row("jessy", "1").
-                row("gus", "2").
-                row("saul", "3");
+                row("Ok", "Ok").
+                row("\uD83D\uDD19", "back");
     }
 
     @Override
     public WizardStep callback(String data) {
-        transaction.to(parseInt(data));
-        return new WhatStep(transaction);
+        switch (data) {
+            case "back": return new WhatStep(transaction);
+            case "OK": return new DoneStep(transaction);
+            default: return new EvenStep(transaction);
+        }
     }
 }

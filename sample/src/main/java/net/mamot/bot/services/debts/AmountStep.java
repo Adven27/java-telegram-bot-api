@@ -16,16 +16,17 @@ public class AmountStep implements WizardStep {
 
     @Override
     public String screen() {
-        return "How much?\n" + transaction.toString();
+        return "Сколько?\n" + transaction.toString();
     }
 
     @Override
     public KeyboardBuilder keyboard() {
         return KeyboardBuilder.keyboard().
+                row(TEXT_EQUALS_DATA_LIST, "1", "5", "10").
                 row(TEXT_EQUALS_DATA_LIST, "50", "100", "200").
                 row(TEXT_EQUALS_DATA_LIST, "500", "1000", "2000").
-                row(TEXT_EQUALS_DATA_LIST, "5000", "10000", "20000").
-                row(TEXT_EQUALS_DATA_LIST, "back", "clear", "OK");
+                row("\uD83D\uDCC6 на срок", "due").
+                row("\uD83D\uDD19", "back", "clear", "clear", "\uD83D\uDCB0 OK", "OK");
     }
 
     @Override
@@ -33,6 +34,7 @@ public class AmountStep implements WizardStep {
         switch (data) {
             case "back": return new WhatStep(transaction);
             case "OK": return new ConfirmationStep(transaction);
+            case "due": return new DueStep(transaction);
             case "clear": transaction.sum(BigDecimal.ZERO); return new AmountStep(transaction);
             default:
                 transaction.sum(transaction.sum().add(BigDecimal.valueOf(parseInt(data))));

@@ -8,7 +8,7 @@ import static java.math.BigDecimal.ZERO;
 public class Transaction {
     public static final BigDecimal MINUS_ONE = BigDecimal.valueOf(-1);
     private int me;
-    private Integer who;
+    private String who;
     private BigDecimal sum = ZERO;
     private boolean income;
 
@@ -18,14 +18,14 @@ public class Transaction {
 
     @Override
     public String toString() {
-        return "Transaction { who='" + who + "\', sum=" + sum.multiply(income ? ONE : MINUS_ONE) + '}';
+        return who + " сумма " + sum.multiply(income ? ONE : MINUS_ONE);
     }
 
     public int me() {
         return me;
     }
 
-    public void to(int to) {
+    public void to(String to) {
         this.who = to;
     }
 
