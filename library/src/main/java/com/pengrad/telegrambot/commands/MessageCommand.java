@@ -38,8 +38,7 @@ public abstract class MessageCommand implements MessageHandler{
 
     private boolean handle(TelegramBot bot, Message msg) {
         if (msg.replyToMessage() != null) {
-            List<CommandInvocation> invocations = parseCommandInvocations(msg.replyToMessage());
-            return !invocations.isEmpty() && tryReply(bot, msg, invocations);
+            return tryReply(bot, msg, msg.replyToMessage());
         } else {
             List<CommandInvocation> invocations = parseCommandInvocations(msg);
             return !invocations.isEmpty() && tryExecuteCommands(bot, msg, invocations);
@@ -60,11 +59,12 @@ public abstract class MessageCommand implements MessageHandler{
         return false;
     }
 
-    private boolean tryReply(TelegramBot bot, Message reply, List<CommandInvocation> commandInvocations) {
-        for (CommandInvocation inv : commandInvocations) {
+    private boolean tryReply(TelegramBot bot, Message reply, Message original) {
+        List<CommandInvocation> invocations = parseCommandInvocations(original);
+        for (CommandInvocation inv : invocations) {
             if (commandIdentifier.equals(inv.name)) {
                 try {
-                    reply(bot, reply.from(), reply.chat(), reply.text());
+                    reply(bot, reply.from(), reply.chat(), reply.text(), original);
                 } catch (Exception e) {
                     error("MessageCommand", e);
                 }
@@ -84,7 +84,7 @@ public abstract class MessageCommand implements MessageHandler{
     }
 
     @Override
-    public void reply(TelegramBot bot, User user, Chat chat, String params) {
+    public void reply(TelegramBot bot, User user, Chat chat, String params, Message original) {
 
     }
 

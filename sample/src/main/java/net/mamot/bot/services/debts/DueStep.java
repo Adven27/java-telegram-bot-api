@@ -1,20 +1,19 @@
 package net.mamot.bot.services.debts;
 
+import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.fluent.KeyboardBuilder;
 
-public class DueStep implements WizardStep {
-    private Transaction transaction;
+public class DueStep extends DebtsWizardStep {
 
-    public DueStep(Transaction transaction) {
-        this.transaction = transaction;
+    public DueStep(Transaction transaction, TelegramBot bot, Integer originalMessage) {
+        super(transaction, bot, originalMessage);
     }
-    @Override
-    public String screen() {
+
+    protected String screen() {
         return "На сколько?\n" + transaction.toString();
     }
 
-    @Override
-    public KeyboardBuilder keyboard() {
+    protected KeyboardBuilder keyboard() {
         return KeyboardBuilder.keyboard().
                 row("До завтра", "t").
                 row("До конца недели", "w").
@@ -25,8 +24,13 @@ public class DueStep implements WizardStep {
     @Override
     public WizardStep callback(String data) {
         switch (data) {
-            case "back": return new AmountStep(transaction);
-            default: return new AmountStep(transaction);
+            case "back": return new AmountStep(transaction, bot, originalMessage);
+            default: return new AmountStep(transaction, bot, originalMessage);
         }
+    }
+
+    @Override
+    public void enter(String data) {
+        //todo пользовательская дата
     }
 }

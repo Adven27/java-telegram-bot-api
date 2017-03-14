@@ -1,21 +1,19 @@
 package net.mamot.bot.services.debts;
 
+import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.fluent.KeyboardBuilder;
 
-public class ConfirmationStep implements WizardStep {
-    private final Transaction transaction;
+public class ConfirmationStep extends DebtsWizardStep {
 
-    public ConfirmationStep(Transaction transaction) {
-        this.transaction = transaction;
+    public ConfirmationStep(Transaction transaction, TelegramBot bot, Integer originalMessage) {
+        super(transaction, bot, originalMessage);
     }
 
-    @Override
-    public String screen() {
+    protected String screen() {
         return "Подтвердите:\n" + transaction.toString();
     }
 
-    @Override
-    public KeyboardBuilder keyboard() {
+    protected KeyboardBuilder keyboard() {
         return KeyboardBuilder.keyboard().
                 row("✅ Ok", "OK").
                 row("\uD83D\uDEAB Cancel", "cancel").
@@ -28,10 +26,10 @@ public class ConfirmationStep implements WizardStep {
     public WizardStep callback(String data) {
         switch (data) {
             case "cancel":
-            case "who": return new WhoStep(transaction);
-            case "amount": return new AmountStep(transaction);
-            case "OK": transaction.commit(); return new DoneStep(transaction);
-            default: return new ConfirmationStep(transaction);
+            case "who": return new WhoStep(transaction, bot, originalMessage);
+            case "amount": return new AmountStep(transaction, bot, originalMessage);
+            case "OK": transaction.commit(); return new DoneStep(transaction, bot, originalMessage);
+            default: return this;
         }
     }
 }

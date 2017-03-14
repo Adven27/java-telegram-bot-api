@@ -1,27 +1,50 @@
 package net.mamot.bot.services.debts;
 
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 @Ignore
 public class InMemWizardSessionTest {
-    WizardStep initStep = mock(WizardStep.class);
-    WizardStep someStep = new WhoStep(new Transaction(1));
+    WizardStep someStep = mock(WizardStep.class);
     WizardSession sut = new InMemWizardSession();
 
-    @Test
-    public void getShouldReturnInitialStepIfThereIsNoSetted() throws Exception {
-        assertEquals(initStep, sut.get(1));
-
+    @Before
+    public void setUp() throws Exception {
+        sut.start(1, someStep);
     }
 
     @Test
-    public void getShouldReturnSettedStep() throws Exception {
-        sut.set(1, someStep);
-        assertEquals(someStep, sut.get(1));
+    public void sessionStartShouldShowsStep() throws Exception {
+        verify(someStep).show();
+        verifyNoMoreInteractions(someStep);
+    }
 
+    @Test
+    public void showShouldShowsStep() throws Exception {
+        sut.show(1);
+
+        verify(someStep, times(2)).show();
+        verifyNoMoreInteractions(someStep);
+    }
+
+    @Test
+    public void shouldCallCallbackForStep() throws Exception {
+        sut.callback(1, "data");
+
+        verify(someStep).callback("data");
+        verify(someStep).show();
+        verifyNoMoreInteractions(someStep);
+    }
+
+    @Test
+    public void shouldCallEnterForStep() throws Exception {
+        sut.enter(1, "data");
+
+        verify(someStep).show();
+        verify(someStep).enter("data");
+        verifyNoMoreInteractions(someStep);
     }
 }

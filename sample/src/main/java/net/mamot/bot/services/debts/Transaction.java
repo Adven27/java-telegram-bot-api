@@ -2,12 +2,11 @@ package net.mamot.bot.services.debts;
 
 import java.math.BigDecimal;
 
-import static java.math.BigDecimal.ONE;
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.math.BigDecimal.ZERO;
 
 public class Transaction {
-    public static final BigDecimal MINUS_ONE = BigDecimal.valueOf(-1);
-    private int me;
+    private final int me;
     private String who;
     private BigDecimal sum = ZERO;
     private boolean income;
@@ -18,7 +17,7 @@ public class Transaction {
 
     @Override
     public String toString() {
-        return who + " сумма " + sum.multiply(income ? ONE : MINUS_ONE);
+        return (isNullOrEmpty(who) ? "???" : who)  +  (income ? " дал мне " : " взял у меня ") + sum;
     }
 
     public int me() {
@@ -52,5 +51,5 @@ public class Transaction {
         this.income = income;
     }
 
-    private class InvalidDebtTransactionException extends RuntimeException { }
+    private static class InvalidDebtTransactionException extends RuntimeException { }
 }

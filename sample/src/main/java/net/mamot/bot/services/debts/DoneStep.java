@@ -1,20 +1,18 @@
 package net.mamot.bot.services.debts;
 
+import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.fluent.KeyboardBuilder;
 
-public class DoneStep implements WizardStep {
-    private final Transaction transaction;
+public class DoneStep extends DebtsWizardStep {
 
-    public DoneStep(Transaction transaction) {
-        this.transaction = transaction;
+    public DoneStep(Transaction transaction, TelegramBot bot, Integer originalMessage) {
+        super(transaction, bot, originalMessage);
     }
 
-    @Override
     public String screen() {
         return "Выполнено:\n" + transaction.toString();
     }
 
-    @Override
     public KeyboardBuilder keyboard() {
         return KeyboardBuilder.keyboard().
                 row("Ok", "OK").
@@ -24,9 +22,9 @@ public class DoneStep implements WizardStep {
     @Override
     public WizardStep callback(String data) {
         switch (data) {
-            case "fav": return new DoneStep(transaction);
-            case "OK": return new WhoStep(new Transaction(transaction.me()));
-            default: return new DoneStep(transaction);
+            case "fav": return this;
+            case "OK": return new WhoStep(new Transaction(transaction.me()), bot, originalMessage);
+            default: return this;
         }
     }
 }

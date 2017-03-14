@@ -1,5 +1,6 @@
 package net.mamot.bot.services.debts;
 
+import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.fluent.KeyboardBuilder;
 
 import java.math.BigDecimal;
@@ -7,20 +8,17 @@ import java.math.BigDecimal;
 import static com.pengrad.telegrambot.fluent.KeyboardBuilder.Type.TEXT_EQUALS_DATA_LIST;
 import static java.lang.Integer.parseInt;
 
-public class AmountStep implements WizardStep {
-    private final Transaction transaction;
+public class AmountStep extends DebtsWizardStep {
 
-    public AmountStep(Transaction transaction) {
-        this.transaction = transaction;
+    public AmountStep(Transaction transaction, TelegramBot bot, Integer originalMessage) {
+        super(transaction, bot, originalMessage);
     }
 
-    @Override
-    public String screen() {
+    protected String screen() {
         return "Сколько?\n" + transaction.toString();
     }
 
-    @Override
-    public KeyboardBuilder keyboard() {
+    protected KeyboardBuilder keyboard() {
         return KeyboardBuilder.keyboard().
                 row(TEXT_EQUALS_DATA_LIST, "1", "5", "10").
                 row(TEXT_EQUALS_DATA_LIST, "50", "100", "200").
@@ -32,13 +30,18 @@ public class AmountStep implements WizardStep {
     @Override
     public WizardStep callback(String data) {
         switch (data) {
-            case "back": return new WhatStep(transaction);
-            case "OK": return new ConfirmationStep(transaction);
-            case "due": return new DueStep(transaction);
-            case "clear": transaction.sum(BigDecimal.ZERO); return new AmountStep(transaction);
+            case "back": return new WhatStep(transaction, bot, originalMessage);
+            case "OK": return new ConfirmationStep(transaction, bot, originalMessage);
+            case "due": return new DueStep(transaction, bot, originalMessage);
+            case "clear": transaction.sum(BigDecimal.ZERO); return this;
             default:
                 transaction.sum(transaction.sum().add(BigDecimal.valueOf(parseInt(data))));
-                return new AmountStep(transaction);
+                return this;
         }
+    }
+
+    @Override
+    public void enter(String data) {
+        //todo пользовательская сумма
     }
 }

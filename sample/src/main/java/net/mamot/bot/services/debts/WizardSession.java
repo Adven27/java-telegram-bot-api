@@ -1,7 +1,8 @@
 package net.mamot.bot.services.debts;
 
 public interface WizardSession {
-    WizardStep get(int id);
-    WizardStep getOrStartFrom(int id, WizardStep step);
-    void set(int id, WizardStep step);
+    void start(int id, WizardStep step);
+    void show(int userId);
+    void callback(int userId, String data);
+    void enter(int userId, String data);
 }
