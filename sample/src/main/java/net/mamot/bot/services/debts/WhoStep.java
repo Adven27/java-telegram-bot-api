@@ -4,9 +4,10 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.fluent.KeyboardBuilder;
 import com.pengrad.telegrambot.model.request.ForceReply;
 import com.pengrad.telegrambot.request.SendMessage;
+import net.mamot.bot.services.impl.Injector;
 
 public class WhoStep extends DebtsWizardStep {
-    private Favorites favorites = new Favorites();
+    private Favorites favorites = (Favorites) Injector.provide(Favorites.class);
 
     public WhoStep(Transaction transaction, TelegramBot bot, Integer originalMessage) {
         super(transaction, bot, originalMessage);
@@ -18,10 +19,15 @@ public class WhoStep extends DebtsWizardStep {
 
     protected KeyboardBuilder keyboard() {
         KeyboardBuilder keyboard = KeyboardBuilder.keyboard();
-        favorites.getAll().forEach((s, s2) ->
-                keyboard.row(s2, s)
+
+        favorites.getAllTransactions(transaction.me()).forEach((t) ->
+                keyboard.row("\uD83C\uDF1F " + t.toString(), t.id())
         );
-        keyboard.row("✏️ Ввести имя", "enter");
+
+        favorites.getAllCounterparties(transaction.me()).forEach((s) ->
+                keyboard.row(s, s)
+        );
+        keyboard.row("✏️ Ввести имя", "enter").row("\uD83D\uDDC2 Показать список долгов", "debts");
         return keyboard;
     }
 
@@ -30,12 +36,21 @@ public class WhoStep extends DebtsWizardStep {
             bot.execute(new SendMessage(transaction.me(), COMMAND + " enter name").replyMarkup(new ForceReply()));
             return this;
         }
+
+        if ("debts".equals(data)) {
+            return new DebtsStep(transaction, bot, originalMessage) ;
+        }
+
+        Transaction trn = Transaction.fromId(data);
+        if (trn != null) {
+            return new ConfirmationStep(trn, bot, originalMessage);
+        }
         transaction.to(data);
         return new WhatStep(transaction, bot, originalMessage);
     }
 
     public void enter(String data) {
-        favorites.add(data);
+        favorites.addCounterparty(transaction.me(), data);
         show();
     }
 }

@@ -15,7 +15,7 @@ public class ConfirmationStep extends DebtsWizardStep {
 
     protected KeyboardBuilder keyboard() {
         return KeyboardBuilder.keyboard().
-                row("✅ Ok", "OK").
+                row("✅ Ок", "OK").
                 row("\uD83D\uDEAB Cancel", "cancel").
                 row("\uD83D\uDE4E\u200D♂️ Изменить кто", "who").
                 row("\uD83D\uDCB0 Изменить сумму", "amount");

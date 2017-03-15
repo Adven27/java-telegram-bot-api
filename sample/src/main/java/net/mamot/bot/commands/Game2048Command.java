@@ -9,7 +9,7 @@ import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import net.mamot.bot.games.game2048.Game2048;
 import net.mamot.bot.services.Emoji;
-import net.mamot.bot.services.games.GameRepo;
+import net.mamot.bot.services.Repo;
 import net.mamot.bot.services.games.LeaderBoard;
 import net.mamot.bot.services.games.LeaderBoardRepo;
 
@@ -33,16 +33,16 @@ public class Game2048Command extends CallbackCommand {
     private static final String WON_MSG = " \uD83C\uDF89\uD83C\uDF89\uD83C\uDF89";
     private static final String BORDER = "\uD83D\uDDB1";
     private static Map<String, Game2048> userGames = new HashMap<>();
-    private final GameRepo gameRepo;
+    private final Repo repo;
     private final LeaderBoard leaderBoard;
     private boolean viewLeaderBoard = false;
 
-    public Game2048Command(GameRepo gameRepo, LeaderBoard leaderBoard) {
+    public Game2048Command(Repo repo, LeaderBoard leaderBoard) {
         super("/game2048","Game 2048");
-        this.gameRepo = gameRepo;
+        this.repo = repo;
         this.leaderBoard = leaderBoard;
 
-        gameRepo.selectAll().forEach((name, game) -> userGames.put(name, new Game2048(game)));
+        repo.selectAll().forEach((name, game) -> userGames.put(name, new Game2048(game)));
 
         System.out.println("userGames = " + userGames);
     }
@@ -56,7 +56,7 @@ public class Game2048Command extends CallbackCommand {
         }
         Game2048 g = new Game2048();
         userGames.put(userName, g);
-        gameRepo.insert(userName, g.toJSON());
+        repo.insert(userName, g.toJSON());
         bot.execute(message(chat, screen(chat)).replyMarkup(getInlineKeyboard()));
     }
 
@@ -98,7 +98,7 @@ public class Game2048Command extends CallbackCommand {
             gs.add(g);
             msg += game.getKey() + " " + g.getScore();
 
-            gameRepo.update(game.getKey(), g.toJSON());
+            repo.update(game.getKey(), g.toJSON());
 
             if (g.isLose()) {
                 msg += LOSE_MSG;
@@ -159,7 +159,7 @@ public class Game2048Command extends CallbackCommand {
     public boolean callback(TelegramBot bot, CallbackQuery cb) {
         Message message = cb.message();
         if (userGames.isEmpty()) {
-            gameRepo.selectAll().forEach((name, game) -> userGames.put(name, new Game2048(game)));
+            repo.selectAll().forEach((name, game) -> userGames.put(name, new Game2048(game)));
         }
         String data = cb.data();
         User from = cb.from();
@@ -183,6 +183,7 @@ public class Game2048Command extends CallbackCommand {
                 case "down":    g.down();  break;
                 case "restart": leaderBoard.update(userName, g); g.resetGame(); break;
                 case "top": this.viewLeaderBoard = !viewLeaderBoard; break;
+                default:
             }
 
         }

@@ -17,8 +17,8 @@ public class WhatStep extends DebtsWizardStep {
 
     protected KeyboardBuilder keyboard() {
         return KeyboardBuilder.keyboard().
-                row("\uD83D\uDCC8 Дал мне денег", "true").
-                row("\uD83D\uDCC9 Взял у меня денег", "false").
+                row("\uD83D\uDCC8 Дал мне", "true").
+                row("\uD83D\uDCC9 Взял у меня", "false").
                 row("⚖️ В расчете", "even").
                 row("\uD83D\uDD19", "back");
     }
