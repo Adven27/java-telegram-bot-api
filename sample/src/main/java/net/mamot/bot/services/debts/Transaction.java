@@ -39,7 +39,7 @@ public class Transaction {
 
     @Override
     public String toString() {
-        return (isNullOrEmpty(who) ? "???" : who)  +  (income ? " дал мне " : " взял у меня ") + sum;
+        return isNullOrEmpty(who) ? "" : who + (income ? " дал мне " : " взял у меня ") + sum;
     }
 
     public String id() {

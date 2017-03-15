@@ -7,6 +7,9 @@ import com.pengrad.telegrambot.request.SendMessage;
 import net.mamot.bot.services.impl.Injector;
 
 public class WhoStep extends DebtsWizardStep {
+    public static final String ENTER_NAME = "✏️ Ввести имя";
+    public static final String SHOW_DEBTS = "\uD83D\uDDC2 Список долгов";
+    public static final String ENTER_NAME_DESC = "Введите имя, оно появится в списке";
     private Favorites favorites = (Favorites) Injector.provide(Favorites.class);
 
     public WhoStep(Transaction transaction, TelegramBot bot, Integer originalMessage) {
@@ -14,7 +17,7 @@ public class WhoStep extends DebtsWizardStep {
     }
 
     protected String screen() {
-        return "Кто?\n" + transaction.toString();
+        return "Кто ?\n" + transaction.toString();
     }
 
     protected KeyboardBuilder keyboard() {
@@ -27,13 +30,13 @@ public class WhoStep extends DebtsWizardStep {
         favorites.getAllCounterparties(transaction.me()).forEach((s) ->
                 keyboard.row(s, s)
         );
-        keyboard.row("✏️ Ввести имя", "enter").row("\uD83D\uDDC2 Показать список долгов", "debts");
+        keyboard.row(ENTER_NAME, "enter").row(SHOW_DEBTS, "debts");
         return keyboard;
     }
 
     public WizardStep callback(String data) {
         if ("enter".equals(data)) {
-            bot.execute(new SendMessage(transaction.me(), COMMAND + " enter name").replyMarkup(new ForceReply()));
+            bot.execute(new SendMessage(transaction.me(), COMMAND + "\n" + ENTER_NAME_DESC).replyMarkup(new ForceReply()));
             return this;
         }
 

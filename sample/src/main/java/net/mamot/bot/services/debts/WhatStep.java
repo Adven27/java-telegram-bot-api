@@ -12,13 +12,13 @@ public class WhatStep extends DebtsWizardStep {
     }
 
     protected String screen() {
-        return "Что сделал?\n" + transaction.toString();
+        return "Что?\n" + transaction.toString();
     }
 
     protected KeyboardBuilder keyboard() {
         return KeyboardBuilder.keyboard().
-                row("\uD83D\uDCC8 Дал мне", "true").
-                row("\uD83D\uDCC9 Взял у меня", "false").
+                row("➕ Дал мне", "true").
+                row("➖ Взял у меня", "false").
                 row("⚖️ В расчете", "even").
                 row("\uD83D\uDD19", "back");
     }

@@ -31,6 +31,12 @@ public class Favorites {
         all.put(user, favInfo);
     }
 
+    public void removeTransactions(int user, Transaction trn) {
+        FavInfo favInfo = all.get(user);
+        favInfo.removeTransactions(trn);
+        all.put(user, favInfo);
+    }
+
     static class FavInfo {
         private final Set<Transaction> transactions;
 
@@ -47,6 +53,10 @@ public class Favorites {
 
         public void addTransactions(Transaction t) {
             transactions.add(t);
+        }
+
+        public void removeTransactions(Transaction t) {
+            transactions.remove(t);
         }
 
         public void addCounterparty(String cp) {

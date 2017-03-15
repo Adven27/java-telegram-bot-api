@@ -9,6 +9,7 @@ import static com.pengrad.telegrambot.fluent.KeyboardBuilder.Type.TEXT_EQUALS_DA
 import static java.lang.Integer.parseInt;
 
 public class AmountStep extends DebtsWizardStep {
+    private static final String DUE_TO = "\uD83D\uDCC6 на срок";
 
     public AmountStep(Transaction transaction, TelegramBot bot, Integer originalMessage) {
         super(transaction, bot, originalMessage);
@@ -23,7 +24,7 @@ public class AmountStep extends DebtsWizardStep {
                 row(TEXT_EQUALS_DATA_LIST, "1", "5", "10").
                 row(TEXT_EQUALS_DATA_LIST, "50", "100", "200").
                 row(TEXT_EQUALS_DATA_LIST, "500", "1000", "2000").
-                row("\uD83D\uDCC6 на срок", "due").
+                row(DUE_TO, "due").
                 row("\uD83D\uDD19", "back", "clear", "clear", "\uD83D\uDCB0 OK", "OK");
     }
 

@@ -16,15 +16,19 @@ public class DoneStep extends DebtsWizardStep {
     }
 
     public KeyboardBuilder keyboard() {
-        return KeyboardBuilder.keyboard().
-                row("\uD83C\uDF1F Добавить в избранное", "fav").
-                row("\uD83D\uDDC2 Показать список долгов", "debts");
+        KeyboardBuilder kb = KeyboardBuilder.keyboard().row("OK","OK");
+        if (!favorites.getAllTransactions(transaction.me()).contains(transaction)) {
+            kb.row("\uD83C\uDF1F Добавить в избранное", "fav");
+        }
+        return kb.row("\uD83D\uDDC2 Показать список долгов", "debts");
     }
 
     @Override
     public WizardStep callback(String data) {
         switch (data) {
-            case "fav": favorites.addTransaction(transaction.me(), transaction); return new WhoStep(new Transaction(transaction.me()), bot, originalMessage);
+            case "fav": favorites.addTransaction(transaction.me(), transaction);
+            //FALL THROUGH
+            case "OK" : return new WhoStep(new Transaction(transaction.me()), bot, originalMessage);
             case "debts": return new DebtsStep(transaction, bot, originalMessage);
             default: return this;
         }

@@ -26,7 +26,6 @@ public class PGSQLRepo implements Repo {
         Connection conn = null;
         try {
             URI uri = new URI(DATABASE_URL);
-
             String username = uri.getUserInfo().split(":")[0];
             String password = uri.getUserInfo().split(":")[1];
             String url = format(DB_URL_FORMAT, uri.getHost(), uri.getPort(), uri.getPath());
@@ -38,12 +37,12 @@ public class PGSQLRepo implements Repo {
     }
 
     public void insert(String name, String data) {
-        String sql = "INSERT INTO " + table + "(username, " + dataColumn + ") VALUES(?,?)";
-
         try (Connection conn = connect();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, name);
-            ps.setString(2, data);
+             PreparedStatement ps = conn.prepareStatement("INSERT INTO ? (username, ?) VALUES(?,?)")) {
+            ps.setString(1, table);
+            ps.setString(2, dataColumn);
+            ps.setString(3, name);
+            ps.setString(4, data);
             ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -52,10 +51,8 @@ public class PGSQLRepo implements Repo {
 
     public Map<String, String> selectAll() {
         Map result = new HashMap();
-        final String sql = "SELECT username, " + dataColumn + " FROM " + table;
-
         try (Connection c = connect();
-             ResultSet rs = c.createStatement().executeQuery(sql)) {
+             ResultSet rs = c.createStatement().executeQuery("SELECT username, " + dataColumn + " FROM " + table)) {
 
             while (rs.next()) {
                 result.put(rs.getString("username"), rs.getString(dataColumn));
@@ -69,11 +66,12 @@ public class PGSQLRepo implements Repo {
     @Override
     public String select(String user) {
         String result = "";
-        String sql = "SELECT " + dataColumn + " FROM " + table + "WHERE username = ?";
 
         try (Connection c = connect();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1, user);
+             PreparedStatement ps = c.prepareStatement("SELECT ? FROM ? WHERE username = ?")) {
+            ps.setString(1, table);
+            ps.setString(2, dataColumn);
+            ps.setString(3, user);
             ResultSet resultSet = ps.executeQuery();
             while (resultSet.next()) {
                 result = resultSet.getString(dataColumn);
@@ -85,32 +83,28 @@ public class PGSQLRepo implements Repo {
     }
 
     public void createTable() {
-        final String sql = "CREATE TABLE IF NOT EXISTS " + table + " (username text PRIMARY KEY, " + dataColumn + " text NOT NULL);";
-
         try (Connection c = connect()) {
-            c.createStatement().execute(sql);
+            c.createStatement().execute("CREATE TABLE IF NOT EXISTS " + table + " (username text PRIMARY KEY, " + dataColumn + " text NOT NULL);");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
 
     public void dropTable() {
-        String sql = "DROP TABLE " + table + ";";
-
         try (Connection conn = connect()) {
-            conn.createStatement().execute(sql);
+            conn.createStatement().execute("DROP TABLE " + table + ";");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
 
     public void update(String user, String data) {
-        String sql = "UPDATE " + table + " SET " + dataColumn + "  = ? WHERE username = ?";
-
         try (Connection c = connect();
-            PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1, data);
-            ps.setString(2, user);
+            PreparedStatement ps = c.prepareStatement("UPDATE ? SET ?  = ? WHERE username = ?")) {
+            ps.setString(1, table);
+            ps.setString(2, dataColumn);
+            ps.setString(3, data);
+            ps.setString(4, user);
             ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -118,10 +112,10 @@ public class PGSQLRepo implements Repo {
     }
 
     public void delete(String user) {
-        String sql = "DELETE FROM " + table + " WHERE username = ?";
         try (Connection c = this.connect();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1, user);
+             PreparedStatement ps = c.prepareStatement("DELETE FROM ? WHERE username = ?")) {
+            ps.setString(1, table);
+            ps.setString(2, user);
             ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
