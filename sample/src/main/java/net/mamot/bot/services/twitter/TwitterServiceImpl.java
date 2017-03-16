@@ -31,7 +31,7 @@ public class TwitterServiceImpl implements TwitterService {
         try {
             QueryResult result = twitter.search(new Query("from:" + userName));
             Status tweet = result.getTweets().get(0);
-            return tweet.getText() + "\n" + tweet.getSource();
+            return tweet.getText() + "\n" + tweet.getUser().getURL();
         } catch (Exception ex) {
             return NO_TWEETS;
         }
