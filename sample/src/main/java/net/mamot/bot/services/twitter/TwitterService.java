@@ -1,8 +1,8 @@
 package net.mamot.bot.services.twitter;
 
-/**
- * Created by k1per on 24.02.2017.
- */
+import java.util.Optional;
+
 public interface TwitterService {
-    String getLatestTweet(String girlName);
+    String getLatestTweet(String userName);
+    Optional<String> getLatestNewTweet(String userName);
 }

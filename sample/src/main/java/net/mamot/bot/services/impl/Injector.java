@@ -2,6 +2,8 @@ package net.mamot.bot.services.impl;
 
 import net.mamot.bot.services.debts.DebtsRepo;
 import net.mamot.bot.services.debts.Favorites;
+import net.mamot.bot.services.twitter.TwitterService;
+import net.mamot.bot.services.twitter.TwitterServiceImpl;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,6 +13,7 @@ public class Injector {
     static {
         bind(Favorites.class, new Favorites());
         bind(DebtsRepo.class, new DebtsRepo());
+        bind(TwitterService.class, new TwitterServiceImpl());
     }
 
     public static Object provide(Class c) {

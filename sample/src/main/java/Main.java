@@ -8,6 +8,7 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.*;
 import net.mamot.bot.commands.*;
 import net.mamot.bot.services.LocalizationService;
+import net.mamot.bot.services.Stickers;
 import net.mamot.bot.services.advice.impl.AdvicePrinter;
 import net.mamot.bot.services.advice.impl.AdviceResource;
 import net.mamot.bot.services.bardak.BardakMenu;
@@ -16,6 +17,7 @@ import net.mamot.bot.services.games.impl.LeaderBoardImpl;
 import net.mamot.bot.services.games.impl.PGSQLGameLeaderBoardRepo;
 import net.mamot.bot.services.games.impl.PGSQLGameRepo;
 import net.mamot.bot.services.impl.DAO;
+import net.mamot.bot.services.impl.Injector;
 import net.mamot.bot.services.impl.MessageFromURL;
 import net.mamot.bot.services.joke.impl.JokePrinter;
 import net.mamot.bot.services.joke.impl.JokeResource;
@@ -23,7 +25,7 @@ import net.mamot.bot.services.lights.impl.UpnpBridgeAdapter;
 import net.mamot.bot.services.poll.PollsInMemRepo;
 import net.mamot.bot.services.quote.impl.QuotePrinter;
 import net.mamot.bot.services.quote.impl.QuoteResource;
-import net.mamot.bot.services.twitter.TwitterServiceImpl;
+import net.mamot.bot.services.twitter.TwitterService;
 import net.mamot.bot.services.weather.Weather;
 import net.mamot.bot.services.weather.impl.SimpleWeather;
 import net.mamot.bot.services.weather.impl.WeatherLoggingDecorator;
@@ -36,23 +38,26 @@ import net.mamot.bot.timertasks.TimerExecutor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.pengrad.telegrambot.TelegramBotAdapter.build;
 import static com.pengrad.telegrambot.TelegramBotAdapter.buildDebug;
+import static com.pengrad.telegrambot.model.request.ParseMode.HTML;
 import static com.pengrad.telegrambot.request.SendMessage.message;
 import static com.pengrad.telegrambot.request.SendSticker.sticker;
 import static java.lang.Boolean.parseBoolean;
 import static java.time.LocalDateTime.now;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
+import static net.mamot.bot.commands.TwitterGirlCommand.GIRL_NAME_IN_TWITTER;
 import static net.mamot.bot.services.Stickers.HELP;
 
 public class Main {
-    //TODO get rid of hardcode (use DB)
     private static final String SBT_TEAM_CHAT_ID = System.getenv("TEAM_CHAT");
-    public static final String CHAT_TO_REPOST = System.getenv("REPOST_CHAT");
+    private static final String CHAT_TO_REPOST = System.getenv("REPOST_CHAT");
+    private static final TwitterService twitter = (TwitterService) Injector.provide(TwitterService.class);
 
     public static void main(String[] args) {
         final String token = System.getenv("TELEGRAM_TOKEN");
@@ -87,7 +92,7 @@ public class Main {
                 new BardakCommand(new BardakMenu(dao)),
                 new ImgFromTextCommand(),
                 new DebtsCommand(new InMemWizardSession()),
-                new TwitterGirlCommand(new TwitterServiceImpl())
+                new TwitterGirlCommand(twitter)
         };
     }
 
@@ -145,6 +150,25 @@ public class Main {
                 }
             });
         }
+
+        tasks.add(new CustomTimerTask("Twitter: scalagirl", -1) {
+            @Override
+            public void execute() {
+                Optional<String> latestNew = twitter.getLatestNewTweet(GIRL_NAME_IN_TWITTER);
+                if (latestNew.isPresent()) {
+                    bot.execute(new SendSticker(CHAT_TO_REPOST, Stickers.BLA.id()));
+                    bot.execute(new SendMessage(CHAT_TO_REPOST,
+                            latestNew.get()).parseMode(HTML).disableWebPagePreview(false));
+                }
+            }
+
+            @Override
+            public long computeDelay() {
+                return 30000l;
+            }
+        });
+
+
         return tasks;
     }
 }

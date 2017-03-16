@@ -28,6 +28,7 @@ public class HandlersChainListener implements UpdatesListener {
     }
 
     private void process(Update u) {
+        //TODO white list???
         if (handlers.stream().noneMatch(h -> h.handle(bot, u)) && defaultConsumer != null) {
             defaultConsumer.handle(bot, u);
         }
