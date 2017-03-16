@@ -58,6 +58,7 @@ public class Main {
     private static final String SBT_TEAM_CHAT_ID = System.getenv("TEAM_CHAT");
     private static final String CHAT_TO_REPOST = System.getenv("REPOST_CHAT");
     private static final TwitterService twitter = (TwitterService) Injector.provide(TwitterService.class);
+    private static final long TWEET_POLLING_DELAY = 600000L;
 
     public static void main(String[] args) {
         final String token = System.getenv("TELEGRAM_TOKEN");
@@ -164,10 +165,26 @@ public class Main {
 
             @Override
             public long computeDelay() {
-                return 30000l;
+                return TWEET_POLLING_DELAY;
             }
         });
 
+        tasks.add(new CustomTimerTask("Twitter: razbor poletov", -1) {
+            @Override
+            public void execute() {
+                Optional<String> latestNew = twitter.getLatestNewTweet("razbor_poletov");
+                if (latestNew.isPresent()) {
+                    bot.execute(new SendSticker(SBT_TEAM_CHAT_ID, Stickers.BLA.id()));
+                    bot.execute(new SendMessage(SBT_TEAM_CHAT_ID,
+                            latestNew.get()).parseMode(HTML).disableWebPagePreview(false));
+                }
+            }
+
+            @Override
+            public long computeDelay() {
+                return TWEET_POLLING_DELAY;
+            }
+        });
 
         return tasks;
     }

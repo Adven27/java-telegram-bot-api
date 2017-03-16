@@ -2,6 +2,8 @@ package net.mamot.bot.services.twitter;
 
 import twitter4j.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Optional.empty;
@@ -9,21 +11,22 @@ import static java.util.Optional.empty;
 public class TwitterServiceImpl implements TwitterService {
     private static final String NO_TWEETS = "No tweets for you bro :(";
     private Twitter twitter = TwitterFactory.getSingleton();
-    private String lastPosted = "";
+    private Map<String, String> lastPosted = new HashMap<>();
 
     @Override
     public String getLatestTweet(String userName) {
-        lastPosted = getLatest(userName);
-        return lastPosted;
+        String latest = getLatest(userName);
+        lastPosted.put(userName, latest);
+        return latest;
     }
 
     @Override
     public Optional<String> getLatestNewTweet(String userName) {
         String latest = getLatest(userName);
-        if (latest.equals(lastPosted) || latest.equals(NO_TWEETS)) {
+        if (latest.equals(lastPosted.get(userName)) || latest.equals(NO_TWEETS)) {
             return empty();
         }
-        lastPosted = latest;
+        lastPosted.put(userName, latest);
         return Optional.of(latest);
     }
 
