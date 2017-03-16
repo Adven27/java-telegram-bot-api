@@ -8,7 +8,6 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.*;
 import net.mamot.bot.commands.*;
 import net.mamot.bot.services.LocalizationService;
-import net.mamot.bot.services.Stickers;
 import net.mamot.bot.services.advice.impl.AdvicePrinter;
 import net.mamot.bot.services.advice.impl.AdviceResource;
 import net.mamot.bot.services.bardak.BardakMenu;
@@ -31,23 +30,19 @@ import net.mamot.bot.services.weather.impl.SimpleWeather;
 import net.mamot.bot.services.weather.impl.WeatherLoggingDecorator;
 import net.mamot.bot.services.weather.impl.WeatherPrinter;
 import net.mamot.bot.services.weather.impl.WeatherResource;
-import net.mamot.bot.timertasks.CustomTimerTask;
-import net.mamot.bot.timertasks.DailyTask;
-import net.mamot.bot.timertasks.Events;
-import net.mamot.bot.timertasks.TimerExecutor;
+import net.mamot.bot.timertasks.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.pengrad.telegrambot.TelegramBotAdapter.build;
 import static com.pengrad.telegrambot.TelegramBotAdapter.buildDebug;
-import static com.pengrad.telegrambot.model.request.ParseMode.HTML;
 import static com.pengrad.telegrambot.request.SendMessage.message;
 import static com.pengrad.telegrambot.request.SendSticker.sticker;
 import static java.lang.Boolean.parseBoolean;
+import static java.lang.Integer.parseInt;
 import static java.time.LocalDateTime.now;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
@@ -55,10 +50,9 @@ import static net.mamot.bot.commands.TwitterGirlCommand.GIRL_NAME_IN_TWITTER;
 import static net.mamot.bot.services.Stickers.HELP;
 
 public class Main {
-    private static final String SBT_TEAM_CHAT_ID = System.getenv("TEAM_CHAT");
-    private static final String CHAT_TO_REPOST = System.getenv("REPOST_CHAT");
+    private static final int SBT_TEAM_CHAT_ID =  parseInt(System.getenv("TEAM_CHAT"));
+    private static final int CHAT_TO_REPOST = parseInt(System.getenv("REPOST_CHAT"));
     private static final TwitterService twitter = (TwitterService) Injector.provide(TwitterService.class);
-    private static final long TWEET_POLLING_DELAY = 600000L;
 
     public static void main(String[] args) {
         final String token = System.getenv("TELEGRAM_TOKEN");
@@ -151,41 +145,8 @@ public class Main {
                 }
             });
         }
-
-        tasks.add(new CustomTimerTask("Twitter: scalagirl", -1) {
-            @Override
-            public void execute() {
-                Optional<String> latestNew = twitter.getLatestNewTweet(GIRL_NAME_IN_TWITTER);
-                if (latestNew.isPresent()) {
-                    bot.execute(new SendSticker(SBT_TEAM_CHAT_ID, Stickers.BLA.id()));
-                    bot.execute(new SendMessage(SBT_TEAM_CHAT_ID,
-                            latestNew.get()).parseMode(HTML).disableWebPagePreview(false));
-                }
-            }
-
-            @Override
-            public long computeDelay() {
-                return TWEET_POLLING_DELAY;
-            }
-        });
-
-        tasks.add(new CustomTimerTask("Twitter: razbor poletov", -1) {
-            @Override
-            public void execute() {
-                Optional<String> latestNew = twitter.getLatestNewTweet("razbor_poletov");
-                if (latestNew.isPresent()) {
-                    bot.execute(new SendSticker(SBT_TEAM_CHAT_ID, Stickers.BLA.id()));
-                    bot.execute(new SendMessage(SBT_TEAM_CHAT_ID,
-                            latestNew.get()).parseMode(HTML).disableWebPagePreview(false));
-                }
-            }
-
-            @Override
-            public long computeDelay() {
-                return TWEET_POLLING_DELAY;
-            }
-        });
-
+        tasks.add(new TwitterTask(twitter, GIRL_NAME_IN_TWITTER, SBT_TEAM_CHAT_ID));
+        tasks.add(new TwitterTask(twitter, "razbor_poletov", SBT_TEAM_CHAT_ID));
         return tasks;
     }
 }
