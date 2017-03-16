@@ -156,8 +156,8 @@ public class Main {
             public void execute() {
                 Optional<String> latestNew = twitter.getLatestNewTweet(GIRL_NAME_IN_TWITTER);
                 if (latestNew.isPresent()) {
-                    bot.execute(new SendSticker(CHAT_TO_REPOST, Stickers.BLA.id()));
-                    bot.execute(new SendMessage(CHAT_TO_REPOST,
+                    bot.execute(new SendSticker(SBT_TEAM_CHAT_ID, Stickers.BLA.id()));
+                    bot.execute(new SendMessage(SBT_TEAM_CHAT_ID,
                             latestNew.get()).parseMode(HTML).disableWebPagePreview(false));
                 }
             }

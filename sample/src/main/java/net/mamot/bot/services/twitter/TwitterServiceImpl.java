@@ -1,9 +1,6 @@
 package net.mamot.bot.services.twitter;
 
-import twitter4j.Query;
-import twitter4j.QueryResult;
-import twitter4j.Twitter;
-import twitter4j.TwitterFactory;
+import twitter4j.*;
 
 import java.util.Optional;
 
@@ -33,7 +30,8 @@ public class TwitterServiceImpl implements TwitterService {
     private String getLatest(String userName) {
         try {
             QueryResult result = twitter.search(new Query("from:" + userName));
-            return result.getTweets().get(0).getText();
+            Status tweet = result.getTweets().get(0);
+            return tweet.getText() + "\n" + tweet.getSource();
         } catch (Exception ex) {
             return NO_TWEETS;
         }
