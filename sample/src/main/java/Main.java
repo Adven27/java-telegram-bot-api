@@ -7,6 +7,7 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.*;
 import net.mamot.bot.commands.*;
+import net.mamot.bot.feed.printer.impl.PreviewPrinter;
 import net.mamot.bot.services.LocalizationService;
 import net.mamot.bot.services.advice.impl.AdvicePrinter;
 import net.mamot.bot.services.advice.impl.AdviceResource;
@@ -31,6 +32,7 @@ import net.mamot.bot.services.weather.impl.WeatherLoggingDecorator;
 import net.mamot.bot.services.weather.impl.WeatherPrinter;
 import net.mamot.bot.services.weather.impl.WeatherResource;
 import net.mamot.bot.timertasks.*;
+import net.mamot.bot.timertasks.AtomFeedTask.FeedRepo;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -87,7 +89,8 @@ public class Main {
                 new BardakCommand(new BardakMenu(dao)),
                 new ImgFromTextCommand(),
                 new DebtsCommand(new InMemWizardSession()),
-                new TwitterGirlCommand(twitter)
+                new TwitterGirlCommand(twitter),
+                new UncleBobCommand(new PreviewPrinter())
         };
     }
 
@@ -147,6 +150,7 @@ public class Main {
         }
         tasks.add(new TwitterTask(twitter, GIRL_NAME_IN_TWITTER, SBT_TEAM_CHAT_ID));
         tasks.add(new TwitterTask(twitter, "razbor_poletov", SBT_TEAM_CHAT_ID));
+        tasks.add(new AtomFeedTask("http://blog.cleancoder.com/atom.xml", SBT_TEAM_CHAT_ID, new PreviewPrinter(), new FeedRepo()));
         return tasks;
     }
 }

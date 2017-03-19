@@ -28,8 +28,10 @@ dependencies {
     compile 'org.postgresql:postgresql:9.4.1212.jre7'
     compile 'com.google.guava:guava:21.0'
     compile 'org.twitter4j:twitter4j-core:4.0.6'
+    compile 'com.rometools:rome:1.7.1'
 
     compile 'org.fourthline.cling:cling-core:2.1.2-SNAPSHOT'
     testCompile 'junit:junit:4.12'
+    testCompile group: 'org.testng', name: 'testng', version: '6.11'
     testCompile 'org.mockito:mockito-all:1.10.19'
 }
