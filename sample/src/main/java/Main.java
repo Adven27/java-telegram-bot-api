@@ -90,7 +90,8 @@ public class Main {
                 new ImgFromTextCommand(),
                 new DebtsCommand(new InMemWizardSession()),
                 new TwitterGirlCommand(twitter),
-                new UncleBobCommand(new PreviewPrinter())
+                new UncleBobCommand(new PreviewPrinter()),
+                new BeautifulGirlCommand()
         };
     }
 
