@@ -91,6 +91,7 @@ public class Main {
                 new DebtsCommand(new InMemWizardSession()),
                 new TwitterGirlCommand(twitter),
                 new UncleBobCommand(new PreviewPrinter()),
+                new SexyGirlCommand(twitter),
                 new BeautifulGirlCommand()
         };
     }

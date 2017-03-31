@@ -47,4 +47,6 @@ public class Debt {
     public String toString() {
         return who + (total.compareTo(ZERO) > 0 ? " должен мне " : " одолжил мне ") + total.abs() ;
     }
+
+
 }

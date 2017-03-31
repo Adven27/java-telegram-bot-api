@@ -16,7 +16,7 @@ class BeautifulGirlCommand : MessageCommand(commandName, "BeautifulGirl") {
     }
 
     companion object {
-        var commandName = "/makeMeHappy"
+        var commandName = "/makemehappy"
         var randomImageUrl = "http://loremflickr.com/1280/1024/girl, sexy"
     }
 }
