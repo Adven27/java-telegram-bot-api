@@ -51,7 +51,7 @@ public class AtomFeed implements Feed {
     @Override
     public List<Entry> get(int number) {
         if (number < 1) {
-            throw new IllegalArgumentException("Number of requested rawEntries should be greater than zero.");
+            throw new IllegalArgumentException("Number of requested entries should be greater than zero.");
         }
 
         int total = number;
