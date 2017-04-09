@@ -1,16 +1,19 @@
 package net.mamot.bot.feed.atom;
 
 import net.mamot.bot.feed.Entry;
+import net.mamot.bot.feed.atom.AtomFeed.RetrieveFeedException;
 import org.testng.annotations.Test;
 
 import java.net.URL;
-import java.util.Date;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
 public class AtomFeedTest {
+
+    private static final int FEED_SIZE = 3;
+    private static final int MORE_THAN_FEED_SIZE = 5;
 
     private AtomFeed sut;
 
@@ -30,36 +33,32 @@ public class AtomFeedTest {
     public void shouldGetFirstEntry() {
         sut = new AtomFeed(getExistingResource());
 
-        assertEquals(sut.get().getId(), "1");
+        assertEquals(sut.get().getId(), "latest");
     }
 
     @Test
     public void shouldGetRequestedNumberOfEntries() {
         sut = new AtomFeed(getExistingResource());
 
-        List<Entry> entries = sut.get(3);
+        List<Entry> entries = sut.get(2);
         assertNotNull(entries);
-        assertEquals(entries.size(), 3);
+        assertEquals(entries.size(), 2);
     }
 
     @Test
-    public void shouldGetRequestedNumberOfEntriesInReverseChronologicalOrder() {
+    public void shouldGetRequestedNumberOfLatestEntriesInChronologicalOrder() {
         sut = new AtomFeed(getExistingResource());
 
-        List<Entry> entries = sut.get(3);
-        assertEquals(entries.get(0).getId(), "1");
-        assertEquals(entries.get(1).getId(), "2");
-        assertEquals(entries.get(2).getId(), "3");
+        List<Entry> entries = sut.get(2);
+        assertEquals(entries.get(0).getId(), "prior");
+        assertEquals(entries.get(1).getId(), "latest");
     }
 
     @Test
-    public void shouldTraverseEntriesInReverseChronologicalOrder() {
+    public void shouldGetAsMuchAsHas_IfRequestedMoreThenIs() {
         sut = new AtomFeed(getExistingResource());
 
-        int index = 1;
-        for (Entry entry : sut) {
-            assertEquals(entry.getId(), String.valueOf(index++));
-        }
+        assertEquals(sut.get(MORE_THAN_FEED_SIZE).size(), FEED_SIZE);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
@@ -75,29 +74,26 @@ public class AtomFeedTest {
     }
 
     @Test
-    public void shouldGetAsMuchAsHas_IfRequestedMoreThenIs() {
+    public void shouldTraverseEntriesInChronologicalOrder() {
         sut = new AtomFeed(getExistingResource());
+        String[] inChronologicalOrder = {"old", "prior", "latest"};
 
-        assertEquals(sut.get(5).size(), 3);
+        int index = 0;
+        for (Entry entry : sut) {
+            assertEquals(entry.getId(), inChronologicalOrder[index++]);
+        }
     }
 
-
-    @Test()
-    public void shouldFailForNoNextEntry() {
-
-    }
-    @Test(expectedExceptions = AtomFeed.RetrieveFeedException.class)
+    @Test(expectedExceptions = RetrieveFeedException.class)
     public void shouldFailForNonExistentResource() {
         sut = new AtomFeed(getNonExistentResource());
+        sut.get(1);
     }
 
-    @Test(expectedExceptions = AtomFeed.RetrieveFeedException.class)
+    @Test(expectedExceptions = RetrieveFeedException.class)
     public void shouldFailForParsingFeedError() {
         sut = new AtomFeed(getUnparsableResource());
-    }
-
-    private Entry createEntry(String id) {
-        return new Entry(id, "title", new Date(), "content", "link");
+        sut.get(1);
     }
 
     private URL getExistingResource() {

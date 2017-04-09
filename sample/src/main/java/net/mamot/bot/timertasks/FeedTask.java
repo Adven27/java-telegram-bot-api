@@ -5,52 +5,55 @@ import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SendSticker;
 import net.mamot.bot.feed.Entry;
 import net.mamot.bot.feed.Feed;
-import net.mamot.bot.feed.atom.AtomFeed;
+import net.mamot.bot.feed.atom.AtomFeed.RetrieveFeedException;
 import net.mamot.bot.feed.printer.EntryPrinter;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.pengrad.telegrambot.model.request.ParseMode.HTML;
 import static net.mamot.bot.services.Stickers.THINK;
 
-public class AtomFeedTask extends CustomTimerTask {
+public class FeedTask extends DailyTask {
 
-    private static final long POLLING_DAILY = 86400000;
-    private final String url;
+    private static final LocalTime START_TIME = LocalTime.of(17, 00);
+
     private final int subscriber;
     private final EntryPrinter printer;
 
+    private final Feed feed;
     private final FeedRepo repo;
 
-    public AtomFeedTask(String url, int subscriber, EntryPrinter printer, FeedRepo repo) {
-        super("Feed polling task: " + url, -1);
-        this.url = url;
+    public FeedTask(Feed feed, FeedRepo repo, EntryPrinter printer, int subscriber) {
+        super("Feed polling task: " + feed.getUrl().getPath(), -1);
         this.subscriber = subscriber;
         this.printer = printer;
+
+        this.feed = feed;
         this.repo = repo;
     }
 
     @Override
     public void execute() {
         try {
-            Feed feed = new AtomFeed(url);
             for (Entry entry : feed) {
                 if (!isLastPosted(entry)) {
                     post(entry);
+                    setLastPosted(entry);
                 } else {
                     break;
                 }
             }
-            setLastPosted(feed.get());
-        } catch (AtomFeed.RetrieveFeedException e) {
-            BotLogger.error("AtomFeedTask", e);
+        } catch (RetrieveFeedException e) {
+            BotLogger.error("FeedTask", e);
         }
     }
 
     @Override
-    public long computeDelay() {
-        return POLLING_DAILY;
+    protected LocalDateTime startAt() {
+        return LocalDateTime.now().with(START_TIME);
     }
 
     private void post(Entry entry) {
@@ -59,14 +62,20 @@ public class AtomFeedTask extends CustomTimerTask {
     }
 
     private boolean isLastPosted(Entry entry) {
-        return entry.getId().equals(repo.getLastEntryId(url));
+        return entry.getId().equals(repo.getLastEntryId(feed.getUrl().getPath()));
     }
 
     private void setLastPosted(Entry entry) {
-        repo.setLastEntryId(url, entry.getId());
+        repo.setLastEntryId(feed.getUrl().getPath(), entry.getId());
     }
 
-    public static class FeedRepo {
+    public interface FeedRepo {
+        String getLastEntryId(String url);
+
+        void setLastEntryId(String url, String id);
+    }
+
+    public static class InMemoryFeedRepo implements FeedRepo {
 
         private Map<String, String> storage = new HashMap<>();
 
