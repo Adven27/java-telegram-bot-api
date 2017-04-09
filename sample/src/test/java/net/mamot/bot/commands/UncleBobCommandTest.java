@@ -20,13 +20,13 @@ public class UncleBobCommandTest {
     private static final String MESSAGE = "entry";
 
     private UncleBobCommand sut;
-    private EntryPrinter printer;
 
     @BeforeMethod
     public void setUp() {
-        printer = mock(EntryPrinter.class);
-        sut = new UncleBobCommand(printer);
+        EntryPrinter printer = mock(EntryPrinter.class);
         when(printer.print(any(Entry.class))).thenReturn(MESSAGE + "1", MESSAGE + "2", MESSAGE + "3");
+
+        sut = new UncleBobCommand(printer);
     }
 
     @Test

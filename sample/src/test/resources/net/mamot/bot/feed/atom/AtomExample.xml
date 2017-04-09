@@ -11,7 +11,7 @@
     <title type="html"><![CDATA[Test title 1]]></title>
     <link href="test.link 1"/>
     <updated>2017-03-18T22:00:00+00:00</updated>
-    <id>1</id>
+    <id>latest</id>
     <content type="html"><![CDATA[Test content]]></content>
   </entry>
   
@@ -19,7 +19,7 @@
     <title type="html"><![CDATA[Test title 2]]></title>
     <link href="test.link 2"/>
     <updated>2017-03-18T21:30:00+00:00</updated>
-    <id>2</id>
+    <id>prior</id>
     <content type="html"><![CDATA[Test content]]></content>
   </entry>
 
@@ -27,7 +27,7 @@
     <title type="html"><![CDATA[Test title 3]]></title>
     <link href="test.link 3"/>
     <updated>2017-03-18T21:00:00+00:00</updated>
-    <id>3</id>
+    <id>old</id>
     <content type="html"><![CDATA[Test content]]></content>
   </entry>
 
