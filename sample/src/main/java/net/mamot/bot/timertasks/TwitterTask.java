@@ -10,7 +10,7 @@ import java.util.Optional;
 import static com.pengrad.telegrambot.model.request.ParseMode.HTML;
 
 public class TwitterTask extends CustomTimerTask {
-    private static final long TWEET_POLLING_DELAY = 600000L;
+    private static final long TWEET_POLLING_DELAY = 1800000L;
     private final TwitterService twitter;
     private final String twitterName;
     private final int subscriber;
