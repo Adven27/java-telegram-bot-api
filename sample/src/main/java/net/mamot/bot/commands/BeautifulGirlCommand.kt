@@ -5,7 +5,7 @@ import com.pengrad.telegrambot.commands.MessageCommand
 import com.pengrad.telegrambot.model.Chat
 import com.pengrad.telegrambot.model.User
 import com.pengrad.telegrambot.request.SendPhoto
-import spark.utils.IOUtils
+import org.apache.commons.io.IOUtils
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
@@ -45,7 +45,7 @@ class BeautifulGirlCommand : MessageCommand(commandName, "BeautifulGirl") {
         } catch (e: IOException) {
             //handle errors
         } finally {
-            if (`is` != null) `is`!!.close()
+            if (`is` != null) `is`.close()
         }
         return bytes
     }
