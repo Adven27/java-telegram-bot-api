@@ -4,15 +4,13 @@ import com.pengrad.telegrambot.TelegramBot
 import com.pengrad.telegrambot.commands.MessageCommand
 import com.pengrad.telegrambot.model.Chat
 import com.pengrad.telegrambot.model.User
-import com.pengrad.telegrambot.request.SendMessage.message
 import com.pengrad.telegrambot.request.SendPhoto
-
-import org.apache.commons.io.IOUtils
-import java.net.URL
-import javax.imageio.ImageIO
+import spark.utils.IOUtils
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
-import java.io.ByteArrayOutputStream
+import java.net.URL
+import javax.imageio.ImageIO
 
 
 /**
