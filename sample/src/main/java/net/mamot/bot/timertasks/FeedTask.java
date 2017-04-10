@@ -25,11 +25,13 @@ public class FeedTask extends DailyTask {
 
     private final Feed feed;
     private final FeedRepo repo;
+    private final int fetchLimit;
 
-    public FeedTask(Feed feed, FeedRepo repo, EntryPrinter printer, int subscriber) {
+    public FeedTask(Feed feed, FeedRepo repo, EntryPrinter printer, int subscriber, int fetchLimit) {
         super("Feed polling task: " + feed.getUrl().getPath(), -1);
         this.subscriber = subscriber;
         this.printer = printer;
+        this.fetchLimit = fetchLimit;
 
         this.feed = feed;
         this.repo = repo;
@@ -38,7 +40,7 @@ public class FeedTask extends DailyTask {
     @Override
     public void execute() {
         try {
-            for (Entry entry : feed) {
+            for (Entry entry : feed.get(fetchLimit)) {
                 if (!isLastPosted(entry)) {
                     post(entry);
                     setLastPosted(entry);

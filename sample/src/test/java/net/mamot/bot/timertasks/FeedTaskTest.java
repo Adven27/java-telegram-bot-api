@@ -14,7 +14,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Iterator;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 
@@ -36,7 +36,7 @@ public class FeedTaskTest {
         mockRepo();
         mockPrinter();
 
-        sut = new FeedTask(feed, repo, printer, 0);
+        sut = new FeedTask(feed, repo, printer, 0, 5);
 
         mockBot();
     }
@@ -102,7 +102,7 @@ public class FeedTaskTest {
         feed = mock(Feed.class);
         when(feed.getUrl()).thenReturn(url);
 
-        when(feed.iterator()).thenReturn(getFeedIterator());
+        when(feed.get(anyInt())).thenReturn(getFeedEntries());
     }
 
     private void mockRepo() {
@@ -117,8 +117,8 @@ public class FeedTaskTest {
         sut.bot = mock(TelegramBot.class);
     }
 
-    private Iterator<Entry> getFeedIterator() {
-        return Arrays.asList(createEntry("id1"), createEntry("id2"), createEntry("id3")).iterator();
+    private List<Entry> getFeedEntries() {
+        return Arrays.asList(createEntry("id1"), createEntry("id2"), createEntry("id3"));
     }
 
     private Entry createEntry(String id) {

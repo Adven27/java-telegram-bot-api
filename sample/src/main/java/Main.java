@@ -53,9 +53,13 @@ import static net.mamot.bot.commands.TwitterGirlCommand.GIRL_NAME_IN_TWITTER;
 import static net.mamot.bot.services.Stickers.HELP;
 
 public class Main {
+
     private static final int SBT_TEAM_CHAT_ID =  parseInt(System.getenv("TEAM_CHAT"));
     private static final int CHAT_TO_REPOST = parseInt(System.getenv("REPOST_CHAT"));
+
     private static final TwitterService twitter = (TwitterService) Injector.provide(TwitterService.class);
+
+    private static final int FEED_FETCH_LIMIT = 5;
 
     public static void main(String[] args) {
         final String token = System.getenv("TELEGRAM_TOKEN");
@@ -153,7 +157,7 @@ public class Main {
         }
         tasks.add(new TwitterTask(twitter, GIRL_NAME_IN_TWITTER, SBT_TEAM_CHAT_ID));
         tasks.add(new TwitterTask(twitter, "razbor_poletov", SBT_TEAM_CHAT_ID));
-        tasks.add(new FeedTask(new AtomFeed("http://blog.cleancoder.com/atom.xml"), new InMemoryFeedRepo(), new PreviewPrinter(), SBT_TEAM_CHAT_ID));
+        tasks.add(new FeedTask(new AtomFeed("http://blog.cleancoder.com/atom.xml"), new InMemoryFeedRepo(), new PreviewPrinter(), SBT_TEAM_CHAT_ID, FEED_FETCH_LIMIT));
         return tasks;
     }
 }
