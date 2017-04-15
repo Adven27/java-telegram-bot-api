@@ -93,7 +93,8 @@ public abstract class MessageCommand implements MessageHandler{
         private final String params;
 
         CommandInvocation(String name, String params) {
-            this.name = name;
+            int botNamePostfix = name.indexOf("@");
+            this.name = botNamePostfix > 0 ? name.substring(0, botNamePostfix) : name;
             this.params = params;
         }
     }
