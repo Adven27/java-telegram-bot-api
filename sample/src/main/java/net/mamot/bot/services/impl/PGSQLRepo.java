@@ -95,6 +95,7 @@ public class PGSQLRepo implements Repo {
         }
     }
 
+    @Override
     public void delete(String user) {
         try (Connection c = this.connect();
              PreparedStatement ps = c.prepareStatement("DELETE FROM " + table + " WHERE username = ?")) {
