@@ -33,7 +33,7 @@ import net.mamot.bot.services.weather.impl.WeatherLoggingDecorator;
 import net.mamot.bot.services.weather.impl.WeatherPrinter;
 import net.mamot.bot.services.weather.impl.WeatherResource;
 import net.mamot.bot.timertasks.*;
-import net.mamot.bot.timertasks.FeedTask.InMemoryFeedRepo;
+import net.mamot.bot.timertasks.FeedTask.PGSQLFeedRepo;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -155,7 +155,7 @@ public class Main {
         }
         tasks.add(new TwitterTask(twitter, GIRL_NAME_IN_TWITTER, SBT_TEAM_CHAT_ID));
         tasks.add(new TwitterTask(twitter, "razbor_poletov", SBT_TEAM_CHAT_ID));
-        tasks.add(new FeedTask(new AtomFeed("http://blog.cleancoder.com/atom.xml"), new InMemoryFeedRepo(), new PreviewPrinter(), SBT_TEAM_CHAT_ID, FEED_FETCH_LIMIT));
+        tasks.add(new FeedTask(new AtomFeed("http://blog.cleancoder.com/atom.xml"), new PGSQLFeedRepo(), new PreviewPrinter(), SBT_TEAM_CHAT_ID, FEED_FETCH_LIMIT));
         return tasks;
     }
 }
