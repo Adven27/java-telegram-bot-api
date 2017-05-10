@@ -7,11 +7,14 @@ import net.mamot.bot.feed.Entry;
 import net.mamot.bot.feed.Feed;
 import net.mamot.bot.feed.atom.AtomFeed.RetrieveFeedException;
 import net.mamot.bot.feed.printer.EntryPrinter;
+import net.mamot.bot.services.impl.PGSQLRepo;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static com.pengrad.telegrambot.model.request.ParseMode.HTML;
 import static net.mamot.bot.services.Stickers.THINK;
@@ -28,7 +31,7 @@ public class FeedTask extends DailyTask {
     private final int fetchLimit;
 
     public FeedTask(Feed feed, FeedRepo repo, EntryPrinter printer, int subscriber, int fetchLimit) {
-        super("Feed polling task: " + feed.getUrl().getPath(), -1);
+        super("Feed polling task: " + feed.getUrl().getHost(), -1);
         this.subscriber = subscriber;
         this.printer = printer;
         this.fetchLimit = fetchLimit;
@@ -41,11 +44,9 @@ public class FeedTask extends DailyTask {
     public void execute() {
         try {
             for (Entry entry : feed.get(fetchLimit)) {
-                if (!isLastPosted(entry)) {
+                if (!isPosted(entry)) {
                     post(entry);
-                    setLastPosted(entry);
-                } else {
-                    break;
+                    setPosted(entry);
                 }
             }
         } catch (RetrieveFeedException e) {
@@ -63,30 +64,53 @@ public class FeedTask extends DailyTask {
         bot.execute(new SendMessage(subscriber, printer.print(entry)).parseMode(HTML).disableWebPagePreview(false));
     }
 
-    private boolean isLastPosted(Entry entry) {
-        return entry.getId().equals(repo.getLastEntryId(feed.getUrl().getPath()));
+    private boolean isPosted(Entry entry) {
+        return repo.isPosted(feed.getUrl().getHost(), entry.getId());
     }
 
-    private void setLastPosted(Entry entry) {
-        repo.setLastEntryId(feed.getUrl().getPath(), entry.getId());
+    private void setPosted(Entry entry) {
+        repo.setPosted(feed.getUrl().getHost(), entry.getId());
     }
 
     public interface FeedRepo {
-        String getLastEntryId(String url);
+        boolean isPosted(String url, String id);
 
-        void setLastEntryId(String url, String id);
+        void setPosted(String url, String id);
     }
 
     public static class InMemoryFeedRepo implements FeedRepo {
 
-        private Map<String, String> storage = new HashMap<>();
+        private Map<String, Set<String>> storage = new HashMap<>();
 
-        public String getLastEntryId(String url) {
-            return storage.get(url);
+        public boolean isPosted(String url, String id) {
+            Set<String> feed = storage.get(url);
+            return feed != null && feed.contains(id);
         }
 
-        public void setLastEntryId(String url, String id) {
-            storage.put(url, id);
+        public void setPosted(String url, String id) {
+            Set<String> feed = storage.computeIfAbsent(url, v -> new HashSet<>());
+            feed.add(id);
+        }
+    }
+
+    public static class PGSQLFeedRepo extends PGSQLRepo implements FeedRepo {
+
+        public PGSQLFeedRepo() {
+            super("feeds", "last_posted");
+        }
+
+        @Override
+        public boolean isPosted(String url, String id) {
+            return exists(getUniqueURL(url, id), id);
+        }
+
+        @Override
+        public void setPosted(String url, String id) {
+            insert(getUniqueURL(url, id), id);
+        }
+
+        private String getUniqueURL(String url, String id) {
+            return url + ":" + id;
         }
     }
 }

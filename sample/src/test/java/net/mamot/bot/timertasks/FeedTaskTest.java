@@ -42,25 +42,23 @@ public class FeedTaskTest {
     }
 
     @Test
-    public void shouldStoreLastPostedId() {
+    public void shouldStorePostedId() {
         InOrder inOrder = inOrder(repo);
 
         sut.execute();
 
-        inOrder.verify(repo).setLastEntryId(url.getPath(), "id1");
-        inOrder.verify(repo).setLastEntryId(url.getPath(), "id2");
-        inOrder.verify(repo).setLastEntryId(url.getPath(), "id3");
+        inOrder.verify(repo).setPosted(url.getHost(), "id1");
+        inOrder.verify(repo).setPosted(url.getHost(), "id2");
+        inOrder.verify(repo).setPosted(url.getHost(), "id3");
     }
 
     @Test
-    public void shouldNotStoreAlreadyPostedAsLastPosted() {
+    public void shouldNotStoreAlreadyPostedAsPosted() {
         withAlreadyPosted("id2");
 
         sut.execute();
 
-        verify(repo).setLastEntryId(url.getPath(), "id1");
-        verify(repo, never()).setLastEntryId(url.getPath(), "id2");
-        verify(repo, never()).setLastEntryId(url.getPath(), "id3");
+        verify(repo, never()).setPosted(url.getHost(), "id2");
     }
 
     @Test
@@ -78,14 +76,11 @@ public class FeedTaskTest {
 
         sut.execute();
 
-        verify(printer).print(argThat(entryWithId("id1")));
         verify(printer, never()).print(argThat(entryWithId("id2")));
-        verify(printer, never()).print(argThat(entryWithId("id3")));
-
     }
 
     private void withAlreadyPosted(String id) {
-        when(repo.getLastEntryId(url.getPath())).thenReturn(id);
+        when(repo.isPosted(url.getHost(), id)).thenReturn(true);
     }
 
     private ArgumentMatcher<Entry> entryWithId(String id) {

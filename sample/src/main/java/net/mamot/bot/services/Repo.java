@@ -8,4 +8,5 @@ public interface Repo {
     String select(String user);
     void update(String user, String data);
     void delete(String user);
+    boolean exists (String user, String data);
 }

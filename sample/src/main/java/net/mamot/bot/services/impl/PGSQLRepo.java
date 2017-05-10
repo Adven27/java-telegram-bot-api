@@ -13,6 +13,9 @@ import static java.lang.String.format;
 public class PGSQLRepo implements Repo {
     private static final String DB_URL_FORMAT = "jdbc:postgresql://%s:%d%s?sslmode=require";
     private static final String DATABASE_URL = System.getenv("DATABASE_URL");
+
+    private static final int COUNT_COLUMN_INDEX = 1;
+
     protected final String table;
     protected final String dataColumn;
 
@@ -36,19 +39,19 @@ public class PGSQLRepo implements Repo {
         return conn;
     }
 
+    @Override
     public void insert(String name, String data) {
         try (Connection conn = connect();
-             PreparedStatement ps = conn.prepareStatement("INSERT INTO ? (username, ?) VALUES(?,?)")) {
-            ps.setString(1, table);
-            ps.setString(2, dataColumn);
-            ps.setString(3, name);
-            ps.setString(4, data);
+             PreparedStatement ps = conn.prepareStatement("INSERT INTO " + table + " (username, " + dataColumn + ") VALUES(?,?)")) {
+            ps.setString(1, name);
+            ps.setString(2, data);
             ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
 
+    @Override
     public Map<String, String> selectAll() {
         Map result = new HashMap();
         try (Connection c = connect();
@@ -68,10 +71,8 @@ public class PGSQLRepo implements Repo {
         String result = "";
 
         try (Connection c = connect();
-             PreparedStatement ps = c.prepareStatement("SELECT ? FROM ? WHERE username = ?")) {
-            ps.setString(1, table);
-            ps.setString(2, dataColumn);
-            ps.setString(3, user);
+             PreparedStatement ps = c.prepareStatement("SELECT " + dataColumn + " FROM " + table + " WHERE username = ?")) {
+            ps.setString(1, user);
             ResultSet resultSet = ps.executeQuery();
             while (resultSet.next()) {
                 result = resultSet.getString(dataColumn);
@@ -80,6 +81,43 @@ public class PGSQLRepo implements Repo {
             System.out.println(e.getMessage());
         }
         return result;
+    }
+
+    @Override
+    public void update(String user, String data) {
+        try (Connection c = connect();
+             PreparedStatement ps = c.prepareStatement("UPDATE " + table + " SET " + dataColumn + "  = ? WHERE username = ?")) {
+            ps.setString(1, data);
+            ps.setString(2, user);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Override
+    public void delete(String user) {
+        try (Connection c = this.connect();
+             PreparedStatement ps = c.prepareStatement("DELETE FROM " + table + " WHERE username = ?")) {
+            ps.setString(1, user);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean exists(String user, String data) {
+        try (Connection c = this.connect();
+             PreparedStatement ps = c.prepareStatement("SELECT COUNT(1) FROM " + table + " WHERE username = ? AND " + dataColumn + " = ? ")) {
+            ps.setString(1, user);
+            ps.setString(2, data);
+            ResultSet rs = ps.executeQuery();
+            return rs.next() && isPositiveCount(rs);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
     }
 
     public void createTable() {
@@ -98,27 +136,7 @@ public class PGSQLRepo implements Repo {
         }
     }
 
-    public void update(String user, String data) {
-        try (Connection c = connect();
-            PreparedStatement ps = c.prepareStatement("UPDATE ? SET ?  = ? WHERE username = ?")) {
-            ps.setString(1, table);
-            ps.setString(2, dataColumn);
-            ps.setString(3, data);
-            ps.setString(4, user);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public void delete(String user) {
-        try (Connection c = this.connect();
-             PreparedStatement ps = c.prepareStatement("DELETE FROM ? WHERE username = ?")) {
-            ps.setString(1, table);
-            ps.setString(2, user);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
+    private boolean isPositiveCount(ResultSet rs) throws SQLException {
+        return rs.getLong(COUNT_COLUMN_INDEX) > 0;
     }
 }
