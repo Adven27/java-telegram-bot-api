@@ -18,8 +18,8 @@ import net.mamot.bot.services.games.impl.LeaderBoardImpl;
 import net.mamot.bot.services.games.impl.PGSQLGameLeaderBoardRepo;
 import net.mamot.bot.services.games.impl.PGSQLGameRepo;
 import net.mamot.bot.services.impl.DAO;
-import net.mamot.bot.services.impl.Injector;
 import net.mamot.bot.services.impl.MessageFromURL;
+import net.mamot.bot.services.impl.Registry;
 import net.mamot.bot.services.joke.impl.JokePrinter;
 import net.mamot.bot.services.joke.impl.JokeResource;
 import net.mamot.bot.services.lights.impl.UpnpBridgeAdapter;
@@ -54,27 +54,34 @@ import static net.mamot.bot.services.Stickers.HELP;
 
 public class Main {
 
-    private static final int SBT_TEAM_CHAT_ID =  parseInt(System.getenv("TEAM_CHAT"));
+    private static final int SBT_TEAM_CHAT_ID = parseInt(System.getenv("TEAM_CHAT"));
     private static final int CHAT_TO_REPOST = parseInt(System.getenv("REPOST_CHAT"));
 
-    private static final TwitterService twitter = (TwitterService) Injector.provide(TwitterService.class);
+    private static final TwitterService twitter = (TwitterService) Registry.provide(TwitterService.class);
 
     private static final int FEED_FETCH_LIMIT = 5;
 
     public static void main(String[] args) {
+        new Main().run();
+    }
+
+    private void run() {
         final String token = System.getenv("TELEGRAM_TOKEN");
         final boolean debug = parseBoolean(System.getenv("DEBUG"));
-        final TelegramBot bot = debug? buildDebug(token) : build(token);
+        final TelegramBot bot = debug ? buildDebug(token) : build(token);
         final UpdateHandler[] handlers = updateHandlers();
 
-        bot.setUpdatesListener(new HandlersChainListener(bot,
-            (b, u) -> u.message() != null ? printHelp(handlers, b, u.message().chat()) : repostFromChannel(b, u),
-            handlers
+        bot.setUpdatesListener(new HandlersChainListener(
+                bot,
+                (b, u) -> u.message() != null
+                        ? printHelp(handlers, b, u.message().chat())
+                        : repostFromChannel(b, u),
+                handlers
         ));
         scheduleTasks(bot, getTimerTasks());
     }
 
-    private static UpdateHandler[] updateHandlers() {
+    private UpdateHandler[] updateHandlers() {
         final LocalizationService localizationService = new LocalizationService();
         final DAO dao = new DAO();
         final WeatherPrinter weatherPrinter = new WeatherPrinter(localizationService, dao);
@@ -101,14 +108,20 @@ public class Main {
         };
     }
 
-    private static boolean printHelp(UpdateHandler[] handlers, TelegramBot b,  Chat chat) {
+    private boolean printHelp(UpdateHandler[] handlers, TelegramBot b, Chat chat) {
         b.execute(sticker(chat, HELP.id()));
         b.execute(message(chat, helpMessage(handlers)));
         return true;
     }
 
+    private String helpMessage(UpdateHandler[] handlers) {
+        return stream(handlers).filter(h -> h instanceof MessageCommand).
+                map(h -> ((MessageCommand) h).description()).
+                collect(joining("\n"));
+    }
+
     private static boolean repostFromChannel(TelegramBot b, Update u) {
-        Message post = u.channelPost() == null? u.editedChannelPost() : u.channelPost();
+        Message post = u.channelPost() == null ? u.editedChannelPost() : u.channelPost();
         if (post != null) {
             if (post.document() != null) {
                 b.execute(new SendDocument(CHAT_TO_REPOST, post.document().fileId()));
@@ -126,20 +139,14 @@ public class Main {
         return false;
     }
 
-    private static void scheduleTasks(TelegramBot bot, List<CustomTimerTask> tasks) {
+    private void scheduleTasks(TelegramBot bot, List<CustomTimerTask> tasks) {
         for (CustomTimerTask t : tasks) {
             t.setBot(bot);
             TimerExecutor.getInstance().schedule(t);
         }
     }
 
-    private static String helpMessage(UpdateHandler[] handlers) {
-        return stream(handlers).filter(h -> h instanceof MessageCommand).
-            map(h -> ((MessageCommand) h).description()).
-            collect(joining("\n"));
-    }
-
-    private static List<CustomTimerTask> getTimerTasks() {
+    private List<CustomTimerTask> getTimerTasks() {
         List<CustomTimerTask> tasks = newArrayList();
         for (Events e : Events.values()) {
             tasks.add(new DailyTask(e.name(), -1) {

@@ -4,13 +4,13 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.fluent.KeyboardBuilder;
 import com.pengrad.telegrambot.model.request.ForceReply;
 import com.pengrad.telegrambot.request.SendMessage;
-import net.mamot.bot.services.impl.Injector;
+import net.mamot.bot.services.impl.Registry;
 
 public class WhoStep extends DebtsWizardStep {
     public static final String ENTER_NAME = "✏️ Ввести имя";
     public static final String SHOW_DEBTS = "\uD83D\uDDC2 Список долгов";
     public static final String ENTER_NAME_DESC = "Введите имя, оно появится в списке";
-    private Favorites favorites = (Favorites) Injector.provide(Favorites.class);
+    private Favorites favorites = (Favorites) Registry.provide(Favorites.class);
 
     public WhoStep(Transaction transaction, TelegramBot bot, Integer originalMessage) {
         super(transaction, bot, originalMessage);

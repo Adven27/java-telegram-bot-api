@@ -8,7 +8,7 @@ import net.mamot.bot.services.twitter.TwitterServiceImpl;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Injector {
+public class Registry {
     private static Map<String, Object> map = new ConcurrentHashMap<String, Object>();
     static {
         bind(Favorites.class, new Favorites());

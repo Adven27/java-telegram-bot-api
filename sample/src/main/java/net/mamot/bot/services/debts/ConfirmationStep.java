@@ -2,10 +2,10 @@ package net.mamot.bot.services.debts;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.fluent.KeyboardBuilder;
-import net.mamot.bot.services.impl.Injector;
+import net.mamot.bot.services.impl.Registry;
 
 public class ConfirmationStep extends DebtsWizardStep {
-    private Favorites favorites = (Favorites) Injector.provide(Favorites.class);
+    private Favorites favorites = (Favorites) Registry.provide(Favorites.class);
 
     public ConfirmationStep(Transaction transaction, TelegramBot bot, Integer originalMessage) {
         super(transaction, bot, originalMessage);

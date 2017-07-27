@@ -2,12 +2,12 @@ package net.mamot.bot.services.debts;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.fluent.KeyboardBuilder;
-import net.mamot.bot.services.impl.Injector;
+import net.mamot.bot.services.impl.Registry;
 
 import static java.util.stream.Collectors.joining;
 
 public class DebtsStep extends DebtsWizardStep {
-    private DebtsRepo debtsRepo = (DebtsRepo) Injector.provide(DebtsRepo.class);
+    private DebtsRepo debtsRepo = (DebtsRepo) Registry.provide(DebtsRepo.class);
 
     public DebtsStep(Transaction transaction, TelegramBot bot, Integer originalMessage) {
         super(transaction, bot, originalMessage);
