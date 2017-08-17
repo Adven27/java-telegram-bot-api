@@ -32,7 +32,7 @@ public class TwitterServiceImpl implements TwitterService {
 
     private String getLatest(String userName) {
         try {
-            QueryResult result = twitter.search(new Query("from:" + userName));
+            QueryResult result = twitter.search(new Query("from:" + userName + " exclude:replies"));
             Status tweet = result.getTweets().get(0);
             return tweet.getText() + "\n" + tweet.getUser().getURL();
         } catch (Exception ex) {
