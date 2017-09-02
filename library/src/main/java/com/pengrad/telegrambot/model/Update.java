@@ -1,10 +1,13 @@
 package com.pengrad.telegrambot.model;
 
+import java.io.Serializable;
+
 /**
  * stas
  * 8/4/15.
  */
-public class Update {
+public class Update implements Serializable {
+    private final static long serialVersionUID = 0L;
 
     private Integer update_id;
     private Message message;
@@ -14,6 +17,8 @@ public class Update {
     private InlineQuery inline_query;
     private ChosenInlineResult chosen_inline_result;
     private CallbackQuery callback_query;
+    private ShippingQuery shipping_query;
+    private PreCheckoutQuery pre_checkout_query;
 
     public void setUpdate_id(Integer update_id) {
         this.update_id = update_id;
@@ -79,6 +84,14 @@ public class Update {
         return callback_query;
     }
 
+    public ShippingQuery shippingQuery() {
+        return shipping_query;
+    }
+
+    public PreCheckoutQuery preCheckoutQuery() {
+        return pre_checkout_query;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -90,16 +103,17 @@ public class Update {
         if (message != null ? !message.equals(update.message) : update.message != null) return false;
         if (edited_message != null ? !edited_message.equals(update.edited_message) : update.edited_message != null)
             return false;
-        if (channel_post != null ? !channel_post.equals(update.channel_post) : update.channel_post != null)
-            return false;
+        if (channel_post != null ? !channel_post.equals(update.channel_post) : update.channel_post != null) return false;
         if (edited_channel_post != null ? !edited_channel_post.equals(update.edited_channel_post) : update.edited_channel_post != null)
             return false;
-        if (inline_query != null ? !inline_query.equals(update.inline_query) : update.inline_query != null)
-            return false;
+        if (inline_query != null ? !inline_query.equals(update.inline_query) : update.inline_query != null) return false;
         if (chosen_inline_result != null ? !chosen_inline_result.equals(update.chosen_inline_result) : update.chosen_inline_result != null)
             return false;
-        return callback_query != null ? callback_query.equals(update.callback_query) : update.callback_query == null;
-
+        if (callback_query != null ? !callback_query.equals(update.callback_query) : update.callback_query != null)
+            return false;
+        if (shipping_query != null ? !shipping_query.equals(update.shipping_query) : update.shipping_query != null)
+            return false;
+        return pre_checkout_query != null ? pre_checkout_query.equals(update.pre_checkout_query) : update.pre_checkout_query == null;
     }
 
     @Override
@@ -118,6 +132,8 @@ public class Update {
                 ", inline_query=" + inline_query +
                 ", chosen_inline_result=" + chosen_inline_result +
                 ", callback_query=" + callback_query +
+                ", shipping_query=" + shipping_query +
+                ", pre_checkout_query=" + pre_checkout_query +
                 '}';
     }
 }

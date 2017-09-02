@@ -1,10 +1,13 @@
 package com.pengrad.telegrambot.model;
 
+import java.io.Serializable;
+
 /**
  * Stas Parshin
  * 04 October 2016
  */
-public class GameHighScore {
+public class GameHighScore implements Serializable {
+    private final static long serialVersionUID = 0L;
 
     private Integer position;
     private User user;
@@ -29,17 +32,16 @@ public class GameHighScore {
 
         GameHighScore that = (GameHighScore) o;
 
-        if (!position.equals(that.position)) return false;
-        if (!user.equals(that.user)) return false;
-        return score.equals(that.score);
-
+        if (position != null ? !position.equals(that.position) : that.position != null) return false;
+        if (user != null ? !user.equals(that.user) : that.user != null) return false;
+        return score != null ? score.equals(that.score) : that.score == null;
     }
 
     @Override
     public int hashCode() {
-        int result = position.hashCode();
-        result = 31 * result + user.hashCode();
-        result = 31 * result + score.hashCode();
+        int result = position != null ? position.hashCode() : 0;
+        result = 31 * result + (user != null ? user.hashCode() : 0);
+        result = 31 * result + (score != null ? score.hashCode() : 0);
         return result;
     }
 

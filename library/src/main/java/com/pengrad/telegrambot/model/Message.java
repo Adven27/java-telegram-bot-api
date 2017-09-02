@@ -1,5 +1,6 @@
 package com.pengrad.telegrambot.model;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import static java.util.Arrays.copyOf;
@@ -8,7 +9,8 @@ import static java.util.Arrays.copyOf;
  * stas
  * 8/4/15.
  */
-public class Message {
+public class Message implements Serializable {
+    private final static long serialVersionUID = 0L;
 
     private Integer message_id;
     private User from;
@@ -17,9 +19,11 @@ public class Message {
     private User forward_from;
     private Chat forward_from_chat;
     private Integer forward_from_message_id;
+    private String forward_signature;
     private Integer forward_date;
     private Message reply_to_message;
     private Integer edit_date;
+    private String author_signature;
     private String text;
     private MessageEntity[] entities;
     private Audio audio;
@@ -29,6 +33,8 @@ public class Message {
     private Sticker sticker;
     private Video video;
     private Voice voice;
+    private VideoNote video_note;
+    private User[] new_chat_members;
     private String caption;
     private Contact contact;
     private Location location;
@@ -44,6 +50,8 @@ public class Message {
     private Long migrate_to_chat_id;
     private Long migrate_from_chat_id;
     private Message pinned_message;
+    private Invoice invoice;
+    private SuccessfulPayment successful_payment;
 
     public void setMessage_id(Integer message_id) {
         this.message_id = message_id;
@@ -209,6 +217,10 @@ public class Message {
         return forward_from_message_id;
     }
 
+    public String forwardSignature() {
+        return forward_signature;
+    }
+
     public Integer forwardDate() {
         return forward_date;
     }
@@ -219,6 +231,10 @@ public class Message {
 
     public Integer editDate() {
         return edit_date;
+    }
+
+    public String authorSignature() {
+        return author_signature;
     }
 
     public String text() {
@@ -257,6 +273,14 @@ public class Message {
         return voice;
     }
 
+    public VideoNote videoNote() {
+        return video_note;
+    }
+
+    public User[] newChatMembers() {
+        return new_chat_members;
+    }
+
     public String caption() {
         return caption;
     }
@@ -273,6 +297,10 @@ public class Message {
         return venue;
     }
 
+    /**
+     * @deprecated Replaced with new_chat_members
+     */
+    @Deprecated
     public User newChatMember() {
         return new_chat_member;
     }
@@ -317,6 +345,14 @@ public class Message {
         return pinned_message;
     }
 
+    public Invoice invoice() {
+        return invoice;
+    }
+
+    public SuccessfulPayment successfulPayment() {
+        return successful_payment;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -328,17 +364,19 @@ public class Message {
         if (from != null ? !from.equals(message.from) : message.from != null) return false;
         if (date != null ? !date.equals(message.date) : message.date != null) return false;
         if (chat != null ? !chat.equals(message.chat) : message.chat != null) return false;
-        if (forward_from != null ? !forward_from.equals(message.forward_from) : message.forward_from != null)
-            return false;
+        if (forward_from != null ? !forward_from.equals(message.forward_from) : message.forward_from != null) return false;
         if (forward_from_chat != null ? !forward_from_chat.equals(message.forward_from_chat) : message.forward_from_chat != null)
             return false;
         if (forward_from_message_id != null ? !forward_from_message_id.equals(message.forward_from_message_id) : message.forward_from_message_id != null)
             return false;
-        if (forward_date != null ? !forward_date.equals(message.forward_date) : message.forward_date != null)
+        if (forward_signature != null ? !forward_signature.equals(message.forward_signature) : message.forward_signature != null)
             return false;
+        if (forward_date != null ? !forward_date.equals(message.forward_date) : message.forward_date != null) return false;
         if (reply_to_message != null ? !reply_to_message.equals(message.reply_to_message) : message.reply_to_message != null)
             return false;
         if (edit_date != null ? !edit_date.equals(message.edit_date) : message.edit_date != null) return false;
+        if (author_signature != null ? !author_signature.equals(message.author_signature) : message.author_signature != null)
+            return false;
         if (text != null ? !text.equals(message.text) : message.text != null) return false;
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
         if (!Arrays.equals(entities, message.entities)) return false;
@@ -350,6 +388,9 @@ public class Message {
         if (sticker != null ? !sticker.equals(message.sticker) : message.sticker != null) return false;
         if (video != null ? !video.equals(message.video) : message.video != null) return false;
         if (voice != null ? !voice.equals(message.voice) : message.voice != null) return false;
+        if (video_note != null ? !video_note.equals(message.video_note) : message.video_note != null) return false;
+        // Probably incorrect - comparing Object[] arrays with Arrays.equals
+        if (!Arrays.equals(new_chat_members, message.new_chat_members)) return false;
         if (caption != null ? !caption.equals(message.caption) : message.caption != null) return false;
         if (contact != null ? !contact.equals(message.contact) : message.contact != null) return false;
         if (location != null ? !location.equals(message.location) : message.location != null) return false;
@@ -374,8 +415,10 @@ public class Message {
             return false;
         if (migrate_from_chat_id != null ? !migrate_from_chat_id.equals(message.migrate_from_chat_id) : message.migrate_from_chat_id != null)
             return false;
-        return pinned_message != null ? pinned_message.equals(message.pinned_message) : message.pinned_message == null;
-
+        if (pinned_message != null ? !pinned_message.equals(message.pinned_message) : message.pinned_message != null)
+            return false;
+        if (invoice != null ? !invoice.equals(message.invoice) : message.invoice != null) return false;
+        return successful_payment != null ? successful_payment.equals(message.successful_payment) : message.successful_payment == null;
     }
 
     @Override
@@ -393,9 +436,11 @@ public class Message {
                 ", forward_from=" + forward_from +
                 ", forward_from_chat=" + forward_from_chat +
                 ", forward_from_message_id=" + forward_from_message_id +
+                ", forward_signature='" + forward_signature + '\'' +
                 ", forward_date=" + forward_date +
                 ", reply_to_message=" + reply_to_message +
                 ", edit_date=" + edit_date +
+                ", author_signature='" + author_signature + '\'' +
                 ", text='" + text + '\'' +
                 ", entities=" + Arrays.toString(entities) +
                 ", audio=" + audio +
@@ -405,6 +450,8 @@ public class Message {
                 ", sticker=" + sticker +
                 ", video=" + video +
                 ", voice=" + voice +
+                ", video_note=" + video_note +
+                ", new_chat_members=" + Arrays.toString(new_chat_members) +
                 ", caption='" + caption + '\'' +
                 ", contact=" + contact +
                 ", location=" + location +
@@ -420,6 +467,8 @@ public class Message {
                 ", migrate_to_chat_id=" + migrate_to_chat_id +
                 ", migrate_from_chat_id=" + migrate_from_chat_id +
                 ", pinned_message=" + pinned_message +
+                ", invoice=" + invoice +
+                ", successful_payment=" + successful_payment +
                 '}';
     }
 }

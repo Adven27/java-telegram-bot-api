@@ -13,7 +13,10 @@ public class GameTest {
     public static void check(Game game) {
         assertNotNull(game.title());
         assertNotNull(game.description());
+        assertNotNull(game.text());
+        assertNotNull(game.textEntities());
         PhotoSizeTest.checkPhotos(game.photo());
+        AnimationTest.check(game.animation());
     }
 
 }

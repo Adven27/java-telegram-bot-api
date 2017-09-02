@@ -1,16 +1,21 @@
 package com.pengrad.telegrambot.model;
 
+import java.io.Serializable;
+
 /**
  * stas
  * 8/5/15.
  */
-public class Sticker {
+public class Sticker implements Serializable {
+    private final static long serialVersionUID = 0L;
 
     private String file_id;
     private Integer width;
     private Integer height;
     private PhotoSize thumb;
     private String emoji;
+    private String set_name;
+    private MaskPosition mask_position;
     private Integer file_size;
 
     public String fileId() {
@@ -33,6 +38,14 @@ public class Sticker {
         return emoji;
     }
 
+    public String setName() {
+        return set_name;
+    }
+
+    public MaskPosition maskPosition() {
+        return mask_position;
+    }
+
     public Integer fileSize() {
         return file_size;
     }
@@ -49,6 +62,8 @@ public class Sticker {
         if (height != null ? !height.equals(sticker.height) : sticker.height != null) return false;
         if (thumb != null ? !thumb.equals(sticker.thumb) : sticker.thumb != null) return false;
         if (emoji != null ? !emoji.equals(sticker.emoji) : sticker.emoji != null) return false;
+        if (set_name != null ? !set_name.equals(sticker.set_name) : sticker.set_name != null) return false;
+        if (mask_position != null ? !mask_position.equals(sticker.mask_position) : sticker.mask_position != null) return false;
         return file_size != null ? file_size.equals(sticker.file_size) : sticker.file_size == null;
     }
 
@@ -65,6 +80,8 @@ public class Sticker {
                 ", height=" + height +
                 ", thumb=" + thumb +
                 ", emoji='" + emoji + '\'' +
+                ", set_name='" + set_name + '\'' +
+                ", mask_position=" + mask_position +
                 ", file_size=" + file_size +
                 '}';
     }

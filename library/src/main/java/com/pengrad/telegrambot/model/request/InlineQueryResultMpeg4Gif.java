@@ -1,16 +1,20 @@
 package com.pengrad.telegrambot.model.request;
 
+import java.io.Serializable;
+
 /**
  * stas
  * 1/12/16.
  */
-public class InlineQueryResultMpeg4Gif extends InlineQueryResult<InlineQueryResultMpeg4Gif> {
+public class InlineQueryResultMpeg4Gif extends InlineQueryResult<InlineQueryResultMpeg4Gif> implements Serializable {
+    private final static long serialVersionUID = 0L;
 
     private String mpeg4_url;
     private String thumb_url;
 
     private Integer mpeg4_width;
     private Integer mpeg4_height;
+    private Integer mpeg4_duration;
     private String title;
     private String caption;
 
@@ -27,6 +31,11 @@ public class InlineQueryResultMpeg4Gif extends InlineQueryResult<InlineQueryResu
 
     public InlineQueryResultMpeg4Gif mpeg4Height(Integer mpeg4Height) {
         this.mpeg4_height = mpeg4Height;
+        return this;
+    }
+
+    public InlineQueryResultMpeg4Gif mpeg4Duration(Integer mpeg4Duration) {
+        this.mpeg4_duration = mpeg4Duration;
         return this;
     }
 
