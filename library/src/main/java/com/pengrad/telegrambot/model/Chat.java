@@ -11,8 +11,20 @@ import java.io.Serializable;
 public class Chat implements Serializable {
     private final static long serialVersionUID = 0L;
 
+    public void id(Long id) {
+        this.id = id;
+    }
+
+    public void firstName(String name) {
+        this.first_name = name;
+    }
+
+    public void type(Type type) {
+        this.type = type;
+    }
+
     public enum Type {
-        @SerializedName("private")Private, group, supergroup, channel
+        @SerializedName("private") Private, group, supergroup, channel
     }
 
     private Long id;

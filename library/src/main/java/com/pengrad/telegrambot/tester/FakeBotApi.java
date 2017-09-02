@@ -62,9 +62,9 @@ class FakeBotApi implements BotAPI {
             message.setFrom(from);
 
             Chat chat = new Chat();
-            chat.setId(Long.parseLong(params.get("chat_id").toString()));
-            chat.setFirst_name("fake");
-            chat.setType(Chat.Type.Private);
+            chat.id(Long.valueOf(params.get("chat_id").toString()));
+            chat.firstName("fake");
+            chat.type(Chat.Type.Private);
             message.setChat(chat);
 
             message.setDate((int) (new Date().getTime() / 1000));

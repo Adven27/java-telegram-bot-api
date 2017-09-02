@@ -54,22 +54,24 @@ import static net.mamot.bot.services.Stickers.HELP;
 
 public class Main {
 
-    private static final int SBT_TEAM_CHAT_ID =  parseInt(System.getenv("TEAM_CHAT"));
+    private static final int SBT_TEAM_CHAT_ID = parseInt(System.getenv("TEAM_CHAT"));
     private static final int CHAT_TO_REPOST = parseInt(System.getenv("REPOST_CHAT"));
+    private static final String TELEGRAM_TOKEN = System.getenv("TELEGRAM_TOKEN");
+    public static final String DATABASE_URL = System.getenv("DATABASE_URL");
 
     private static final TwitterService twitter = (TwitterService) Injector.provide(TwitterService.class);
 
     private static final int FEED_FETCH_LIMIT = 5;
 
     public static void main(String[] args) {
-        final String token = System.getenv("TELEGRAM_TOKEN");
+        final String token = TELEGRAM_TOKEN;
         final boolean debug = parseBoolean(System.getenv("DEBUG"));
-        final TelegramBot bot = debug? buildDebug(token) : build(token);
+        final TelegramBot bot = debug ? buildDebug(token) : build(token);
         final UpdateHandler[] handlers = updateHandlers();
 
         bot.setUpdatesListener(new HandlersChainListener(bot,
-            (b, u) -> u.message() != null ? printHelp(handlers, b, u.message().chat()) : repostFromChannel(b, u),
-            handlers
+                (b, u) -> u.message() != null ? printHelp(handlers, b, u.message().chat()) : repostFromChannel(b, u),
+                handlers
         ));
         scheduleTasks(bot, getTimerTasks());
     }
@@ -85,7 +87,7 @@ public class Main {
                 new LightsCommand(new UpnpBridgeAdapter()),
                 new WeatherCommand(weather),
                 new TicTacToeCommand(),
-                new Game2048Command(new PGSQLGameRepo(), new LeaderBoardImpl(new PGSQLGameLeaderBoardRepo())),
+                new Game2048Command(new PGSQLGameRepo(DATABASE_URL), new LeaderBoardImpl(new PGSQLGameLeaderBoardRepo(DATABASE_URL))),
                 new AdviceCommand(new MessageFromURL(new AdviceResource(), new AdvicePrinter())),
                 new QuoteCommand(new MessageFromURL(new QuoteResource(), new QuotePrinter())),
                 new SupCommand(dao),
@@ -97,18 +99,19 @@ public class Main {
                 new TwitterGirlCommand(twitter),
                 new UncleBobCommand(new PreviewPrinter()),
                 new SexyGirlCommand(twitter),
-                new BeautifulGirlCommand()
+                new BeautifulGirlCommand(),
+                new RandomVideoNote()
         };
     }
 
-    private static boolean printHelp(UpdateHandler[] handlers, TelegramBot b,  Chat chat) {
+    private static boolean printHelp(UpdateHandler[] handlers, TelegramBot b, Chat chat) {
         b.execute(sticker(chat, HELP.id()));
         b.execute(message(chat, helpMessage(handlers)));
         return true;
     }
 
     private static boolean repostFromChannel(TelegramBot b, Update u) {
-        Message post = u.channelPost() == null? u.editedChannelPost() : u.channelPost();
+        Message post = u.channelPost() == null ? u.editedChannelPost() : u.channelPost();
         if (post != null) {
             if (post.document() != null) {
                 b.execute(new SendDocument(CHAT_TO_REPOST, post.document().fileId()));
@@ -135,8 +138,8 @@ public class Main {
 
     private static String helpMessage(UpdateHandler[] handlers) {
         return stream(handlers).filter(h -> h instanceof MessageCommand).
-            map(h -> ((MessageCommand) h).description()).
-            collect(joining("\n"));
+                map(h -> ((MessageCommand) h).description()).
+                collect(joining("\n"));
     }
 
     private static List<CustomTimerTask> getTimerTasks() {
@@ -157,7 +160,7 @@ public class Main {
         }
         tasks.add(new TwitterTask(twitter, GIRL_NAME_IN_TWITTER, SBT_TEAM_CHAT_ID));
         tasks.add(new TwitterTask(twitter, "razbor_poletov", SBT_TEAM_CHAT_ID));
-        tasks.add(new FeedTask(new AtomFeed("http://blog.cleancoder.com/atom.xml"), new PGSQLFeedRepo(), new PreviewPrinter(), SBT_TEAM_CHAT_ID, FEED_FETCH_LIMIT));
+        tasks.add(new FeedTask(new AtomFeed("http://blog.cleancoder.com/atom.xml"), new PGSQLFeedRepo(DATABASE_URL), new PreviewPrinter(), SBT_TEAM_CHAT_ID, FEED_FETCH_LIMIT));
         return tasks;
     }
 }

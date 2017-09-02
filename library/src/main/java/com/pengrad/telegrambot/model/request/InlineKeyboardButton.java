@@ -56,4 +56,8 @@ public class InlineKeyboardButton implements Serializable {
         this.pay = true;
         return this;
     }
+
+    public String callbackData() {
+        return callback_data;
+    }
 }

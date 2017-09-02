@@ -22,7 +22,7 @@ public interface TelegramBot {
         private final FileApi fileApi;
         private final UpdatesHandler updatesHandler;
 
-        TelegramBot(TelegramBotClient api, FileApi fileApi) {
+        TB(TelegramBotClient api, FileApi fileApi) {
             this.api = api;
             this.fileApi = fileApi;
             this.updatesHandler = new UpdatesHandler();

@@ -95,8 +95,8 @@ public class FeedTask extends DailyTask {
 
     public static class PGSQLFeedRepo extends PGSQLRepo implements FeedRepo {
 
-        public PGSQLFeedRepo() {
-            super("feeds", "last_posted");
+        public PGSQLFeedRepo(String databaseUrl) {
+            super(databaseUrl, "feeds", "last_posted");
         }
 
         @Override
