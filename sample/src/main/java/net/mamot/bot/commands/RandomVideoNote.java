@@ -13,9 +13,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import static com.pengrad.telegrambot.request.SendMessage.message;
-
-
 public class RandomVideoNote extends MessageCommand {
     Map<String, URL> notes = new HashMap<>();
 
@@ -31,9 +28,7 @@ public class RandomVideoNote extends MessageCommand {
 
     @Override
     public void execute(TelegramBot bot, User user, Chat chat, String params) {
-        SendVideoNote videoNote = new SendVideoNote(chat.id(), note());
-        bot.execute(videoNote);
-        bot.execute(message(chat,videoNote.toString()));
+        bot.execute(new SendVideoNote(chat.id(), note()));
     }
 
     private byte[] note() {
