@@ -28,6 +28,10 @@ public class UpdatesHandler {
         this.sleepTimeout = sleepTimeout;
     }
 
+    public UpdatesHandler() {
+        this.sleepTimeout = 0;
+    }
+
     public void start(TelegramBot bot, UpdatesListener listener, GetUpdates request) {
         this.bot = bot;
         this.listener = listener;

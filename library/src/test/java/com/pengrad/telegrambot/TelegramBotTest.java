@@ -31,7 +31,7 @@ import static org.junit.Assert.*;
  */
 public class TelegramBotTest {
 
-    TelegramBot bot;
+    TelegramBot.TB bot;
     Integer chatId;
     Long groupId;
     Integer forwardMessageId = 1;
@@ -77,7 +77,7 @@ public class TelegramBotTest {
             group = System.getenv("GROUP_ID");
         }
 
-        bot = TelegramBotAdapter.buildDebug(token);
+        bot = (TelegramBot.TB) TelegramBotAdapter.buildDebug(token);
         chatId = Integer.parseInt(chat);
         groupId = Long.parseLong(group);
     }
