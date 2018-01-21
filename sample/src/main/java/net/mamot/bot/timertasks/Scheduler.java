@@ -8,20 +8,21 @@ import static com.pengrad.telegrambot.logging.BotLogger.warn;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 
-public class TimerExecutor {
-    private static final String LOGTAG = "TIMEREXECUTOR";
-    private static volatile TimerExecutor instance;
+public class Scheduler {
+    private static final String LOGTAG = "Scheduler";
     private static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
-    private TimerExecutor() {
+    private static volatile Scheduler instance;
+
+    private Scheduler() {
     }
 
-    public static TimerExecutor getInstance() {
-        final TimerExecutor currentInstance;
+    public static Scheduler getInstance() {
+        final Scheduler currentInstance;
         if (instance == null) {
-            synchronized (TimerExecutor.class) {
+            synchronized (Scheduler.class) {
                 if (instance == null) {
-                    instance = new TimerExecutor();
+                    instance = new Scheduler();
                 }
                 currentInstance = instance;
             }
@@ -32,21 +33,21 @@ public class TimerExecutor {
         return currentInstance;
     }
 
-    public void schedule(CustomTimerTask task) {
+    public void schedule(TimerTask task) {
         if (task.getTimes() != 0) {
             long delay = task.computeDelay();
             executorService.schedule(getWrapped(task), delay, MILLISECONDS);
         }
     }
 
-    private Runnable getWrapped(CustomTimerTask task) {
+    private Runnable getWrapped(TimerTask task) {
         return () -> {
                 try {
                     task.execute();
                     task.reduceTimes();
                     schedule(task);
                 } catch (Exception e) {
-                    severe(LOGTAG, "Bot threw an unexpected exception at TimerExecutor", e);
+                    severe(LOGTAG, "Bot threw an unexpected exception at Scheduler", e);
                 }
             };
     }

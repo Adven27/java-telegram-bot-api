@@ -1,27 +1,51 @@
 package net.mamot.bot.timertasks;
 
-public class WorkingDayTask extends CustomTimerTask {
+import net.mamot.bot.services.holidays.HolidayService;
 
-    private final DailyTask task;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
-    public WorkingDayTask(String taskName, int times, DailyTask task) {
-        super(taskName, times);
-        this.task = task;
-    }
+import static java.time.LocalDateTime.now;
+import static net.mamot.bot.utils.DateUtils.getDurationInMillis;
 
-    @Override
-    public void execute() {
-        if (isWorkingDay()) {
-            task.execute();
-        }
-    }
+public final class WorkingDayTask extends TimerTask {
 
-    private boolean isWorkingDay() {
-        return true;
+    private final LocalTime time;
+    private final WorkingCalendar calendar;
+
+    public WorkingDayTask(Task task, LocalTime time, WorkingCalendar calendar) {
+        super(task, -1);
+        this.time = time;
+        this.calendar = calendar;
     }
 
     @Override
     public long computeDelay() {
-        return task.computeDelay();
+        final LocalDateTime now = now();
+        LocalDateTime nextTime = now.with(time);
+        if (!calendar.isWorkingDay(nextTime) || getDurationInMillis(now, nextTime) < 0) {
+            nextTime = calendar.nextWorkingDay(nextTime);
+        }
+        return getDurationInMillis(now, nextTime);
+    }
+
+    public static class WorkingCalendar {
+        private final HolidayService holidayService;
+
+        public WorkingCalendar(HolidayService holidayService) {
+            this.holidayService = holidayService;
+        }
+
+        public boolean isWorkingDay(LocalDateTime day) {
+            return !holidayService.isHoliday(day);
+        }
+
+        public LocalDateTime nextWorkingDay(LocalDateTime day) {
+            LocalDateTime next = day.plusDays(1);
+            while (!isWorkingDay(next)) {
+                next = next.plusDays(1);
+            }
+            return next;
+        }
     }
 }

@@ -1,26 +1,27 @@
-package net.mamot.bot.timertasks;
+package net.mamot.bot.services.holidays;
 
 import net.mamot.bot.services.impl.Resource;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import static com.pengrad.telegrambot.logging.BotLogger.error;
 
-public class HolidayService {
+public class IsDayOffHolidayService implements HolidayService {
 
-    private static final String TAG = HolidayService.class.getName();
+    private static final String TAG = IsDayOffHolidayService.class.getName();
 
     private static final String URL = "https://isdayoff.ru/";
 
     private final Resource res;
 
-    public HolidayService(Resource res) {
+    public IsDayOffHolidayService(Resource res) {
         this.res = res;
     }
 
-    public boolean isHoliday(Date date) {
+    @Override
+    public boolean isHoliday(LocalDateTime date) {
         String url = getRequestURL(date);
         try {
             String response = res.from(url);
@@ -39,12 +40,12 @@ public class HolidayService {
         }
     }
 
-    private String getRequestURL(Date date) {
+    private String getRequestURL(LocalDateTime date) {
         return URL + getFormattedDate(date);
     }
 
-    private String getFormattedDate(Date date) {
-        return new SimpleDateFormat("yyyyMMdd").format(date);
+    private String getFormattedDate(LocalDateTime date) {
+        return DateTimeFormatter.ofPattern("yyyyMMdd").format(date);
     }
 
 }

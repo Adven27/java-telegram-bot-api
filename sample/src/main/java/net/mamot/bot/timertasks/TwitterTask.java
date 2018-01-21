@@ -1,22 +1,24 @@
 package net.mamot.bot.timertasks;
 
+import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SendSticker;
 import net.mamot.bot.services.Stickers;
 import net.mamot.bot.services.twitter.TwitterService;
+import net.mamot.bot.timertasks.Task.BotTask;
 
 import java.util.Optional;
 
 import static com.pengrad.telegrambot.model.request.ParseMode.HTML;
 
-public class TwitterTask extends CustomTimerTask {
-    private static final long TWEET_POLLING_DELAY = 1800000L;
+public class TwitterTask extends BotTask {
+
     private final TwitterService twitter;
     private final String twitterName;
     private final int subscriber;
 
-    public TwitterTask(TwitterService twitter, String twitterName, int subscriber) {
-        super("Twitter polling task: " + twitterName, -1);
+    public TwitterTask(TwitterService twitter, String twitterName, int subscriber, TelegramBot bot) {
+        super(bot);
         this.twitter = twitter;
         this.twitterName = twitterName;
         this.subscriber = subscriber;
@@ -33,7 +35,7 @@ public class TwitterTask extends CustomTimerTask {
     }
 
     @Override
-    public long computeDelay() {
-        return TWEET_POLLING_DELAY;
+    public String getName() {
+        return "Twitter polling task: " + twitterName;
     }
 }

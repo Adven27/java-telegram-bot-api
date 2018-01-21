@@ -1,4 +1,4 @@
-package net.mamot.bot.timertasks;
+package net.mamot.bot.utils;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;

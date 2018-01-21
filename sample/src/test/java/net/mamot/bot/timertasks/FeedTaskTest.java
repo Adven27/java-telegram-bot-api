@@ -7,6 +7,7 @@ import net.mamot.bot.feed.printer.EntryPrinter;
 import net.mamot.bot.timertasks.FeedTask.FeedRepo;
 import org.mockito.ArgumentMatcher;
 import org.mockito.InOrder;
+import org.mockito.Mock;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -17,28 +18,30 @@ import java.util.Date;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class FeedTaskTest {
 
     private URL url;
 
+    @Mock
     private FeedRepo repo;
+    @Mock
     private EntryPrinter printer;
+    @Mock
     private Feed feed;
 
     private FeedTask sut;
 
     @BeforeMethod
     public void setUp() throws MalformedURLException {
+        initMocks(this);
         url = new URL("http://www.example.com");
 
-        mockFeed();
-        mockRepo();
-        mockPrinter();
+        when(feed.getUrl()).thenReturn(url);
+        when(feed.get(anyInt())).thenReturn(getFeedEntries());
 
-        sut = new FeedTask(feed, repo, printer, 0, 5);
-
-        mockBot();
+        sut = new FeedTask(feed, repo, printer, 0, 5, mock(TelegramBot.class));
     }
 
     @Test
@@ -88,28 +91,9 @@ public class FeedTaskTest {
         return new ArgumentMatcher<Entry>() {
             @Override
             public boolean matches(Object actual) {
-                return id.equals(((Entry)actual).getId());
+                return id.equals(((Entry) actual).getId());
             }
         };
-    }
-
-    private void mockFeed() {
-        feed = mock(Feed.class);
-        when(feed.getUrl()).thenReturn(url);
-
-        when(feed.get(anyInt())).thenReturn(getFeedEntries());
-    }
-
-    private void mockRepo() {
-        repo = mock(FeedRepo.class);
-    }
-
-    private void mockPrinter() {
-        printer = mock(EntryPrinter.class);
-    }
-
-    private void mockBot() {
-        sut.bot = mock(TelegramBot.class);
     }
 
     private List<Entry> getFeedEntries() {
@@ -119,5 +103,4 @@ public class FeedTaskTest {
     private Entry createEntry(String id) {
         return new Entry(id, "title", new Date(), "content", "link");
     }
-
 }

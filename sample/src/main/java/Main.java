@@ -17,6 +17,7 @@ import net.mamot.bot.services.debts.InMemWizardSession;
 import net.mamot.bot.services.games.impl.LeaderBoardImpl;
 import net.mamot.bot.services.games.impl.PGSQLGameLeaderBoardRepo;
 import net.mamot.bot.services.games.impl.PGSQLGameRepo;
+import net.mamot.bot.services.holidays.WeekendsHolidayService;
 import net.mamot.bot.services.impl.DAO;
 import net.mamot.bot.services.impl.MessageFromURL;
 import net.mamot.bot.services.impl.Registry;
@@ -34,8 +35,10 @@ import net.mamot.bot.services.weather.impl.WeatherPrinter;
 import net.mamot.bot.services.weather.impl.WeatherResource;
 import net.mamot.bot.timertasks.*;
 import net.mamot.bot.timertasks.FeedTask.PGSQLFeedRepo;
+import net.mamot.bot.timertasks.GentleTask.SilencePeriod;
+import net.mamot.bot.timertasks.WorkingDayTask.WorkingCalendar;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -46,7 +49,6 @@ import static com.pengrad.telegrambot.request.SendMessage.message;
 import static com.pengrad.telegrambot.request.SendSticker.sticker;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
-import static java.time.LocalDateTime.now;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 import static net.mamot.bot.commands.TwitterGirlCommand.GIRL_NAME_IN_TWITTER;
@@ -57,9 +59,12 @@ public class Main {
     private static final int SBT_TEAM_CHAT_ID = parseInt(System.getenv("TEAM_CHAT"));
     private static final int CHAT_TO_REPOST = parseInt(System.getenv("REPOST_CHAT"));
 
-    private static final TwitterService twitter = (TwitterService) Registry.provide(TwitterService.class);
+    private static final SilencePeriod SILENCE_PERIOD = new SilencePeriod(LocalTime.of(22, 00), LocalTime.of(9, 30));
 
+    private static final TwitterService twitter = (TwitterService) Registry.provide(TwitterService.class);
     private static final int FEED_FETCH_LIMIT = 5;
+    public static final long TWITTER_POLLING_DELAY = 1800000;
+
 
     public static void main(String[] args) {
         new Main().run();
@@ -78,7 +83,7 @@ public class Main {
                         : repostFromChannel(b, u),
                 handlers
         ));
-        scheduleTasks(bot, getTimerTasks());
+        scheduleTasks(getTimerTasks(bot));
     }
 
     private UpdateHandler[] updateHandlers() {
@@ -139,32 +144,42 @@ public class Main {
         return false;
     }
 
-    private void scheduleTasks(TelegramBot bot, List<CustomTimerTask> tasks) {
-        for (CustomTimerTask t : tasks) {
-            t.setBot(bot);
-            TimerExecutor.getInstance().schedule(t);
+    private void scheduleTasks(List<TimerTask> tasks) {
+        for (TimerTask t : tasks) {
+            Scheduler.getInstance().schedule(t);
         }
     }
 
-    private List<CustomTimerTask> getTimerTasks() {
-        List<CustomTimerTask> tasks = newArrayList();
+    private List<TimerTask> getTimerTasks(TelegramBot bot) {
+        List<TimerTask> tasks = newArrayList();
+        WorkingCalendar calendar = new WorkingCalendar(new WeekendsHolidayService());
         for (Events e : Events.values()) {
-            tasks.add(new DailyTask(e.name(), -1) {
-                @Override
-                protected LocalDateTime startAt() {
-                    return now().with(e.time());
-                }
-
-                @Override
-                public void execute() {
-                    bot.execute(new SendSticker(SBT_TEAM_CHAT_ID, e.sticker().id()));
-                    bot.execute(new SendMessage(SBT_TEAM_CHAT_ID, e.msg()).disableWebPagePreview(true));
-                }
-            });
+            tasks.add(new WorkingDayTask(new EventTask(e, SBT_TEAM_CHAT_ID, bot), e.time(), calendar));
         }
-        tasks.add(new TwitterTask(twitter, GIRL_NAME_IN_TWITTER, SBT_TEAM_CHAT_ID));
-        tasks.add(new TwitterTask(twitter, "razbor_poletov", SBT_TEAM_CHAT_ID));
-        tasks.add(new FeedTask(new AtomFeed("http://blog.cleancoder.com/atom.xml"), new PGSQLFeedRepo(), new PreviewPrinter(), SBT_TEAM_CHAT_ID, FEED_FETCH_LIMIT));
+
+        tasks.add(twitterTask(bot, GIRL_NAME_IN_TWITTER));
+        tasks.add(twitterTask(bot, "razbor_poletov"));
+
+        tasks.add(feedTask(bot, "http://blog.cleancoder.com/atom.xml"));
         return tasks;
+    }
+
+    private GentleTask twitterTask(TelegramBot bot, String twitterAccount) {
+        return new GentleTask(
+                new RepetitiveTask(
+                        new TwitterTask(twitter, twitterAccount, SBT_TEAM_CHAT_ID, bot),
+                        TWITTER_POLLING_DELAY),
+                SILENCE_PERIOD);
+    }
+
+    private DailyTask feedTask(TelegramBot bot, String feed) {
+        return new DailyTask(
+                new FeedTask(
+                        new AtomFeed(feed),
+                        new PGSQLFeedRepo(),
+                        new PreviewPrinter(),
+                        SBT_TEAM_CHAT_ID, FEED_FETCH_LIMIT,
+                        bot),
+                LocalTime.of(17, 00));
     }
 }

@@ -1,25 +1,27 @@
 package net.mamot.bot.timertasks;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import static java.time.LocalDateTime.now;
-import static net.mamot.bot.timertasks.DateUtils.getDurationInMillis;
+import static net.mamot.bot.utils.DateUtils.getDurationInMillis;
 
-abstract public class DailyTask extends CustomTimerTask {
+public final class DailyTask extends TimerTask {
 
-    public DailyTask(String taskName, int times) {
-        super(taskName, times);
+    private final LocalTime time;
+
+    public DailyTask(Task task, LocalTime time) {
+        super(task, -1);
+        this.time = time;
     }
 
     @Override
     public long computeDelay() {
         final LocalDateTime now = now();
-        LocalDateTime nextTime = startAt();
+        LocalDateTime nextTime = now.with(time);
         while (getDurationInMillis(now, nextTime) < 0) {
             nextTime = nextTime.plusDays(1);
         }
         return getDurationInMillis(now, nextTime);
     }
-
-    protected abstract LocalDateTime startAt();
 }
