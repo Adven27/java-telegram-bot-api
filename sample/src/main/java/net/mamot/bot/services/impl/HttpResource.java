@@ -7,9 +7,9 @@ import okhttp3.Response;
 
 import java.io.IOException;
 
-public class JsonHttpResource {
+public class HttpResource implements Resource {
     public String from(String url) throws IOException {
-        BotLogger.info("JsonHttpResource", "fetching from " + url);
+        BotLogger.info("HttpResource", "fetching from " + url);
         OkHttpClient client =  new OkHttpClient.Builder().build();
         Response response = client.newCall(new Request.Builder().url(url).build()).execute();
         return response.body().string();

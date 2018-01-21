@@ -101,7 +101,7 @@ public class TelegramBotTest {
         UpdateTest.check(response.updates());
     }
 
-    @Test
+/*    @Test
     public void getFile() throws IOException {
         GetFileResponse response = bot.execute(new GetFile(withSpaceFileId));
         FileTest.check(response.file());
@@ -110,7 +110,7 @@ public class TelegramBotTest {
         Request request = new Request.Builder().head().url(path).build();
         Response pathResponse = new OkHttpClient().newCall(request).execute();
         assertTrue(pathResponse.isSuccessful());
-    }
+    }*/
 
     @Test
     public void kickChatMember() {

@@ -1,5 +1,6 @@
 package net.mamot.bot.timertasks;
 
+import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.logging.BotLogger;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SendSticker;
@@ -8,9 +9,8 @@ import net.mamot.bot.feed.Feed;
 import net.mamot.bot.feed.atom.AtomFeed.RetrieveFeedException;
 import net.mamot.bot.feed.printer.EntryPrinter;
 import net.mamot.bot.services.impl.PGSQLRepo;
+import net.mamot.bot.timertasks.Task.BotTask;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -19,9 +19,7 @@ import java.util.Set;
 import static com.pengrad.telegrambot.model.request.ParseMode.HTML;
 import static net.mamot.bot.services.Stickers.THINK;
 
-public class FeedTask extends DailyTask {
-
-    private static final LocalTime START_TIME = LocalTime.of(17, 00);
+public class FeedTask extends BotTask {
 
     private final int subscriber;
     private final EntryPrinter printer;
@@ -30,8 +28,8 @@ public class FeedTask extends DailyTask {
     private final FeedRepo repo;
     private final int fetchLimit;
 
-    public FeedTask(Feed feed, FeedRepo repo, EntryPrinter printer, int subscriber, int fetchLimit) {
-        super("Feed polling task: " + feed.getUrl().getHost(), -1);
+    public FeedTask(Feed feed, FeedRepo repo, EntryPrinter printer, int subscriber, int fetchLimit, TelegramBot bot) {
+        super(bot);
         this.subscriber = subscriber;
         this.printer = printer;
         this.fetchLimit = fetchLimit;
@@ -55,8 +53,8 @@ public class FeedTask extends DailyTask {
     }
 
     @Override
-    protected LocalDateTime startAt() {
-        return LocalDateTime.now().with(START_TIME);
+    public String getName() {
+        return "Feed polling task: " + feed.getUrl().getHost();
     }
 
     private void post(Entry entry) {

@@ -46,6 +46,7 @@ dependencies {
     compile 'org.fourthline.cling:cling-core:2.1.2-SNAPSHOT'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile group: 'commons-io', name: 'commons-io', version: '2.5'
+    compile group: 'org.springframework', name: 'spring-web', version: '4.3.10.RELEASE'
 
     testCompile 'junit:junit:4.12'
     testCompile group: 'org.testng', name: 'testng', version: '6.11'
