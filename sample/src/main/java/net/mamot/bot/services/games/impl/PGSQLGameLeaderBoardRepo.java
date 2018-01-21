@@ -11,13 +11,15 @@ import java.util.List;
 import static java.lang.String.format;
 
 public class PGSQLGameLeaderBoardRepo implements LeaderBoardRepo {
+    private final String dbUrl;
     private final String table;
 
-    public PGSQLGameLeaderBoardRepo() {
-        this("games_leaderboard");
+    public PGSQLGameLeaderBoardRepo(String dbUrl) {
+        this(dbUrl, "games_leaderboard");
     }
 
-    public PGSQLGameLeaderBoardRepo(String table) {
+    public PGSQLGameLeaderBoardRepo(String dbUrl, String table) {
+        this.dbUrl = dbUrl;
         this.table = table;
         createTable();
     }
@@ -25,7 +27,7 @@ public class PGSQLGameLeaderBoardRepo implements LeaderBoardRepo {
     private Connection connect() {
         Connection conn = null;
         try {
-            URI uri = new URI(System.getenv("DATABASE_URL"));
+            URI uri = new URI(dbUrl);
 
             String username = uri.getUserInfo().split(":")[0];
             String password = uri.getUserInfo().split(":")[1];

@@ -1,12 +1,14 @@
 package com.pengrad.telegrambot.model;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 /**
  * Stas Parshin
  * 03 October 2016
  */
-public class Game {
+public class Game implements Serializable {
+    private final static long serialVersionUID = 0L;
 
     private String title;
     private String description;
@@ -47,22 +49,20 @@ public class Game {
 
         Game game = (Game) o;
 
-        if (!title.equals(game.title)) return false;
-        if (!description.equals(game.description)) return false;
+        if (title != null ? !title.equals(game.title) : game.title != null) return false;
+        if (description != null ? !description.equals(game.description) : game.description != null) return false;
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
         if (!Arrays.equals(photo, game.photo)) return false;
         if (text != null ? !text.equals(game.text) : game.text != null) return false;
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
         if (!Arrays.equals(text_entities, game.text_entities)) return false;
-        if (animation != null ? !animation.equals(game.animation) : game.animation != null) return false;
-
-        return true;
+        return animation != null ? animation.equals(game.animation) : game.animation == null;
     }
 
     @Override
     public int hashCode() {
-        int result = title.hashCode();
-        result = 31 * result + description.hashCode();
+        int result = title != null ? title.hashCode() : 0;
+        result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + Arrays.hashCode(photo);
         result = 31 * result + (text != null ? text.hashCode() : 0);
         result = 31 * result + Arrays.hashCode(text_entities);

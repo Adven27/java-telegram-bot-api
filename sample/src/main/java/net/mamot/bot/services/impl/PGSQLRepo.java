@@ -12,14 +12,14 @@ import static java.lang.String.format;
 
 public class PGSQLRepo implements Repo {
     private static final String DB_URL_FORMAT = "jdbc:postgresql://%s:%d%s?sslmode=require";
-    private static final String DATABASE_URL = System.getenv("DATABASE_URL");
-
     private static final int COUNT_COLUMN_INDEX = 1;
 
+    private final String databaseUrl;
     protected final String table;
     protected final String dataColumn;
 
-    public PGSQLRepo(String table, String dataColumn) {
+    public PGSQLRepo(String databaseUrl, String table, String dataColumn) {
+        this.databaseUrl = databaseUrl;
         this.table = table;
         this.dataColumn = dataColumn;
         createTable();
@@ -28,7 +28,7 @@ public class PGSQLRepo implements Repo {
     private Connection connect() {
         Connection conn = null;
         try {
-            URI uri = new URI(DATABASE_URL);
+            URI uri = new URI(databaseUrl);
             String username = uri.getUserInfo().split(":")[0];
             String password = uri.getUserInfo().split(":")[1];
             String url = format(DB_URL_FORMAT, uri.getHost(), uri.getPort(), uri.getPath());

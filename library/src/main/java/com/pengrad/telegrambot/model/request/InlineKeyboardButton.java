@@ -1,10 +1,13 @@
 package com.pengrad.telegrambot.model.request;
 
+import java.io.Serializable;
+
 /**
  * Stas Parshin
  * 06 May 2016
  */
-public class InlineKeyboardButton {
+public class InlineKeyboardButton implements Serializable {
+    private final static long serialVersionUID = 0L;
 
     private String text;
     private String url;
@@ -12,6 +15,9 @@ public class InlineKeyboardButton {
     private String switch_inline_query;
     private String switch_inline_query_current_chat;
     private String callback_game;
+    private Boolean pay;
+
+    //todo can use only one optional field, make different constructors or static methods
 
     public InlineKeyboardButton(String text) {
         this.text = text;
@@ -43,6 +49,11 @@ public class InlineKeyboardButton {
 
     public InlineKeyboardButton callbackGame(String callbackGame) {
         callback_game = callbackGame;
+        return this;
+    }
+
+    public InlineKeyboardButton pay() {
+        this.pay = true;
         return this;
     }
 

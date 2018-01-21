@@ -1,10 +1,12 @@
 package com.pengrad.telegrambot.request;
 
+import com.google.gson.Gson;
 import com.pengrad.telegrambot.response.BaseResponse;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Objects;
 
 /**
@@ -12,6 +14,8 @@ import java.util.Objects;
  * 5/1/16.
  */
 abstract public class BaseRequest<T extends BaseRequest, R extends BaseResponse> {
+
+    private static final Gson gson = new Gson();
 
     @SuppressWarnings("unchecked")
     protected final T thisAsT = (T) this;
@@ -57,6 +61,19 @@ abstract public class BaseRequest<T extends BaseRequest, R extends BaseResponse>
     public int getTimeoutSeconds() {
         return 0;
     }
+
+    public String toWebhookResponse() {
+        Map<String, Object> fullMap = new HashMap<String, Object>(parameters);
+        fullMap.put("method", getMethod());
+        return gson.toJson(fullMap);
+    }
+
+    // Serialize model objects. Basically convert to json
+    // todo move to TelegramBotClient, let it serialize everything in request time
+    protected String serialize(Object o) {
+        return gson.toJson(o);
+    }
+
 
     @Override
     public boolean equals(Object o) {

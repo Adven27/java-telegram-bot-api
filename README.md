@@ -1,25 +1,26 @@
 # Java API for [Telegram Bots and Gaming Platform](https://core.telegram.org/bots)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.pengrad/java-telegram-bot-api/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.pengrad/java-telegram-bot-api)
 [![Build Status](https://travis-ci.org/pengrad/java-telegram-bot-api.svg?branch=master)](https://travis-ci.org/pengrad/java-telegram-bot-api)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.pengrad/java-telegram-bot-api/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.pengrad/java-telegram-bot-api)  
+[![codecov](https://codecov.io/gh/pengrad/java-telegram-bot-api/branch/master/graph/badge.svg)](https://codecov.io/gh/pengrad/java-telegram-bot-api)  
 
-Full support of all Bot API 2.3.1 methods with new Gaming Platform
+Full support of all Bot API 3.2 methods with Payment and Gaming Platform
 
 ## Download
 
 Gradle:
 ```groovy
-compile 'com.github.pengrad:java-telegram-bot-api:2.3.1'
+compile 'com.github.pengrad:java-telegram-bot-api:3.3.0'
 ```
 Maven:
 ```xml
 <dependency>
   <groupId>com.github.pengrad</groupId>
   <artifactId>java-telegram-bot-api</artifactId>
-  <version>2.3.1</version>
+  <version>3.3.0</version>
 </dependency>
 ```
-JAR-files:  
-https://oss.sonatype.org/content/repositories/releases/com/github/pengrad/java-telegram-bot-api/
+JAR-file:  
+[JAR with all dependencies on release page](https://github.com/pengrad/java-telegram-bot-api/releases)
 
 ## Contents
 
@@ -41,7 +42,9 @@ https://oss.sonatype.org/content/repositories/releases/com/github/pengrad/java-t
 - [Inline mode](#inline-mode)
   - [Inline query result](#inline-query-result)
   - [Answer inline query](#answer-inline-query)
+- [Payments](#payments)  
 - [Games](#games)
+- [Test Telegram Bot API](#test-telegram-bot-api)
 
 ## Creating your bot
 
@@ -75,6 +78,11 @@ bot.execute(request, new Callback() {
 });
 ```
 
+Request [in response to update](https://core.telegram.org/bots/faq#how-can-i-make-requests-in-response-to-updates)
+```java
+String response = request.toWebhookResponse();
+```
+
 ## Getting updates
 
 You can use **getUpdates** request, parse incoming **Webhook** request, or set listener to receive updates.  
@@ -97,6 +105,10 @@ Building request
 ```java
 GetUpdates getUpdates = new GetUpdates().limit(100).offset(0).timeout(0);
 ```
+
+The getUpdates method returns the earliest 100 unconfirmed updates. To confirm an update, use the offset parameter when calling getUpdates like this:
+`offset = updateId of last processed update + 1`  
+All updates with updateId less than offset will be marked as confirmed on the server and will no longer be returned.
 
 Executing
 ```java
@@ -369,6 +381,12 @@ EditMessageText editInlineMessageText = new EditMessageText(inlineMessageId, "ne
 BaseResponse response = bot.execute(editInlineMessageText);
 ```
 
+Delete message
+```java
+DeleteMessage deleteMessage = new DeleteMessage(chatId, messageId);
+BaseResponse response = bot.execute(deleteMessage);
+```
+
 ## Inline mode
 
 Getting updates
@@ -416,6 +434,45 @@ bot.execute(
 );
 ```
 
+### Payments
+
+Send invoice
+```java
+SendInvoice sendInvoice = new SendInvoice(chatId, "title", "desc", "my_payload",
+        "providerToken", "my_start_param", "USD", new LabeledPrice("label", 200))
+        .needPhoneNumber(true)
+        .needShippingAddress(true)
+        .isFlexible(true)
+        .replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton[]{
+                new InlineKeyboardButton("just pay").pay(),
+                new InlineKeyboardButton("google it").url("www.google.com")
+        }));
+SendResponse response = bot.execute(sendInvoice);
+```
+
+Answer shipping query
+```java
+AnswerShippingQuery answerShippingQuery = new AnswerShippingQuery(shippingQueryId,
+        new ShippingOption("1", "VNPT", new LabeledPrice("delivery", 100), new LabeledPrice("tips", 50)),
+        new ShippingOption("2", "FREE", new LabeledPrice("free delivery", 0))
+);
+BaseResponse response = bot.execute(answerShippingQuery);
+
+// answer with error
+AnswerShippingQuery answerShippingError = new AnswerShippingQuery(shippingQueryId, "Can't delivery to your address");
+BaseResponse response = bot.execute(answerShippingError);
+```
+
+Answer pre-checkout query
+```java
+AnswerPreCheckoutQuery answerCheckout = new AnswerPreCheckoutQuery(preCheckoutQueryId);
+BaseResponse response = bot.execute(answerPreCheckoutQuery);
+
+// answer with error
+AnswerPreCheckoutQuery answerCheckout = new AnswerPreCheckoutQuery(preCheckoutQueryId, "Sorry, item not available");
+BaseResponse response = bot.execute(answerPreCheckoutQuery);
+```
+
 ### Games
 
 Send game
@@ -433,3 +490,6 @@ Get game high scores
 GetGameHighScoresResponse response = bot.execute(new GetGameHighScores(userId, chatId, messageId));
 GameHighScore[] scores = response.result();
 ```
+
+### Test Telegram Bot API
+Test on [RapidAPI](https://rapidapi.com/package/TelegramBot/functions?utm_source=TelegramGitHub&utm_medium=button)

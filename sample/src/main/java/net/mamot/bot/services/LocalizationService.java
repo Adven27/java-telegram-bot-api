@@ -3,18 +3,15 @@ package net.mamot.bot.services;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 public class LocalizationService {
-    private final HashMap<String, String> supportedLanguages = new HashMap<>();
-
     private ResourceBundle english;
     private ResourceBundle russian;
 
-    private class CustomClassLoader extends ClassLoader {
+    private static class CustomClassLoader extends ClassLoader {
         public CustomClassLoader(ClassLoader parent) {
             super(parent);
 
@@ -46,9 +43,7 @@ public class LocalizationService {
     public LocalizationService() {
         CustomClassLoader loader = new CustomClassLoader(Thread.currentThread().getContextClassLoader());
         english = ResourceBundle.getBundle("localisation.strings", new Locale("en", "US"), loader);
-        supportedLanguages.put("en", "English");
         russian = ResourceBundle.getBundle("localisation.strings", new Locale("ru", "RU"), loader);
-        supportedLanguages.put("ru", "Russian");
     }
 
     /**

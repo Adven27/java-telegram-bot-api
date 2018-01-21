@@ -9,7 +9,7 @@ import java.util.Set;
 
 public class DebtsRepo {
     private final Map<Integer, Set<Debt>> user2Debts = new HashMap<>();
-    private final Repo repo = new PGSQLDataRepo();
+    //private final Repo repo = new PGSQLDataRepo();
 
 
     public void insert(int user, Debt debt) {

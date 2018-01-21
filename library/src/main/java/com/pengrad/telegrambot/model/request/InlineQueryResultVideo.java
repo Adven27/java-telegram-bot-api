@@ -1,10 +1,13 @@
 package com.pengrad.telegrambot.model.request;
 
+import java.io.Serializable;
+
 /**
  * stas
  * 1/12/16.
  */
-public class InlineQueryResultVideo extends InlineQueryResult<InlineQueryResultVideo> {
+public class InlineQueryResultVideo extends InlineQueryResult<InlineQueryResultVideo> implements Serializable {
+    private final static long serialVersionUID = 0L;
 
     public static final String MIME_TEXT_HTML = "text/html";
     public static final String MIME_VIDEO_MP4 = "video/mp4";
@@ -48,8 +51,9 @@ public class InlineQueryResultVideo extends InlineQueryResult<InlineQueryResultV
         return this;
     }
 
-    public void videoDuration(Integer videoDuration) {
+    public InlineQueryResultVideo videoDuration(Integer videoDuration) {
         this.video_duration = videoDuration;
+        return this;
     }
 
     public InlineQueryResultVideo description(String description) {

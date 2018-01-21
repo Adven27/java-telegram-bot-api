@@ -188,8 +188,8 @@ public class BotTester {
 
     private static Chat createChat() {
         Chat chat = new Chat();
-        chat.setType(Chat.Type.Private);
-        chat.setId(CHAT_ID);
+        chat.type(Chat.Type.Private);
+        chat.id(CHAT_ID);
         return chat;
     }
 

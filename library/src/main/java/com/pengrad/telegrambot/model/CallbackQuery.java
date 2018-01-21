@@ -1,10 +1,13 @@
 package com.pengrad.telegrambot.model;
 
+import java.io.Serializable;
+
 /**
  * Stas Parshin
  * 07 May 2016
  */
-public class CallbackQuery {
+public class CallbackQuery implements Serializable {
+    private final static long serialVersionUID = 0L;
 
     private String id;
     private User from;
@@ -77,8 +80,8 @@ public class CallbackQuery {
 
         CallbackQuery that = (CallbackQuery) o;
 
-        if (!id.equals(that.id)) return false;
-        if (!from.equals(that.from)) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (from != null ? !from.equals(that.from) : that.from != null) return false;
         if (message != null ? !message.equals(that.message) : that.message != null) return false;
         if (inline_message_id != null ? !inline_message_id.equals(that.inline_message_id) : that.inline_message_id != null)
             return false;

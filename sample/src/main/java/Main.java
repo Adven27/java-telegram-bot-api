@@ -58,6 +58,8 @@ public class Main {
 
     private static final int SBT_TEAM_CHAT_ID = parseInt(System.getenv("TEAM_CHAT"));
     private static final int CHAT_TO_REPOST = parseInt(System.getenv("REPOST_CHAT"));
+    private static final String TELEGRAM_TOKEN = System.getenv("TELEGRAM_TOKEN");
+    public static final String DATABASE_URL = System.getenv("DATABASE_URL");
 
     private static final SilencePeriod SILENCE_PERIOD = new SilencePeriod(LocalTime.of(22, 00), LocalTime.of(9, 30));
 
@@ -67,6 +69,7 @@ public class Main {
 
 
     public static void main(String[] args) {
+        final String token = TELEGRAM_TOKEN;
         new Main().run();
     }
 
@@ -97,7 +100,7 @@ public class Main {
                 new LightsCommand(new UpnpBridgeAdapter()),
                 new WeatherCommand(weather),
                 new TicTacToeCommand(),
-                new Game2048Command(new PGSQLGameRepo(), new LeaderBoardImpl(new PGSQLGameLeaderBoardRepo())),
+                new Game2048Command(new PGSQLGameRepo(DATABASE_URL), new LeaderBoardImpl(new PGSQLGameLeaderBoardRepo(DATABASE_URL))),
                 new AdviceCommand(new MessageFromURL(new AdviceResource(), new AdvicePrinter())),
                 new QuoteCommand(new MessageFromURL(new QuoteResource(), new QuotePrinter())),
                 new SupCommand(dao),
@@ -109,7 +112,8 @@ public class Main {
                 new TwitterGirlCommand(twitter),
                 new UncleBobCommand(new PreviewPrinter()),
                 new SexyGirlCommand(twitter),
-                new BeautifulGirlCommand()
+                new BeautifulGirlCommand(),
+                new RandomVideoNote()
         };
     }
 

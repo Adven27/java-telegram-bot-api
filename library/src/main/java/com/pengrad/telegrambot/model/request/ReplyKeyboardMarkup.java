@@ -1,12 +1,15 @@
 package com.pengrad.telegrambot.model.request;
 
+import java.io.Serializable;
+
 import static java.util.Arrays.copyOf;
 
 /**
  * stas
  * 8/4/15.
  */
-public class ReplyKeyboardMarkup extends Keyboard {
+public class ReplyKeyboardMarkup extends Keyboard implements Serializable {
+    private final static long serialVersionUID = 0L;
 
     private final KeyboardButton[][] keyboard;
     private boolean resize_keyboard;
