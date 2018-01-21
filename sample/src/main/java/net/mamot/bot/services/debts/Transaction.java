@@ -1,6 +1,6 @@
 package net.mamot.bot.services.debts;
 
-import net.mamot.bot.services.impl.Registry;
+import net.mamot.bot.services.impl.Injector;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -12,7 +12,7 @@ import static java.lang.Integer.parseInt;
 import static java.math.BigDecimal.ZERO;
 
 public class Transaction {
-    private DebtsRepo debtsRepo = (DebtsRepo) Registry.provide(DebtsRepo.class);
+    private DebtsRepo debtsRepo = (DebtsRepo) Injector.provide(DebtsRepo.class);
 
     private final int me;
     private String who;

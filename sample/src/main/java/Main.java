@@ -20,7 +20,7 @@ import net.mamot.bot.services.games.impl.PGSQLGameRepo;
 import net.mamot.bot.services.holidays.WeekendsHolidayService;
 import net.mamot.bot.services.impl.DAO;
 import net.mamot.bot.services.impl.MessageFromURL;
-import net.mamot.bot.services.impl.Registry;
+import net.mamot.bot.services.impl.Injector;
 import net.mamot.bot.services.joke.impl.JokePrinter;
 import net.mamot.bot.services.joke.impl.JokeResource;
 import net.mamot.bot.services.lights.impl.UpnpBridgeAdapter;
@@ -63,7 +63,7 @@ public class Main {
 
     private static final SilencePeriod SILENCE_PERIOD = new SilencePeriod(LocalTime.of(22, 00), LocalTime.of(9, 30));
 
-    private static final TwitterService twitter = (TwitterService) Registry.provide(TwitterService.class);
+    private static final TwitterService twitter = (TwitterService) Injector.provide(TwitterService.class);
     private static final int FEED_FETCH_LIMIT = 5;
 
     private static final long TWITTER_POLLING_DELAY = 1800000;
