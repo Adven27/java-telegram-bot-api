@@ -65,16 +65,14 @@ public class Main {
 
     private static final TwitterService twitter = (TwitterService) Registry.provide(TwitterService.class);
     private static final int FEED_FETCH_LIMIT = 5;
-    public static final long TWITTER_POLLING_DELAY = 1800000;
 
+    private static final long TWITTER_POLLING_DELAY = 1800000;
 
     public static void main(String[] args) {
-        final String token = TELEGRAM_TOKEN;
-        new Main().run();
+        new Main().run(TELEGRAM_TOKEN);
     }
 
-    private void run() {
-        final String token = System.getenv("TELEGRAM_TOKEN");
+    private void run(String token) {
         final boolean debug = parseBoolean(System.getenv("DEBUG"));
         final TelegramBot bot = debug ? buildDebug(token) : build(token);
         final UpdateHandler[] handlers = updateHandlers();
@@ -180,7 +178,7 @@ public class Main {
         return new DailyTask(
                 new FeedTask(
                         new AtomFeed(feed),
-                        new PGSQLFeedRepo(),
+                        new PGSQLFeedRepo(DATABASE_URL),
                         new PreviewPrinter(),
                         SBT_TEAM_CHAT_ID, FEED_FETCH_LIMIT,
                         bot),
