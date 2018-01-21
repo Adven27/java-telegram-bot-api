@@ -26,6 +26,7 @@ public class Message implements Serializable {
     private String author_signature;
     private String text;
     private MessageEntity[] entities;
+    private MessageEntity[] caption_entities;
     private Audio audio;
     private Document document;
     private Game game;
@@ -245,6 +246,10 @@ public class Message implements Serializable {
         return entities;
     }
 
+    public MessageEntity[] captionEntities() {
+        return caption_entities;
+    }
+
     public Audio audio() {
         return audio;
     }
@@ -380,6 +385,8 @@ public class Message implements Serializable {
         if (text != null ? !text.equals(message.text) : message.text != null) return false;
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
         if (!Arrays.equals(entities, message.entities)) return false;
+        // Probably incorrect - comparing Object[] arrays with Arrays.equals
+        if (!Arrays.equals(caption_entities, message.caption_entities)) return false;
         if (audio != null ? !audio.equals(message.audio) : message.audio != null) return false;
         if (document != null ? !document.equals(message.document) : message.document != null) return false;
         if (game != null ? !game.equals(message.game) : message.game != null) return false;
@@ -443,6 +450,7 @@ public class Message implements Serializable {
                 ", author_signature='" + author_signature + '\'' +
                 ", text='" + text + '\'' +
                 ", entities=" + Arrays.toString(entities) +
+                ", caption_entities=" + Arrays.toString(caption_entities) +
                 ", audio=" + audio +
                 ", document=" + document +
                 ", game=" + game +

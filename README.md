@@ -3,20 +3,20 @@
 [![Build Status](https://travis-ci.org/pengrad/java-telegram-bot-api.svg?branch=master)](https://travis-ci.org/pengrad/java-telegram-bot-api)
 [![codecov](https://codecov.io/gh/pengrad/java-telegram-bot-api/branch/master/graph/badge.svg)](https://codecov.io/gh/pengrad/java-telegram-bot-api)  
 
-Full support of all Bot API 3.2 methods with Payment and Gaming Platform
+Full support of all Bot API 3.5 methods with Payment and Gaming Platform
 
 ## Download
 
 Gradle:
 ```groovy
-compile 'com.github.pengrad:java-telegram-bot-api:3.3.0'
+compile 'com.github.pengrad:java-telegram-bot-api:3.5.2'
 ```
 Maven:
 ```xml
 <dependency>
   <groupId>com.github.pengrad</groupId>
   <artifactId>java-telegram-bot-api</artifactId>
-  <version>3.3.0</version>
+  <version>3.5.2</version>
 </dependency>
 ```
 JAR-file:  
@@ -49,12 +49,12 @@ JAR-file:
 ## Creating your bot
 
 ```java
-TelegramBot bot = TelegramBotAdapter.build("BOT_TOKEN");
+TelegramBot bot = new TelegramBot("BOT_TOKEN");
 ```
 Network operations based on OkHttp library.  
 You can build bot with custom OkHttpClient, for specific timeouts or interceptors.
 ```java
-TelegramBot bot = TelegramBotAdapter.buildCustom("BOT_TOKEN", okHttpClient);
+TelegramBot bot = new TelegramBot.Builder("BOT_TOKEN").okHttpClient(client).build();
 ```
 
 ## Making requests
@@ -338,14 +338,14 @@ class GetChatAdministratorsResponse  {
 GetChatMembersCount
 ```java
 class GetChatMembersCountResponse  { 
-  ChatMember chatMember() 
+  int count() 
 }
 ```
 
 GetChatMember
 ```java
 class GetChatMemberResponse  {
-  int count() 
+  ChatMember chatMember() 
 }
 ```
 
