@@ -59,7 +59,7 @@ public class Main {
     private static final int SBT_TEAM_CHAT_ID = parseInt(System.getenv("TEAM_CHAT"));
     private static final int CHAT_TO_REPOST = parseInt(System.getenv("REPOST_CHAT"));
     private static final String TELEGRAM_TOKEN = System.getenv("TELEGRAM_TOKEN");
-    public static final String DATABASE_URL = System.getenv("DATABASE_URL");
+    private static final String DATABASE_URL = System.getenv("DATABASE_URL");
 
     private static final SilencePeriod SILENCE_PERIOD = new SilencePeriod(LocalTime.of(22, 00), LocalTime.of(9, 30));
 
@@ -163,10 +163,11 @@ public class Main {
         tasks.add(twitterTask(bot, "razbor_poletov"));
 
         tasks.add(feedTask(bot, "http://blog.cleancoder.com/atom.xml"));
+        tasks.add(feedTask(bot, "https://martinfowler.com/feed.atom"));
         return tasks;
     }
 
-    private GentleTask twitterTask(TelegramBot bot, String twitterAccount) {
+    private TimerTask twitterTask(TelegramBot bot, String twitterAccount) {
         return new GentleTask(
                 new RepetitiveTask(
                         new TwitterTask(twitter, twitterAccount, SBT_TEAM_CHAT_ID, bot),
@@ -174,7 +175,7 @@ public class Main {
                 SILENCE_PERIOD);
     }
 
-    private DailyTask feedTask(TelegramBot bot, String feed) {
+    private TimerTask feedTask(TelegramBot bot, String feed) {
         return new DailyTask(
                 new FeedTask(
                         new AtomFeed(feed),
