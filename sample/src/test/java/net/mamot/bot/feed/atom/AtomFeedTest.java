@@ -5,6 +5,8 @@ import net.mamot.bot.feed.atom.AtomFeed.RetrieveFeedException;
 import org.testng.annotations.Test;
 
 import java.net.URL;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
@@ -40,7 +42,7 @@ public class AtomFeedTest {
     public void shouldGetRequestedNumberOfEntries() {
         sut = new AtomFeed(getExistingResource());
 
-        List<Entry> entries = sut.get(2);
+        Collection<Entry> entries = sut.get(2);
         assertNotNull(entries);
         assertEquals(entries.size(), 2);
     }
@@ -49,9 +51,10 @@ public class AtomFeedTest {
     public void shouldGetRequestedNumberOfLatestEntriesInChronologicalOrder() {
         sut = new AtomFeed(getExistingResource());
 
-        List<Entry> entries = sut.get(2);
-        assertEquals(entries.get(0).getId(), "prior");
-        assertEquals(entries.get(1).getId(), "latest");
+        Collection<Entry> entries = sut.get(2);
+        Iterator<Entry> iterator = entries.iterator();
+        assertEquals(iterator.next().getId(), "prior");
+        assertEquals(iterator.next().getId(), "latest");
     }
 
     @Test

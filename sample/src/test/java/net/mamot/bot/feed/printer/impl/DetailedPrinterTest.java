@@ -7,11 +7,11 @@ import java.util.Date;
 
 import static org.testng.Assert.assertEquals;
 
-public class ArticlePrinterTest {
+public class DetailedPrinterTest {
 
     @Test
     public void shouldPrintArticle() {
-        assertEquals(new ArticlePrinter().print(getEntry()), getEntryPreview());
+        assertEquals(new DetailedPrinter().print(getEntry()), getEntryPreview());
     }
 
     private Entry getEntry() {

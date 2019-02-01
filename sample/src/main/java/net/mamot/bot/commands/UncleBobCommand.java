@@ -9,7 +9,8 @@ import com.pengrad.telegrambot.response.SendResponse;
 import net.mamot.bot.feed.Entry;
 import net.mamot.bot.feed.Feed;
 import net.mamot.bot.feed.atom.AtomFeed;
-import net.mamot.bot.feed.printer.EntryPrinter;
+import net.mamot.bot.feed.printer.PublicationPrinter;
+import net.mamot.bot.publications.Publication;
 
 import static com.pengrad.telegrambot.model.request.ParseMode.HTML;
 import static com.pengrad.telegrambot.request.SendMessage.message;
@@ -25,9 +26,9 @@ public class UncleBobCommand extends MessageCommand {
 
     private static final String FEED_PATH = "http://blog.cleancoder.com/atom.xml";
 
-    private final EntryPrinter printer;
+    private final PublicationPrinter printer;
 
-    public UncleBobCommand(EntryPrinter printer) {
+    public UncleBobCommand(PublicationPrinter printer) {
         super(COMMAND, "Latest articles of Uncle Bob blog");
         this.printer = printer;
     }
@@ -51,13 +52,13 @@ public class UncleBobCommand extends MessageCommand {
         }
     }
 
-    private void sendNumberOfLatest(TelegramBot bot, Chat chat, Feed feed, int number) {
+    private void sendNumberOfLatest(TelegramBot bot, Chat chat, Feed<Publication> feed, int number) {
         bot.execute(sticker(chat, THINK.id()));
         feed.get(number).forEach(e -> sendArticle(bot, chat, e));
     }
 
-    private SendResponse sendArticle(TelegramBot bot, Chat chat, Entry e) {
-        return bot.execute(message(chat, printer.print(e)).parseMode(HTML).disableWebPagePreview(false));
+    private SendResponse sendArticle(TelegramBot bot, Chat chat, Publication publication) {
+        return bot.execute(message(chat, printer.print(publication)).parseMode(HTML).disableWebPagePreview(false));
     }
 
     private void sendLatest(TelegramBot bot, Chat chat, Feed feed) {

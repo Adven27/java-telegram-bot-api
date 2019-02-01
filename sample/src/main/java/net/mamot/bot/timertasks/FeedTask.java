@@ -4,10 +4,10 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.logging.BotLogger;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SendSticker;
-import net.mamot.bot.feed.Entry;
 import net.mamot.bot.feed.Feed;
 import net.mamot.bot.feed.atom.AtomFeed.RetrieveFeedException;
-import net.mamot.bot.feed.printer.EntryPrinter;
+import net.mamot.bot.feed.printer.PublicationPrinter;
+import net.mamot.bot.publications.Publication;
 import net.mamot.bot.services.impl.PGSQLRepo;
 import net.mamot.bot.timertasks.Task.BotTask;
 
@@ -19,16 +19,16 @@ import java.util.Set;
 import static com.pengrad.telegrambot.model.request.ParseMode.HTML;
 import static net.mamot.bot.services.Stickers.THINK;
 
-public class FeedTask extends BotTask {
+public class FeedTask extends BotTask {//TODO: Remove BotTask extension.
 
     private final int subscriber;
-    private final EntryPrinter printer;
+    private final PublicationPrinter printer;
 
-    private final Feed feed;
+    private final Feed<Publication> feed;
     private final FeedRepo repo;
     private final int fetchLimit;
 
-    public FeedTask(Feed feed, FeedRepo repo, EntryPrinter printer, int subscriber, int fetchLimit, TelegramBot bot) {
+    public FeedTask(Feed<Publication> feed, FeedRepo repo, PublicationPrinter printer, int subscriber, int fetchLimit, TelegramBot bot/*Consumer instead of bot*/) {
         super(bot);
         this.subscriber = subscriber;
         this.printer = printer;
@@ -41,10 +41,10 @@ public class FeedTask extends BotTask {
     @Override
     public void execute() {
         try {
-            for (Entry entry : feed.get(fetchLimit)) {
-                if (!isPosted(entry)) {
-                    post(entry);
-                    setPosted(entry);
+            for (Publication publication : feed.get(fetchLimit)) {
+                if (!isPosted(publication)) {
+                    post(publication);
+                    setPosted(publication);
                 }
             }
         } catch (RetrieveFeedException e) {
@@ -57,37 +57,37 @@ public class FeedTask extends BotTask {
         return "Feed polling task: " + feed.getUrl().getHost();
     }
 
-    private void post(Entry entry) {
+    private void post(Publication publication) {
         bot.execute(new SendSticker(subscriber, THINK.id()));
-        bot.execute(new SendMessage(subscriber, printer.print(entry)).parseMode(HTML).disableWebPagePreview(false));
+        bot.execute(new SendMessage(subscriber, printer.print(publication)).parseMode(HTML).disableWebPagePreview(false));
     }
 
-    private boolean isPosted(Entry entry) {
-        return repo.isPosted(feed.getUrl().getHost(), entry.getId());
+    private boolean isPosted(Publication publication) {
+        return repo.isPosted(feed.getUrl().getHost(), publication);
     }
 
-    private void setPosted(Entry entry) {
-        repo.setPosted(feed.getUrl().getHost(), entry.getId());
+    private void setPosted(Publication publication) {
+        repo.setPosted(feed.getUrl().getHost(), publication);
     }
 
     public interface FeedRepo {
-        boolean isPosted(String url, String id);
+        boolean isPosted(String url, Publication publication);
 
-        void setPosted(String url, String id);
+        void setPosted(String url, Publication publication);
     }
 
     public static class InMemoryFeedRepo implements FeedRepo {
 
         private Map<String, Set<String>> storage = new HashMap<>();
 
-        public boolean isPosted(String url, String id) {
+        public boolean isPosted(String url, Publication publication) {
             Set<String> feed = storage.get(url);
-            return feed != null && feed.contains(id);
+            return feed != null && feed.contains(publication.getId());
         }
 
-        public void setPosted(String url, String id) {
+        public void setPosted(String url, Publication publication) {
             Set<String> feed = storage.computeIfAbsent(url, v -> new HashSet<>());
-            feed.add(id);
+            feed.add(publication.getId());
         }
     }
 
@@ -98,13 +98,13 @@ public class FeedTask extends BotTask {
         }
 
         @Override
-        public boolean isPosted(String url, String id) {
-            return exists(getUniqueURL(url, id), id);
+        public boolean isPosted(String url, Publication publication) {
+            return exists(getUniqueURL(url, publication.getId()), publication.getId());
         }
 
         @Override
-        public void setPosted(String url, String id) {
-            insert(getUniqueURL(url, id), id);
+        public void setPosted(String url, Publication publication) {
+            insert(getUniqueURL(url, publication.getId()), publication.getId());
         }
 
         private String getUniqueURL(String url, String id) {

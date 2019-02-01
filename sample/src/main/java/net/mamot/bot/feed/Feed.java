@@ -1,13 +1,10 @@
 package net.mamot.bot.feed;
 
+import net.mamot.bot.publications.Publication;
+import net.mamot.bot.publications.PublicationsSource;
+
 import java.net.URL;
-import java.util.List;
 
-public interface Feed extends Iterable<Entry> {
-
+public interface Feed<T extends Publication> extends PublicationsSource<T> {
     URL getUrl();
-
-    Entry get();
-
-    List<Entry> get(int number);
 }

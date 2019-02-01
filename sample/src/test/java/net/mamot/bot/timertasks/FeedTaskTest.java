@@ -3,7 +3,7 @@ package net.mamot.bot.timertasks;
 import com.pengrad.telegrambot.TelegramBot;
 import net.mamot.bot.feed.Entry;
 import net.mamot.bot.feed.Feed;
-import net.mamot.bot.feed.printer.EntryPrinter;
+import net.mamot.bot.feed.printer.PublicationPrinter;
 import net.mamot.bot.timertasks.FeedTask.FeedRepo;
 import org.mockito.ArgumentMatcher;
 import org.mockito.InOrder;
@@ -27,9 +27,9 @@ public class FeedTaskTest {
     @Mock
     private FeedRepo repo;
     @Mock
-    private EntryPrinter printer;
+    private PublicationPrinter printer;
     @Mock
-    private Feed feed;
+    private Feed<Entry> feed;
 
     private FeedTask sut;
 
@@ -87,13 +87,7 @@ public class FeedTaskTest {
     }
 
     private ArgumentMatcher<Entry> entryWithId(String id) {
-
-        return new ArgumentMatcher<Entry>() {
-            @Override
-            public boolean matches(Object actual) {
-                return id.equals(((Entry) actual).getId());
-            }
-        };
+        return actual -> id.equals(actual.getId());
     }
 
     private List<Entry> getFeedEntries() {

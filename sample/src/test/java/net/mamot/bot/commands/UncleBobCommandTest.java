@@ -1,7 +1,7 @@
 package net.mamot.bot.commands;
 
 import net.mamot.bot.feed.Entry;
-import net.mamot.bot.feed.printer.EntryPrinter;
+import net.mamot.bot.feed.printer.PublicationPrinter;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -23,7 +23,7 @@ public class UncleBobCommandTest {
 
     @BeforeMethod
     public void setUp() {
-        EntryPrinter printer = mock(EntryPrinter.class);
+        PublicationPrinter printer = mock(PublicationPrinter.class);
         when(printer.print(any(Entry.class))).thenReturn(MESSAGE + "1", MESSAGE + "2", MESSAGE + "3");
 
         sut = new UncleBobCommand(printer);

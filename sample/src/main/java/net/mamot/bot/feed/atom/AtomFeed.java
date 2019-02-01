@@ -10,12 +10,9 @@ import net.mamot.bot.feed.Feed;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
-public class AtomFeed implements Feed {
+public class AtomFeed implements Feed<Entry> {
 
     private static final int SINGLE = 0;
 
@@ -49,7 +46,7 @@ public class AtomFeed implements Feed {
     }
 
     @Override
-    public List<Entry> get(int number) {
+    public Collection<Entry> get(int number) {
         if (number < 1) {
             throw new IllegalArgumentException("Number of requested entries should be greater than zero.");
         }
