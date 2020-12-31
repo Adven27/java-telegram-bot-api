@@ -7,9 +7,6 @@ import java.time.LocalTime;
 import static net.mamot.bot.services.Stickers.*;
 
 public enum Events {
-    EVENING("В бардак???", DRINK, LocalTime.parse("19:00:00")),
-    LUNCH("Обед!!!", EAT, LocalTime.parse("13:00:00")),
-    TEA("Чай!!!", DRINK, LocalTime.parse("17:00:00")),
     MORNING("На работу!!!", RUN, LocalTime.parse("09:00:00"));
 
     private final String msg;

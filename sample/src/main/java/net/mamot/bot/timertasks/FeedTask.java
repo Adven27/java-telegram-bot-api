@@ -21,14 +21,14 @@ import static net.mamot.bot.services.Stickers.THINK;
 
 public class FeedTask extends BotTask {
 
-    private final int subscriber;
+    private final long subscriber;
     private final EntryPrinter printer;
 
     private final Feed feed;
     private final FeedRepo repo;
     private final int fetchLimit;
 
-    public FeedTask(Feed feed, FeedRepo repo, EntryPrinter printer, int subscriber, int fetchLimit, TelegramBot bot) {
+    public FeedTask(Feed feed, FeedRepo repo, EntryPrinter printer, long subscriber, int fetchLimit, TelegramBot bot) {
         super(bot);
         this.subscriber = subscriber;
         this.printer = printer;

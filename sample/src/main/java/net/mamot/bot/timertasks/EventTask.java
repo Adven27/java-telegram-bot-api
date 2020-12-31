@@ -7,9 +7,9 @@ import com.pengrad.telegrambot.request.SendSticker;
 public class EventTask extends Task.BotTask {
 
     private final Events event;
-    private final int chat;
+    private final long chat;
 
-    public EventTask(Events event, int chat, TelegramBot bot) {
+    public EventTask(Events event, long chat, TelegramBot bot) {
         super(bot);
         this.event = event;
         this.chat = chat;

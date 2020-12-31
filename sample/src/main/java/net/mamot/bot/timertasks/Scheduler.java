@@ -1,20 +1,21 @@
 package net.mamot.bot.timertasks;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.support.CronTrigger;
+import org.springframework.scheduling.support.PeriodicTrigger;
 
 import static com.pengrad.telegrambot.logging.BotLogger.severe;
-import static com.pengrad.telegrambot.logging.BotLogger.warn;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 
 public class Scheduler {
     private static final String LOGTAG = "Scheduler";
-    private static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+    private static final ThreadPoolTaskScheduler executorService = new ThreadPoolTaskScheduler();
 
     private static volatile Scheduler instance;
 
     private Scheduler() {
+        executorService.initialize();
     }
 
     public static Scheduler getInstance() {
@@ -36,24 +37,28 @@ public class Scheduler {
     public void schedule(TimerTask task) {
         if (task.getTimes() != 0) {
             long delay = task.computeDelay();
-            executorService.schedule(getWrapped(task), delay, MILLISECONDS);
+            executorService.schedule(getWrapped(task), new PeriodicTrigger(delay, MILLISECONDS));
         }
+    }
+
+    public void schedule(Task task, String cron) {
+        executorService.schedule(task::execute, new CronTrigger(cron));
     }
 
     private Runnable getWrapped(TimerTask task) {
         return () -> {
-                try {
-                    task.execute();
-                    task.reduceTimes();
-                    schedule(task);
-                } catch (Exception e) {
-                    severe(LOGTAG, "Bot threw an unexpected exception at Scheduler", e);
-                }
-            };
+            try {
+                task.execute();
+                task.reduceTimes();
+                schedule(task);
+            } catch (Exception e) {
+                severe(LOGTAG, "Bot threw an unexpected exception at Scheduler", e);
+            }
+        };
     }
 
     public void stop() {
-        warn(LOGTAG, "Rejected tasks: " + executorService.shutdownNow().size());
+        executorService.shutdown();
     }
 
     @Override

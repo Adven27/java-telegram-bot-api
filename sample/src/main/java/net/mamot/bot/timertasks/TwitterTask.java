@@ -15,9 +15,9 @@ public class TwitterTask extends BotTask {
 
     private final TwitterService twitter;
     private final String twitterName;
-    private final int subscriber;
+    private final long subscriber;
 
-    public TwitterTask(TwitterService twitter, String twitterName, int subscriber, TelegramBot bot) {
+    public TwitterTask(TwitterService twitter, String twitterName, long subscriber, TelegramBot bot) {
         super(bot);
         this.twitter = twitter;
         this.twitterName = twitterName;
