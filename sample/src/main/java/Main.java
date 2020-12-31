@@ -78,6 +78,8 @@ public class Main {
     private static final long SBT_TEAM_CHAT_ID = parseLong(System.getenv("TEAM_CHAT"));
     private static final long CHAT_TO_REPOST = parseLong(System.getenv("REPOST_CHAT"));
     private static final String NY_CRON = System.getenv("NY_CRON") != null ? System.getenv("NY_CRON") : "0 0 0 01 01 ?";
+    private static final String NY_CAPTION = System.getenv("NY_CAPTION");
+    private static final String NY_PHOTO = System.getenv("NY_PHOTO");
     private static final String TELEGRAM_TOKEN = System.getenv("TELEGRAM_TOKEN");
     private static final String DATABASE_URL = System.getenv("DATABASE_URL");
 
@@ -110,8 +112,8 @@ public class Main {
                 @Override
                 public void execute() {
                     bot.execute(new SendSticker(SBT_TEAM_CHAT_ID, Stickers.DANCE.id()));
-                    bot.execute(new SendPhoto(SBT_TEAM_CHAT_ID, "AgACAgIAAxkBAAJif1_t0NcwuuMEusZ4TVjin8kB0XugAAJ-sDEb0LBwS_b_bYQM5FwYG2RQmC4AAwEAAwIAA3kAA-kTBQABHgQ")
-                        .caption("С Новым Годом человеки! Люблю вас! \nВаш Мамот"));
+                    bot.execute(new SendPhoto(SBT_TEAM_CHAT_ID, NY_PHOTO)
+                        .caption(NY_CAPTION));
                 }
 
                 @Override
